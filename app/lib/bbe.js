@@ -479,8 +479,9 @@ class BigBangEmpire {
           console.log('Movie finished');
           console.log(Object.keys(data.data));
 
+          _.assign(this.userInfo.user, data.data.user);
           _.assign(this.userInfo.character, data.data.character);
-          _.assign(this.userInfo.inventory, data.data.inventory);
+          _.assign(this.userInfo.current_goal_values, data.data.current_goal_values);
 
           delete this.userInfo.movie;
           delete this.userInfo.movie_quests;
