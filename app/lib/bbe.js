@@ -21,6 +21,7 @@ class BigBangEmpire {
     };
 
     this.initGame()
+      .then(() => { console.log('Init complete'); })
       .then(() => this.initSyncGame())
       .catch((err) => {
         console.error(err);
@@ -336,6 +337,8 @@ class BigBangEmpire {
         return data;
       })
       .then((data) => {
+        console.log(data.data);
+
         console.log(`You ${data.data.battle.winner === 'a' ? 'won' : 'lost'} the duel!`);
 
         _.assign(this.userInfo.user, data.data.user);
