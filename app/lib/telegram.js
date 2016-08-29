@@ -1,5 +1,6 @@
 'use strict';
 
+const numeral = require('numeral');
 const TelegramBot = require('node-telegram-bot-api');
 
 class BigBangEmpireTelegram {
@@ -42,15 +43,16 @@ class BigBangEmpireTelegram {
 
       let message = `${this.bbe.userInfo.character.name}
 - lvl ${this.bbe.userInfo.character.level}
-- $${this.bbe.userInfo.character.game_currency}
+- ${numeral(this.bbe.userInfo.character.game_currency).format('$ 0,0')}
 - ${this.bbe.userInfo.user.premium_currency} gems
-- ${this.bbe.userInfo.character.honor} honor
-- ${this.bbe.userInfo.character.fans} fans`;
+- ${numeral(this.bbe.userInfo.character.honor).format('0,0')} honor
+- ${numeral(this.bbe.userInfo.character.fans).format('0.00a')} fans`;
 
       if (this.bbe.userInfo.movie) {
         message += `\n- movie: ${
-          Math.round(this.bbe.userInfo.movie.energy / this.bbe.userInfo.movie.needed)
-        }%`;
+          numeral(this.bbe.userInfo.movie.energy / this.bbe.userInfo.movie.needed_energy)
+            .format('0%')
+        }`;
       }
 
       this.bot.sendMessage(chatId, message);
