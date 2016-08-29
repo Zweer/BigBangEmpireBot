@@ -3,6 +3,7 @@
 const _ = require('lodash');
 const uuid = require('node-uuid');
 const crypto = require('crypto');
+const moment = require('moment');
 const request = require('request-promise');
 
 class BigBangEmpire {
@@ -20,12 +21,26 @@ class BigBangEmpire {
       3: 'stat',
     };
 
+    this.log('Init started');
     this.initGame()
-      .then(() => { console.log('Init complete'); })
+      .then(() => { this.log('Init complete'); })
       .then(() => this.initSyncGame())
       .catch((err) => {
-        console.error(err);
+        this.log(err);
       });
+  }
+
+  log(msg, what) {
+    const time = moment().format('HH:mm:ss');
+    const msgWhat = what ? ` - [${what}]` : '';
+
+    if (typeof msg !== 'string') {
+      console.log(msg);
+
+      return;
+    }
+
+    console.log(`${time}${msgWhat} - ${msg}`);
   }
 
   makeAction(action, form = {}) {
@@ -93,7 +108,7 @@ class BigBangEmpire {
         this.userInfo = data.data;
 
         if (typeof this.userInfo.user === 'undefined') {
-          console.error('Invalid credentials');
+          this.log('Invalid credentials');
 
           process.exit(1);
         }
@@ -132,7 +147,7 @@ class BigBangEmpire {
     _.merge(this.userInfo, data);
 
     return Promise.all([])
-      // .then(() => { console.log('started'); })
+      // .then(() => { this.log('started'); })
       .then(() => this.handleCurrentQuest())
       .then(() => this.handleBuyEnergy())
       .then(() => this.handleQuest())
@@ -142,9 +157,9 @@ class BigBangEmpire {
       .then(() => this.handleMovie())
       .then(() => this.handleMovieStar())
       .then(() => this.handleWork())
-      // .then(() => { console.log('completed'); })
+      // .then(() => { this.log('completed'); })
       .catch((err) => {
-        console.log(err);
+        this.log(err);
       });
   }
 
@@ -199,7 +214,7 @@ class BigBangEmpire {
       return true;
     }
 
-    console.log(`You have quest energy: ${this.userInfo.character.quest_energy}`);
+    this.log(`You have quest energy: ${this.userInfo.character.quest_energy}`);
 
     let quest;
 
@@ -256,14 +271,14 @@ class BigBangEmpire {
       startingString += '\n- with an item';
     }
 
-    console.log(startingString);
+    this.log(startingString);
 
     return this.makeAction('startQuest', {
       quest_id: quest.id,
     })
       .then((data) => {
         if (data.error) {
-          console.error(data.error);
+          this.log(data.error);
 
           return data;
         }
@@ -279,7 +294,7 @@ class BigBangEmpire {
       return true;
     }
 
-    console.log(`You have enough duel stamina: ${this.userInfo.character.duel_stamina}`);
+    this.log(`You have enough duel stamina: ${this.userInfo.character.duel_stamina}`);
 
     return this.makeAction('getDuelOpponents')
       .then((data) => {
@@ -316,7 +331,7 @@ class BigBangEmpire {
   }
 
   makeDuel(opponent) {
-    console.log(`Starting a duel with ${opponent.name}`);
+    this.log(`Starting a duel with ${opponent.name}`);
 
     return this.makeAction('startDuel', {
       character_id: opponent.id,
@@ -337,9 +352,9 @@ class BigBangEmpire {
         return data;
       })
       .then((data) => {
-        console.log(data.data);
+        this.log(data.data);
 
-        console.log(`You ${data.data.battle.winner === 'a' ? 'won' : 'lost'} the duel!`);
+        this.log(`You ${data.data.battle.winner === 'a' ? 'won' : 'lost'} the duel!`);
 
         _.assign(this.userInfo.user, data.data.user);
         _.assign(this.userInfo.character, data.data.character);
@@ -359,7 +374,7 @@ class BigBangEmpire {
         return true;
       })
       .catch((err) => {
-        console.log(err);
+        this.log(err);
       });
   }
 
@@ -369,7 +384,7 @@ class BigBangEmpire {
     }
 
     const duels = this.userInfo.missed_duels === 1 ? 'duel' : 'duels';
-    console.log(`You have missed ${this.userInfo.missed_duels} ${duels}`);
+    this.log(`You have missed ${this.userInfo.missed_duels} ${duels}`);
 
     return this.makeAction('getMissedDuelsNew', {
       history: false,
@@ -380,7 +395,7 @@ class BigBangEmpire {
 
           // eslint-disable-next-line no-param-reassign
           duel.character_b_rewards = JSON.parse(duel.character_b_rewards);
-          console.log(`Missed duel: ${wonOrLost}, ${duel.character_b_rewards.honor} honor`);
+          this.log(`Missed duel: ${wonOrLost}, ${duel.character_b_rewards.honor} honor`);
         });
 
         _.assign(this.userInfo.user, data.data.user);
@@ -395,7 +410,7 @@ class BigBangEmpire {
       return true;
     }
 
-    console.log('Choosing the next movie');
+    this.log('Choosing the next movie');
 
     const movies = this.userInfo.movies.sort((a, b) => {
       if (a.fans > b.fans) {
@@ -448,7 +463,7 @@ class BigBangEmpire {
   }
 
   makeMovieQuest(quest) {
-    console.log(`Starting a movie quest: ${quest.rewards.movie_progress} reward`);
+    this.log(`Starting a movie quest: ${quest.rewards.movie_progress} reward`);
 
     this.makeAction('startMovieQuest', {
       movie_quest_id: quest.id,
@@ -486,7 +501,7 @@ class BigBangEmpire {
       return this.makeMovieStar()
         .then(() => this.makeAction('finishMovie'))
         .then((data) => {
-          console.log('Movie finished');
+          this.log('Movie finished');
 
           _.assign(this.userInfo.user, data.data.user);
           _.assign(this.userInfo.character, data.data.character);
