@@ -290,7 +290,7 @@ class BigBangEmpire {
           character.stat_total_critical_rating +
           character.stat_total_dodge_rating;
 
-        let opponent = {};
+        let opponent;
 
         opponents.every((tmpOpponent) => {
           if (myTotal > tmpOpponent.total_stats) {
@@ -301,6 +301,10 @@ class BigBangEmpire {
 
           return true;
         });
+
+        if (!opponent) {
+          opponent = opponents.pop();
+        }
 
         if (opponent) {
           return this.makeDuel(opponent);
@@ -323,10 +327,10 @@ class BigBangEmpire {
             .then(() => this.makeAction('claimDuelRewards', {
               discard_item: false,
             }))
-            .then(() => this.makeAction('startDuel', {
-              character_id: opponent.id,
-              use_premium: false,
-            }));
+            .then(() => this.makeDuel(opponent))
+            .then(() => {
+              throw new Error('Just kidding');
+            });
         }
 
         return data;
@@ -350,6 +354,9 @@ class BigBangEmpire {
         _.assign(this.userInfo.current_goal_values, data.data.current_goal_values);
 
         return true;
+      })
+      .catch((err) => {
+        console.log(err);
       });
   }
 
@@ -477,10 +484,10 @@ class BigBangEmpire {
         .then(() => this.makeAction('finishMovie'))
         .then((data) => {
           console.log('Movie finished');
-          console.log(Object.keys(data.data));
 
           _.assign(this.userInfo.user, data.data.user);
           _.assign(this.userInfo.character, data.data.character);
+          _.assign(this.userInfo.guild, data.data.guild);
           _.assign(this.userInfo.current_goal_values, data.data.current_goal_values);
 
           delete this.userInfo.movie;

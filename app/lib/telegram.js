@@ -46,13 +46,19 @@ class BigBangEmpireTelegram {
 - ${numeral(this.bbe.userInfo.character.game_currency).format('$ 0,0')}
 - ${this.bbe.userInfo.user.premium_currency} gems
 - ${numeral(this.bbe.userInfo.character.honor).format('0,0')} honor
-- ${numeral(this.bbe.userInfo.character.fans).format('0.00a')} fans`;
+- ${numeral(this.bbe.userInfo.character.fans).format('0.00a')} fans
+--------------------
+- energy: ${this.bbe.userInfo.character.quest_energy} + ${
+  200 - this.bbe.userInfo.character.quest_energy_refill_amount_today}
+- stamina: ${this.bbe.userInfo.character.duel_stamina} / ${
+  this.bbe.userInfo.character.max_duel_stamina} (${this.bbe.userInfo.character.duel_stamina_cost})`;
 
       if (this.bbe.userInfo.movie) {
-        message += `\n- movie: ${
-          numeral(this.bbe.userInfo.movie.energy / this.bbe.userInfo.movie.needed_energy)
-            .format('0%')
-        }`;
+        message += `
+--------------------
+- movie: ${numeral(this.bbe.userInfo.movie.energy / this.bbe.userInfo.movie.needed_energy)
+            .format('0%')}
+- movie energy: ${this.bbe.userInfo.character.movie_energy}`;
       }
 
       this.bot.sendMessage(chatId, message);
