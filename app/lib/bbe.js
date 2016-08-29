@@ -4,6 +4,7 @@ const _ = require('lodash');
 const uuid = require('node-uuid');
 const crypto = require('crypto');
 const moment = require('moment');
+const numeral = require('numeral');
 const request = require('request-promise');
 
 class BigBangEmpire {
@@ -352,9 +353,20 @@ class BigBangEmpire {
         return data;
       })
       .then((data) => {
-        this.log(data.data);
+        const reward = JSON.parse(data.data.duel.character_a_rewards);
+        const wonOrLost = data.data.battle.winner === 'a' ? 'won' : 'lost';
+        let addendum = '';
 
-        this.log(`You ${data.data.battle.winner === 'a' ? 'won' : 'lost'} the duel!`);
+        if (reward.premium) {
+          addendum += `, ${reward.premium} gems`;
+        }
+
+        if (reward.item) {
+          addendum += `, ${reward.item} item`;
+        }
+
+        this.log(`You ${wonOrLost} the duel! ${
+          numeral(reward.honor).format('+0')} honor${addendum}`);
 
         _.assign(this.userInfo.user, data.data.user);
         _.assign(this.userInfo.character, data.data.character);
