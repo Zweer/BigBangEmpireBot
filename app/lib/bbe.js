@@ -26,7 +26,7 @@ class BigBangEmpire {
 
     this.log('Init started');
     this.initGame()
-      .then(() => { this.log('Init complete'); })
+      .then(() => { this.log('Init completed'); })
       .then(() => this.initSyncGame())
       .catch((err) => {
         this.log(err);
