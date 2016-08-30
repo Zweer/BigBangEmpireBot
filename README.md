@@ -12,6 +12,6 @@
 - [ ] auto request batteries
 - [ ] auto give batteries
 - [ ] telegram -> % lvl
-- [ ] telegram -> ranking
+- [x] telegram -> ranking
 - [x] telegram -> compress numbers (1.45m)
 - [ ] movies -> can't initialize
