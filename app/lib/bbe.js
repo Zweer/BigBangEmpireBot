@@ -161,6 +161,8 @@ class BigBangEmpire {
       .then(() => this.handleMovie())
       .then(() => this.handleMovieStar())
       .then(() => this.handleWork())
+
+      .then(() => this.retrieveRanking())
       // .then(() => { this.log('completed'); })
       .catch((err) => {
         this.log(err);
@@ -580,6 +582,29 @@ class BigBangEmpire {
     }
 
     return true;
+  }
+
+  retrieveRanking() {
+    return this.makeAction('retrieveLeaderboard', {
+      sort_type: 1,
+    })
+      .then((data) => {
+        this.rankHonor = data.data.centered_rank;
+
+        return this.makeAction('retrieveLeaderboard', {
+          sort_type: 2,
+        });
+      })
+      .then((data) => {
+        this.rankLevel = data.data.centered_rank;
+
+        return this.makeAction('retrieveLeaderboard', {
+          sort_type: 3,
+        });
+      })
+      .then((data) => {
+        this.rankFans = data.data.centered_rank;
+      });
   }
 }
 

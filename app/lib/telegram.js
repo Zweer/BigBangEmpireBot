@@ -42,11 +42,11 @@ class BigBangEmpireTelegram {
       const chatId = msg.chat.id;
 
       let message = `${this.bbe.userInfo.character.name}
-- lvl ${this.bbe.userInfo.character.level}
+- lvl ${this.bbe.userInfo.character.level} (${this.bbe.rankLevel}°)
 - ${numeral(this.bbe.userInfo.character.game_currency).format('$ 0,0')}
 - ${this.bbe.userInfo.user.premium_currency} gems
-- ${numeral(this.bbe.userInfo.character.honor).format('0,0')} honor
-- ${numeral(this.bbe.userInfo.character.fans).format('0.00a')} fans
+- ${numeral(this.bbe.userInfo.character.honor).format('0,0')} honor (${this.bbe.rankHonor}°)
+- ${numeral(this.bbe.userInfo.character.fans).format('0.00a')} fans (${this.bbe.rankFans}°)
 --------------------
 - energy: ${this.bbe.userInfo.character.quest_energy} + ${
   200 - this.bbe.userInfo.character.quest_energy_refill_amount_today}
