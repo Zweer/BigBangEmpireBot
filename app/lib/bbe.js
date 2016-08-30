@@ -569,18 +569,7 @@ class BigBangEmpire {
 
     this.makeAction('startMovieQuest', {
       movie_quest_id: quest.id,
-    })
-      .then((data) => { console.log(data); })
-      .then(() => this.makeAction('claimMovieQuestRewards'))
-      .then((data) => {
-        _.assign(this.userInfo.character, data.data.character);
-        _.assign(this.userInfo.movie, data.data.movie);
-        _.assign(this.userInfo.inventory, data.data.inventory);
-
-        this.userInfo.movie_quests = data.data.movie_quests;
-
-        return true;
-      });
+    });
   }
 
   handleMovieStar() {
