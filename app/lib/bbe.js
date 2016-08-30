@@ -22,6 +22,8 @@ class BigBangEmpire {
       3: 'stat',
     };
 
+    this.canDuel = true;
+
     this.log('Init started');
     this.initGame()
       .then(() => { this.log('Init complete'); })
@@ -149,6 +151,7 @@ class BigBangEmpire {
 
     return Promise.all([])
       // .then(() => { this.log('started'); })
+      .then(() => this.handleInventory())
       .then(() => this.handleCurrentQuest())
       .then(() => this.handleBuyEnergy())
       .then(() => this.handleQuest())
@@ -162,6 +165,25 @@ class BigBangEmpire {
       .catch((err) => {
         this.log(err);
       });
+  }
+
+  handleInventory() {
+    if (this.userInfo.inventory.missiles_item_id === 0) {
+      this.canDuel = false;
+      this.log('NO MORE MISSILES!!!!!!!');
+    }
+
+    let inventoryFull = true;
+    _.forIn(this.userInfo.inventory, (value, key) => {
+      if (key.substr(0, 8) === 'bag_item' && value === 0) {
+        inventoryFull = false;
+      }
+    });
+
+    if (inventoryFull) {
+      this.canDuel = false;
+      this.log('INVENTORY FULL!!!!!!!');
+    }
   }
 
   handleCurrentQuest() {
@@ -291,7 +313,9 @@ class BigBangEmpire {
   }
 
   handleDuel() {
-    if (this.userInfo.character.duel_stamina < this.userInfo.character.duel_stamina_cost) {
+    if (this.userInfo.character.duel_stamina < this.userInfo.character.duel_stamina_cost
+        &&
+        this.canDuel) {
       return true;
     }
 
@@ -384,9 +408,6 @@ class BigBangEmpire {
         _.assign(this.userInfo.current_goal_values, data.data.current_goal_values);
 
         return true;
-      })
-      .catch((err) => {
-        this.log(err);
       });
   }
 
