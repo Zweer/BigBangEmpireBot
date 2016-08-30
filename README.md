@@ -3,7 +3,9 @@
 ## TODO
 
 - [ ] new level -> adjust skills
-- [ ] inventory check
+- [x] inventory check
+- [ ] inventory check -> sell useless items
+- [ ] shop -> buy better items
 - [ ] quest -> movie award vote
 - [ ] conventions
 - [ ] parties
