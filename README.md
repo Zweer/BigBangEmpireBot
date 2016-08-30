@@ -6,7 +6,7 @@
 - [x] inventory check
 - [ ] inventory check -> sell useless items
 - [ ] shop -> buy better items
-- [ ] quest -> movie award vote
+- [x] quest -> movie award vote
 - [ ] conventions
 - [ ] parties
 - [ ] auto request batteries
@@ -14,4 +14,4 @@
 - [ ] telegram -> % lvl
 - [x] telegram -> ranking
 - [x] telegram -> compress numbers (1.45m)
-- [ ] movies -> can't initialize
+- [x] movies -> can't initialize

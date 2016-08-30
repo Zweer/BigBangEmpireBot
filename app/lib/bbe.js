@@ -150,13 +150,16 @@ class BigBangEmpire {
     _.merge(this.userInfo, data);
 
     return Promise.all([])
-      // .then(() => { this.log('started'); })
+      // .then(() => { this.log('sync'); })
       .then(() => this.handleInventory())
       .then(() => this.handleCurrentQuest())
+      .then(() => this.handleCurrentMovieQuest())
+      .then(() => this.handleMovieVotes())
       .then(() => this.handleBuyEnergy())
       .then(() => this.handleQuest())
       .then(() => this.handleDuel())
       .then(() => this.handleMissedDuels())
+      .then(() => this.handleMovieRefresh())
       .then(() => this.handleMovieChoice())
       .then(() => this.handleMovie())
       .then(() => this.handleMovieStar())
@@ -212,6 +215,56 @@ class BigBangEmpire {
 
         return true;
       });
+  }
+
+  handleCurrentMovieQuest() {
+    if (!this.userInfo.movie) {
+      return true;
+    }
+
+    return this.makeAction('claimMovieQuestRewards')
+      .then((data) => {
+        if (data.error) {
+          return true;
+        }
+
+        _.assign(this.userInfo.character, data.data.character);
+        _.assign(this.userInfo.movie, data.data.movie);
+        _.assign(this.userInfo.inventory, data.data.inventory);
+
+        this.userInfo.movie_quests = data.data.movie_quests;
+
+        return true;
+      });
+  }
+
+  handleMovieVotes() {
+    if (this.userInfo.character.movie_votes !== 0) {
+      return this.makeAction('getMoviesToVote', {
+        refresh: false,
+      })
+        .then((data) => {
+          _.assign(this.userInfo.user, data.data.user);
+          _.assign(this.userInfo.character, data.data.character);
+
+          const movies = data.data.movies_to_vote;
+
+          this.log(`Voting movie ${movies[0].id}`);
+
+          return this.makeAction('voteForMovie', {
+            discard_item: false,
+            movie_id: movies[0].id,
+          });
+        })
+        .then((data) => {
+          _.assign(this.userInfo.user, data.data.user);
+          _.assign(this.userInfo.character, data.data.character);
+          _.assign(this.userInfo.inventory, data.data.inventory);
+          _.assign(this.userInfo.current_goal_values, data.data.current_goal_values);
+        });
+    }
+
+    return true;
   }
 
   handleBuyEnergy() {
@@ -440,6 +493,20 @@ class BigBangEmpire {
       });
   }
 
+  handleMovieRefresh() {
+    if (typeof this.userInfo.movie !== 'undefined') {
+      return true;
+    }
+
+    return this.makeAction('refreshMoviePool', {
+      use_premium: false,
+    })
+      .then((data) => {
+        _.assign(this.userInfo.character, data.data.character);
+        _.assign(this.userInfo.movies, data.data.movies);
+      });
+  }
+
   handleMovieChoice() {
     if (typeof this.userInfo.movies === 'undefined') {
       return true;
@@ -503,6 +570,7 @@ class BigBangEmpire {
     this.makeAction('startMovieQuest', {
       movie_quest_id: quest.id,
     })
+      .then((data) => { console.log(data); })
       .then(() => this.makeAction('claimMovieQuestRewards'))
       .then((data) => {
         _.assign(this.userInfo.character, data.data.character);
