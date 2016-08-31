@@ -38,7 +38,7 @@ class BigBangEmpireTelegram {
   }
 
   routeInfo() {
-    this.bot.onText(/^\/info$/, (msg) => {
+    this.bot.onText(/^\/profile$/, (msg) => {
       const chatId = msg.chat.id;
 
       let message = `${this.bbe.userInfo.character.name}
