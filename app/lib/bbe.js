@@ -663,6 +663,20 @@ class BigBangEmpire {
         this.rankFans = data.data.centered_rank;
       });
   }
+
+  retrieveLevelPerc(){
+    const lvl = this.userInfo.character.level;
+    const nextLvl = lvl + 1;
+
+    const xp = this.userInfo.character.xp;
+    const lvlXp = this.gameInfo.constants.levels[lvl].xp;
+    const nextLvlXp = this.gameInfo.constants.levels[nextLvl].xp;
+
+    const diff = xp - lvlXp;
+    const diffNext = nextLvlXp - lvlXp;
+
+    return diff / diffNext;
+  }
 }
 
 module.exports = BigBangEmpire;

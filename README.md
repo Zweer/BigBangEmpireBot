@@ -11,7 +11,7 @@
 - [ ] parties
 - [ ] auto request batteries
 - [ ] auto give batteries
-- [ ] telegram -> % lvl
+- [x] telegram -> % lvl
 - [x] telegram -> ranking
 - [x] telegram -> compress numbers (1.45m)
 - [x] movies -> can't initialize
