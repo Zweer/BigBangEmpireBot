@@ -11,6 +11,7 @@
 - [ ] parties
 - [ ] auto request batteries
 - [ ] auto give batteries
+- [x] take batteries if the quest is long enough
 - [x] telegram -> % lvl
 - [x] telegram -> ranking
 - [x] telegram -> compress numbers (1.45m)

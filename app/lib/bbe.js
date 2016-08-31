@@ -164,6 +164,7 @@ class BigBangEmpire {
       .then(() => this.handleMovie())
       .then(() => this.handleMovieStar())
       .then(() => this.handleWork())
+      .then(() => this.handleMessages())
 
       .then(() => this.retrieveRanking())
       // .then(() => { this.log('completed'); })
@@ -339,7 +340,8 @@ class BigBangEmpire {
 
   makeQuest(quest) {
     let startingString = 'Starting a quest\n';
-    startingString += `- ${Math.round(quest.rewards.xp / quest.energy_cost)} xp/energy`;
+    startingString += `- ${Math.round(quest.rewards.xp / quest.energy_cost)} xp/energy\n`;
+    startingString += `- ${quest.energy_cost} energy`;
 
     if (quest.rewards.story_dungeon_point) {
       startingString += '\n- with a "story dungeon point"';
@@ -362,6 +364,33 @@ class BigBangEmpire {
         }
 
         _.assign(this.userInfo.character, data.data.character);
+
+        if (typeof this.userInfo.character.unused_resources === 'string') {
+          this.userInfo.character.unused_resources =
+            JSON.parse(this.userInfo.character.unused_resources);
+        }
+
+        if (typeof this.userInfo.character.used_resources === 'string') {
+          this.userInfo.character.used_resources =
+            JSON.parse(this.userInfo.character.used_resources);
+        }
+
+        if (
+          this.userInfo.character.unused_resources[1] > 0
+          &&
+          this.userInfo.character.used_resources[1] < 4
+          &&
+          quest.energy_cost > 8
+          ) {
+          this.log('Reducing quest time');
+
+          return this.makeAction('useResource', {
+            feature_type: 1,
+          })
+            .then((dataResources) => {
+              _.assign(this.userInfo.character, dataResources.data.character);
+            });
+        }
 
         return data;
       });
@@ -639,6 +668,12 @@ class BigBangEmpire {
     }
 
     return true;
+  }
+
+  handleMessages() {
+    if (this.userInfo.new_messages > 0) {
+      this.log(`You have ${this.userInfo.new_messages} new messages`);
+    }
   }
 
   retrieveRanking() {
