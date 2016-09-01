@@ -580,7 +580,7 @@ class BigBangEmpire {
   }
 
   handleMovieRefresh() {
-    if (typeof this.userInfo.movie !== 'undefined') {
+    if (this.userInfo.movie) {
       return true;
     }
 
