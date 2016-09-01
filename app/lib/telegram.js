@@ -12,29 +12,7 @@ class BigBangEmpireTelegram {
   }
 
   initRoutes() {
-    this.routeStart();
     this.routeInfo();
-  }
-
-  routeStart() {
-    this.bot.onText(/^\/start\s?(.*)?$/, (msg, match) => {
-      const chatId = msg.chat.id;
-      const password = match[1];
-
-      if (typeof password === 'undefined') {
-        this.bot.sendMessage(chatId, 'You need to specity a password!');
-
-        return;
-      }
-
-      if (password !== 'pippo') {
-        this.bot.sendMessage(chatId, 'Ops, wrong password');
-
-        return;
-      }
-
-      this.bot.sendMessage(chatId, 'Yeee, right password!!');
-    });
   }
 
   routeInfo() {
