@@ -673,9 +673,22 @@ class BigBangEmpire {
   }
 
   handleMessages() {
-    if (this.userInfo.new_messages > 0) {
-      this.log(`You have ${this.userInfo.new_messages} new messages`);
+    if (this.userInfo.new_messages === 0) {
+      return true;
     }
+
+    this.log(`You have ${this.userInfo.new_messages} new messages`);
+
+    if (this.userInfo.character.pending_resource_requests > 0) {
+      this.log('Accepting all resource requests');
+
+      return this.makeAction('acceptAllResourceRequests')
+        .then((data) => {
+          _.assign(this.userInfo.character, data.data.character);
+        });
+    }
+
+    return true;
   }
 
   retrieveRanking() {
