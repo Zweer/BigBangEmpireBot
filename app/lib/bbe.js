@@ -15,6 +15,7 @@ class BigBangEmpire {
     this.client_version = 'flash_40';
     this.user_session_id = 0;
     this.user_id = 0;
+    this.level = 0;
 
     this.QUEST_TYPES = {
       1: 'time',
@@ -151,6 +152,7 @@ class BigBangEmpire {
 
     return Promise.all([])
       // .then(() => { this.log('sync'); })
+      .then(() => this.handleStatPointAvailable())
       .then(() => this.handleInventory())
       .then(() => this.handleCurrentQuest())
       .then(() => this.handleCurrentMovieQuest())
@@ -170,6 +172,59 @@ class BigBangEmpire {
       // .then(() => { this.log('completed'); })
       .catch((err) => {
         this.log(err);
+      });
+  }
+
+  handleStatPointAvailable() {
+    if (this.userInfo.character.stat_points_available === 0) {
+      return true;
+    }
+
+    this.log(`You have stat point available: ${this.userInfo.character.stat_points_available}`);
+
+    return this.makeSkill();
+  }
+
+  makeSkill() {
+    let stats = [
+      {
+        stat: this.userInfo.character.stat_total_strength,
+        index: 1,
+        name: 'strength',
+      },
+      {
+        stat: this.userInfo.character.stat_total_stamina,
+        index: 2,
+        name: 'stamina',
+      },
+      {
+        stat: this.userInfo.character.stat_total_critical_rating,
+        index: 3,
+        name: 'critical',
+      },
+      {
+        stat: this.userInfo.character.stat_total_dodge_rating,
+        index: 4,
+        name: 'dodge',
+      },
+    ];
+
+    stats = stats.sort((a, b) => {
+      if (a.stat < b.stat) {
+        return -1;
+      }
+
+      return 1;
+    });
+
+    this.log(`Adding one stat point in: ${stats[0].name}`);
+
+    return this.makeAction('improveCharacterStat', {
+      stat_type: stats[0].index,
+    })
+      .then((data) => {
+        _.assign(this.userInfo.user, data.data.user);
+        _.assign(this.userInfo.character, data.data.character);
       });
   }
 
