@@ -398,8 +398,8 @@ class BigBangEmpire {
 
   handleDuel() {
     if (this.userInfo.character.duel_stamina < this.userInfo.character.duel_stamina_cost
-        &&
-        this.canDuel) {
+        ||
+        !this.canDuel) {
       return true;
     }
 
