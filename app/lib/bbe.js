@@ -370,7 +370,9 @@ class BigBangEmpire {
             JSON.parse(this.userInfo.character.unused_resources);
         }
 
-        if (typeof this.userInfo.character.used_resources === 'string') {
+        if (typeof this.userInfo.character.used_resources === 'string'
+          &&
+          this.userInfo.character.used_resources) {
           this.userInfo.character.used_resources =
             JSON.parse(this.userInfo.character.used_resources);
         }
