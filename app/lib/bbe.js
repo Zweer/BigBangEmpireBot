@@ -175,6 +175,12 @@ class BigBangEmpire {
       });
   }
 
+  isOutOfGuild(character) {
+    return this.userInfo.guild_members.every((member) => {
+      return character.id !== member.id;
+    });
+  }
+
   handleStatPointAvailable() {
     if (this.userInfo.character.stat_points_available === 0) {
       return true;
@@ -475,6 +481,12 @@ class BigBangEmpire {
         let opponent;
 
         opponents.every((tmpOpponent) => {
+          if (!this.isOutOfGuild(tmpOpponent)) {
+            this.log(`${tmpOpponent.name} is in my guild: can't duel!`);
+
+            return true;
+          }
+
           if (myTotal > tmpOpponent.total_stats) {
             opponent = tmpOpponent;
 

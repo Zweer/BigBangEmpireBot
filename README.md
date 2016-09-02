@@ -2,7 +2,9 @@
 
 ## TODO
 
-- [ ] new level -> adjust skills
+- [x] new level -> adjust skills
+- [x] duels -> don't attack guild members
+- [ ] duels -> if not good challenger, loose less points
 - [x] inventory check -> full
 - [x] inventory check -> no more missiles
 - [ ] inventory check -> sell useless items
