@@ -144,13 +144,13 @@ class BigBangEmpire {
     // Retrieving current quest
     this.userInfo.quests.every((quest) => {
       if (quest.status === 2) {
-        this.endQuest = quest.ts_completion;
+        this.endQuest = quest.ts_complete;
 
         return false;
       }
 
       return true;
-    })
+    });
   }
 
   initSyncGame() {
@@ -183,6 +183,7 @@ class BigBangEmpire {
       .then(() => this.handleMovieStar())
       .then(() => this.handleWork())
       .then(() => this.handleMessages())
+      // .then(() => this.handleCompletedGoals())
 
       .then(() => this.retrieveRanking())
       // .then(() => { this.log('completed'); })
@@ -192,9 +193,7 @@ class BigBangEmpire {
   }
 
   isOutOfGuild(character) {
-    return this.userInfo.guild_members.every((member) => {
-      return character.id !== member.id;
-    });
+    return this.userInfo.guild_members.every((member) => character.id !== member.id);
   }
 
   handleNewLevel() {
@@ -203,6 +202,25 @@ class BigBangEmpire {
     }
 
     this.level = this.userInfo.character.level;
+  }
+
+  handleCompletedGoals() {
+    return Promise.all(_.mapKeys(this.userInfo.current_goal_values, (goal, name) => {
+      if (this.gameInfo.constants.goals[name].values[goal.current_value]) {
+        this.log(`Completing a goal: ${name}`);
+
+        return this.makeAction('collectGoalReward', {
+          value: goal.current_value,
+          identifier: name,
+          discard_item: false,
+        })
+          .then((data) => {
+            this.log(Object.keys(data.data));
+          });
+      }
+
+      return true;
+    }));
   }
 
   handleStatPointAvailable() {
@@ -809,7 +827,7 @@ class BigBangEmpire {
       });
   }
 
-  retrieveLevelPerc(){
+  retrieveLevelPerc() {
     const lvl = this.userInfo.character.level;
     const nextLvl = lvl + 1;
 
@@ -828,9 +846,14 @@ class BigBangEmpire {
       return false;
     }
 
-    const diff = new Date().getTime() - this.endQuest;
+    const now = Math.round(new Date().getTime() / 1000);
+    const diff = this.endQuest - now;
 
-    return moment.duration(diff).as('minutes');
+    const minutes = Math.round(diff / 60);
+    const seconds = diff % 60;
+
+    return `${minutes} minute${minutes === 1 ? '' : 's'} ${
+      seconds} second${seconds === 1 ? '' : 's'}`;
   }
 }
 

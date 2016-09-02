@@ -24,4 +24,4 @@
 - [ ] telegram -> notification when new message
 - [ ] telegram -> notification when no missiles
 - [x] movies -> can't initialize
-- [ ] auto complete missions
+- [x] auto complete missions
