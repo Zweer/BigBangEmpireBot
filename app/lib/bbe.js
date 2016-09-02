@@ -16,6 +16,7 @@ class BigBangEmpire {
     this.user_session_id = 0;
     this.user_id = 0;
     this.level = 0;
+    this.endQuest = 0;
 
     this.QUEST_TYPES = {
       1: 'time',
@@ -28,6 +29,7 @@ class BigBangEmpire {
     this.log('Init started');
     this.initGame()
       .then(() => { this.log('Init completed'); })
+      .then(() => this.firstSyncGame())
       .then(() => this.initSyncGame())
       .catch((err) => {
         this.log(err);
@@ -138,6 +140,19 @@ class BigBangEmpire {
       });
   }
 
+  firstSyncGame() {
+    // Retrieving current quest
+    this.userInfo.quests.every((quest) => {
+      if (quest.status === 2) {
+        this.endQuest = quest.ts_completion;
+
+        return false;
+      }
+
+      return true;
+    })
+  }
+
   initSyncGame() {
     return this.makeAction('syncGame')
       .then((data) => {
@@ -152,6 +167,7 @@ class BigBangEmpire {
 
     return Promise.all([])
       // .then(() => { this.log('sync'); })
+      .then(() => this.handleNewLevel())
       .then(() => this.handleStatPointAvailable())
       .then(() => this.handleInventory())
       .then(() => this.handleCurrentQuest())
@@ -179,6 +195,14 @@ class BigBangEmpire {
     return this.userInfo.guild_members.every((member) => {
       return character.id !== member.id;
     });
+  }
+
+  handleNewLevel() {
+    if (this.level !== this.userInfo.character.level && this.level !== 0) {
+      this.log(`New level: ${this.userInfo.character.level}!!`);
+    }
+
+    this.level = this.userInfo.character.level;
   }
 
   handleStatPointAvailable() {
@@ -266,6 +290,8 @@ class BigBangEmpire {
             create_new: true,
           })
             .then((data) => {
+              this.endQuest = 0;
+
               _.assign(this.userInfo.user, data.data.user);
               _.assign(this.userInfo.character, data.data.character);
               _.assign(this.userInfo.inventory, data.data.inventory);
@@ -423,6 +449,8 @@ class BigBangEmpire {
 
           return data;
         }
+
+        this.endQuest = data.data.quest.ts_complete;
 
         _.assign(this.userInfo.character, data.data.character);
 
@@ -793,6 +821,16 @@ class BigBangEmpire {
     const diffNext = nextLvlXp - lvlXp;
 
     return diff / diffNext;
+  }
+
+  retrieveQuestCompletion() {
+    if (this.endQuest === 0) {
+      return false;
+    }
+
+    const diff = new Date().getTime() - this.endQuest;
+
+    return moment.duration(diff).as('minutes');
   }
 }
 

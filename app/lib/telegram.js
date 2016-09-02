@@ -18,6 +18,7 @@ class BigBangEmpireTelegram {
   routeInfo() {
     this.bot.onText(/^\/profile$/, (msg) => {
       const chatId = msg.chat.id;
+      const questCompletion = this.bbe.retrieveQuestCompletion();
 
       let message = `${this.bbe.userInfo.character.name}
 - lvl ${this.bbe.userInfo.character.level} (${numeral(this.bbe.retrieveLevelPerc())
@@ -28,7 +29,8 @@ class BigBangEmpireTelegram {
 - ${numeral(this.bbe.userInfo.character.fans).format('0.00a')} fans (${this.bbe.rankFans}°)
 --------------------
 - energy: ${this.bbe.userInfo.character.quest_energy} + ${
-  200 - this.bbe.userInfo.character.quest_energy_refill_amount_today}
+  200 - this.bbe.userInfo.character.quest_energy_refill_amount_today} ${
+    questCompletion ? `(${questCompletion})` : ''}
 - stamina: ${this.bbe.userInfo.character.duel_stamina} / ${
   this.bbe.userInfo.character.max_duel_stamina} (${this.bbe.userInfo.character.duel_stamina_cost})`;
 
