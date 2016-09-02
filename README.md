@@ -25,3 +25,4 @@
 - [x] telegram -> notification when no missiles
 - [x] movies -> can't initialize
 - [x] auto complete missions
+- [ ] guild -> accepting battles
