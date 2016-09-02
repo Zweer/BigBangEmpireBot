@@ -19,7 +19,7 @@ class BigBangEmpire {
     this.level = 0;
     this.endQuest = 0;
 
-    this.bot;
+    this.bot = {};
 
     this.QUEST_TYPES = {
       1: 'time',
@@ -329,16 +329,66 @@ class BigBangEmpire {
     }
 
     let inventoryFull = true;
-    _.forIn(this.userInfo.inventory, (value, key) => {
-      if (key.substr(0, 8) === 'bag_item' && value === 0) {
-        inventoryFull = false;
-      }
-    });
 
-    if (inventoryFull) {
-      this.canDuel = false;
-      this.log('INVENTORY FULL!!!!!!!');
-    }
+    Promise.all(_.values(_.mapValues(this.userInfo.inventory, (value, key) => {
+      if (key.substr(0, 8) === 'bag_item') {
+        if (value === 0) {
+          inventoryFull = false;
+
+          return true;
+        }
+
+        const item = _.find(this.userInfo.items, { id: value });
+        const type = item.identifier.split('_')[0];
+        const equipped = _.find(this.userInfo.items, {
+          id: this.userInfo.inventory[`${type}_item_id`],
+        });
+
+        if (item.battle_skill || item.premium_item || item.type === 10) {
+          return true;
+        }
+
+        const itemTotalStats = item.stat_stamina + item.stat_strength + item.stat_critical_rating +
+          item.stat_dodge_rating + item.stat_weapon_damage;
+        const equippedTotalStats = equipped.stat_stamina + equipped.stat_strength +
+          equipped.stat_critical_rating + equipped.stat_dodge_rating + equipped.stat_weapon_damage;
+
+        if (itemTotalStats < equippedTotalStats) {
+          this.log(`Selling item: ${type}`);
+
+          return this.makeAction('sellInventoryItem', {
+            item_id: item.id,
+          })
+            .then((data) => {
+              _.assign(this.userInfo.character, data.data.character);
+              _.assign(this.userInfo.inventory, data.data.inventory);
+
+              inventoryFull = false;
+            });
+        }
+
+        if (itemTotalStats > equippedTotalStats + 15) {
+          this.log(`Moving item: ${type}`);
+
+          return this.makeAction('moveInventoryItem', {
+            item_id: item.id,
+            target_slot: item.type,
+          })
+            .then((data) => {
+              _.assign(this.userInfo.character, data.data.character);
+              _.assign(this.userInfo.inventory, data.data.inventory);
+            });
+        }
+
+        return true;
+      }
+    })))
+      .then(() => {
+        if (inventoryFull) {
+          this.canDuel = false;
+          this.log('INVENTORY FULL!!!!!!!');
+        }
+      });
   }
 
   handleCurrentQuest() {

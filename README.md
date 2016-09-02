@@ -7,7 +7,7 @@
 - [x] duels -> if no good challenger, loose less points
 - [x] inventory check -> full
 - [x] inventory check -> no more missiles
-- [ ] inventory check -> sell useless items
+- [x] inventory check -> sell useless items
 - [ ] shop -> buy better items
 - [x] quest -> movie award vote
 - [x] quest -> save end time
@@ -26,3 +26,4 @@
 - [x] movies -> can't initialize
 - [x] auto complete missions
 - [ ] guild -> accepting battles
+- [ ] renew boosters
