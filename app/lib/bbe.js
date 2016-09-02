@@ -15,8 +15,11 @@ class BigBangEmpire {
     this.client_version = 'flash_40';
     this.user_session_id = 0;
     this.user_id = 0;
+
     this.level = 0;
     this.endQuest = 0;
+
+    this.bot;
 
     this.QUEST_TYPES = {
       1: 'time',
@@ -198,7 +201,10 @@ class BigBangEmpire {
 
   handleNewLevel() {
     if (this.level !== this.userInfo.character.level && this.level !== 0) {
-      this.log(`New level: ${this.userInfo.character.level}!!`);
+      const msg = `New level: ${this.userInfo.character.level}!!`;
+
+      this.log(msg);
+      this.bot.broadcastMsg(msg);
     }
 
     this.level = this.userInfo.character.level;
@@ -315,7 +321,11 @@ class BigBangEmpire {
   handleInventory() {
     if (this.userInfo.inventory.missiles_item_id === 0) {
       this.canDuel = false;
-      this.log('NO MORE MISSILES!!!!!!!');
+
+      const msg = 'NO MORE MISSILES!!!!!!!';
+
+      this.log(msg);
+      this.bot.broadcastMsg(msg);
     }
 
     let inventoryFull = true;
@@ -698,7 +708,9 @@ class BigBangEmpire {
       return true;
     }
 
-    this.log('Choosing the next movie');
+    const msg = 'Choosing the next movie';
+    this.log(msg);
+    this.bot.broadcastMsg(msg);
 
     const movies = this.userInfo.movies.sort((a, b) => {
       if (a.fans > b.fans) {
@@ -779,7 +791,10 @@ class BigBangEmpire {
       return this.makeMovieStar()
         .then(() => this.makeAction('finishMovie'))
         .then((data) => {
-          this.log('Movie finished');
+          const msg = 'Movie finished';
+
+          this.log(msg);
+          this.bot.broadcastMsg(msg);
 
           _.assign(this.userInfo.user, data.data.user);
           _.assign(this.userInfo.character, data.data.character);
@@ -832,7 +847,11 @@ class BigBangEmpire {
       return true;
     }
 
-    this.log(`You have ${this.userInfo.new_messages} new messages`);
+    const msg = `You have ${this.userInfo.new_messages} new messages (${
+      this.userInfo.character.pending_resource_requests} resource requests)`;
+
+    this.log(msg);
+    this.bot.broadcastMsg(msg);
 
     if (this.userInfo.character.pending_resource_requests > 0) {
       this.log('Accepting all resource requests');

@@ -8,6 +8,10 @@ class BigBangEmpireTelegram {
     this.bot = new TelegramBot(options.id, options.options);
     this.bbe = bbe;
 
+    this.bbe.bot = this;
+
+    this.froms = [];
+
     this.initRoutes();
   }
 
@@ -15,8 +19,25 @@ class BigBangEmpireTelegram {
     this.routeInfo();
   }
 
+  handleReceiver(msg) {
+    const newFrom = msg.from;
+    const isMissing = this.froms.every((from) => from.id !== newFrom.id);
+
+    if (isMissing) {
+      this.froms.push(newFrom);
+    }
+  }
+
+  broadcastMsg(msg) {
+    this.froms.forEach((from) => {
+      this.bot.sendMessage(from.id, msg);
+    });
+  }
+
   routeInfo() {
     this.bot.onText(/^\/profile$/, (msg) => {
+      this.handleReceiver(msg);
+
       const chatId = msg.chat.id;
       const questCompletion = this.bbe.retrieveQuestCompletion();
 

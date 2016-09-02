@@ -19,9 +19,9 @@
 - [x] telegram -> % lvl
 - [x] telegram -> ranking
 - [x] telegram -> compress numbers (1.45m)
-- [ ] telegram -> setup notification
-- [ ] telegram -> notification when new level
-- [ ] telegram -> notification when new message
-- [ ] telegram -> notification when no missiles
+- [x] telegram -> setup notification
+- [x] telegram -> notification when new level
+- [x] telegram -> notification when new message
+- [x] telegram -> notification when no missiles
 - [x] movies -> can't initialize
 - [x] auto complete missions
