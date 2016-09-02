@@ -183,7 +183,7 @@ class BigBangEmpire {
       .then(() => this.handleMovieStar())
       .then(() => this.handleWork())
       .then(() => this.handleMessages())
-      // .then(() => this.handleCompletedGoals())
+      .then(() => this.handleCompletedGoals())
 
       .then(() => this.retrieveRanking())
       // .then(() => { this.log('completed'); })
@@ -205,22 +205,58 @@ class BigBangEmpire {
   }
 
   handleCompletedGoals() {
-    return Promise.all(_.mapKeys(this.userInfo.current_goal_values, (goal, name) => {
-      if (this.gameInfo.constants.goals[name].values[goal.current_value]) {
+    return Promise.all(_.values(_.mapValues(this.userInfo.current_goal_values, (goal, name) => {
+      let collectedGoalValue = 0;
+      this.userInfo.collected_goals.forEach((collected) => {
+        if (collected[name]) {
+          collectedGoalValue = parseInt(collected[name].value, 10);
+        }
+      });
+
+      const value = parseInt(goal.current_value, 10);
+
+      if (value <= collectedGoalValue) {
+        return true;
+      }
+
+      const goalValues = Object.keys(this.gameInfo.constants.goals[name].values).sort((a, b) => {
+        if (parseInt(a, 10) < parseInt(b, 10)) {
+          return -1;
+        }
+
+        return 1;
+      });
+
+      let nextGoalValue;
+
+      goalValues.every((goalValue) => {
+        if (goalValue > collectedGoalValue) {
+          nextGoalValue = goalValue;
+
+          return false;
+        }
+
+        return true;
+      });
+
+      if (typeof nextGoalValue !== 'undefined' && value >= nextGoalValue) {
         this.log(`Completing a goal: ${name}`);
 
         return this.makeAction('collectGoalReward', {
-          value: goal.current_value,
+          value: nextGoalValue,
           identifier: name,
           discard_item: false,
         })
           .then((data) => {
-            this.log(Object.keys(data.data));
+            _.assign(this.userInfo.user, data.data.user);
+            _.assign(this.userInfo.character, data.data.character);
+            _.assign(this.userInfo.inventory, data.data.inventory);
+            _.assign(this.userInfo.collected_goals, data.data.collected_goals);
           });
       }
 
       return true;
-    }));
+    })));
   }
 
   handleStatPointAvailable() {
