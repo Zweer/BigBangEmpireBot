@@ -541,7 +541,7 @@ class BigBangEmpire {
       });
   }
 
-  handleDuel() {
+  handleDuel(best) {
     if (this.userInfo.character.duel_stamina < this.userInfo.character.duel_stamina_cost
         ||
         !this.canDuel) {
@@ -569,6 +569,12 @@ class BigBangEmpire {
             return true;
           }
 
+          if (best) {
+            opponent = tmpOpponent;
+
+            return false;
+          }
+
           if (myTotal > tmpOpponent.total_stats) {
             opponent = tmpOpponent;
 
@@ -586,7 +592,7 @@ class BigBangEmpire {
           return this.makeDuel(opponent);
         }
 
-        return true;
+        return this.handleDuel(true);
       });
   }
 
