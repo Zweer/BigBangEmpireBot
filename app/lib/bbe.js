@@ -66,7 +66,14 @@ class BigBangEmpire {
       url: this.urlRequestServer,
       json: true,
       form,
-    });
+    })
+      .then((data) => {
+        if (data.error === '') {
+          _.merge(this.userInfo, data.data);
+        }
+
+        return data;
+      });
   }
 
   initGame() {
@@ -158,40 +165,34 @@ class BigBangEmpire {
 
   initSyncGame() {
     return this.makeAction('syncGame')
-      .then((data) => {
-        this.handleSyncGame(data.data);
-
+      .then(() => {
         setTimeout(this.initSyncGame.bind(this), this.options.delaySyncGame);
-      });
-  }
 
-  handleSyncGame(data) {
-    _.merge(this.userInfo, data);
+        return Promise.all([])
+        // .then(() => { this.log('sync'); })
+          .then(() => this.handleNewLevel())
+          .then(() => this.handleStatPointAvailable())
+          .then(() => this.handleInventory())
+          .then(() => this.handleCurrentQuest())
+          .then(() => this.handleCurrentMovieQuest())
+          .then(() => this.handleMovieVotes())
+          .then(() => this.handleBuyEnergy())
+          .then(() => this.handleQuest())
+          .then(() => this.handleDuel())
+          .then(() => this.handleMissedDuels())
+          .then(() => this.handleMovieRefresh())
+          .then(() => this.handleMovieChoice())
+          .then(() => this.handleMovie())
+          .then(() => this.handleMovieStar())
+          .then(() => this.handleWork())
+          .then(() => this.handleMessages())
+          .then(() => this.handleCompletedGoals())
 
-    return Promise.all([])
-      // .then(() => { this.log('sync'); })
-      .then(() => this.handleNewLevel())
-      .then(() => this.handleStatPointAvailable())
-      .then(() => this.handleInventory())
-      .then(() => this.handleCurrentQuest())
-      .then(() => this.handleCurrentMovieQuest())
-      .then(() => this.handleMovieVotes())
-      .then(() => this.handleBuyEnergy())
-      .then(() => this.handleQuest())
-      .then(() => this.handleDuel())
-      .then(() => this.handleMissedDuels())
-      .then(() => this.handleMovieRefresh())
-      .then(() => this.handleMovieChoice())
-      .then(() => this.handleMovie())
-      .then(() => this.handleMovieStar())
-      .then(() => this.handleWork())
-      .then(() => this.handleMessages())
-      .then(() => this.handleCompletedGoals())
-
-      .then(() => this.retrieveRanking())
-      // .then(() => { this.log('completed'); })
-      .catch((err) => {
-        this.log(err);
+          .then(() => this.retrieveRanking())
+          // .then(() => { this.log('completed'); })
+          .catch((err) => {
+            this.log(err);
+          });
       });
   }
 
@@ -252,13 +253,7 @@ class BigBangEmpire {
           value: nextGoalValue,
           identifier: name,
           discard_item: false,
-        })
-          .then((data) => {
-            _.assign(this.userInfo.user, data.data.user);
-            _.assign(this.userInfo.character, data.data.character);
-            _.assign(this.userInfo.inventory, data.data.inventory);
-            _.assign(this.userInfo.collected_goals, data.data.collected_goals);
-          });
+        });
       }
 
       return true;
@@ -311,11 +306,7 @@ class BigBangEmpire {
 
     return this.makeAction('improveCharacterStat', {
       stat_type: stats[0].index,
-    })
-      .then((data) => {
-        _.assign(this.userInfo.user, data.data.user);
-        _.assign(this.userInfo.character, data.data.character);
-      });
+    });
   }
 
   handleInventory() {
@@ -360,9 +351,6 @@ class BigBangEmpire {
             item_id: item.id,
           })
             .then((data) => {
-              _.assign(this.userInfo.character, data.data.character);
-              _.assign(this.userInfo.inventory, data.data.inventory);
-
               inventoryFull = false;
             });
         }
@@ -373,11 +361,7 @@ class BigBangEmpire {
           return this.makeAction('moveInventoryItem', {
             item_id: item.id,
             target_slot: item.type,
-          })
-            .then((data) => {
-              _.assign(this.userInfo.character, data.data.character);
-              _.assign(this.userInfo.inventory, data.data.inventory);
-            });
+          });
         }
 
         return true;
@@ -406,11 +390,6 @@ class BigBangEmpire {
             .then((data) => {
               this.endQuest = 0;
 
-              _.assign(this.userInfo.user, data.data.user);
-              _.assign(this.userInfo.character, data.data.character);
-              _.assign(this.userInfo.inventory, data.data.inventory);
-              _.assign(this.userInfo.story_dungeon, data.data.story_dungeon);
-              _.assign(this.userInfo.current_goal_values, data.data.current_goal_values);
               this.userInfo.quests = data.data.quests;
             });
         }
@@ -430,10 +409,6 @@ class BigBangEmpire {
           return true;
         }
 
-        _.assign(this.userInfo.character, data.data.character);
-        _.assign(this.userInfo.movie, data.data.movie);
-        _.assign(this.userInfo.inventory, data.data.inventory);
-
         this.userInfo.movie_quests = data.data.movie_quests;
 
         return true;
@@ -446,9 +421,6 @@ class BigBangEmpire {
         refresh: false,
       })
         .then((data) => {
-          _.assign(this.userInfo.user, data.data.user);
-          _.assign(this.userInfo.character, data.data.character);
-
           const movies = data.data.movies_to_vote;
 
           this.log(`Voting movie ${movies[0].id}`);
@@ -457,12 +429,6 @@ class BigBangEmpire {
             discard_item: false,
             movie_id: movies[0].id,
           });
-        })
-        .then((data) => {
-          _.assign(this.userInfo.user, data.data.user);
-          _.assign(this.userInfo.character, data.data.character);
-          _.assign(this.userInfo.inventory, data.data.inventory);
-          _.assign(this.userInfo.current_goal_values, data.data.current_goal_values);
         });
     }
 
@@ -477,13 +443,7 @@ class BigBangEmpire {
     ) {
       return this.makeAction('buyQuestEnergy', {
         use_premium: false,
-      })
-        .then((data) => {
-          _.assign(this.userInfo.character, data.data.character);
-          _.assign(this.userInfo.current_goal_values, data.data.current_goal_values);
-
-          return true;
-        });
+      });
     }
 
     return true;
@@ -566,8 +526,6 @@ class BigBangEmpire {
 
         this.endQuest = data.data.quest.ts_complete;
 
-        _.assign(this.userInfo.character, data.data.character);
-
         if (typeof this.userInfo.character.unused_resources === 'string') {
           this.userInfo.character.unused_resources =
             JSON.parse(this.userInfo.character.unused_resources);
@@ -591,10 +549,7 @@ class BigBangEmpire {
 
           return this.makeAction('useResource', {
             feature_type: 1,
-          })
-            .then((dataResources) => {
-              _.assign(this.userInfo.character, dataResources.data.character);
-            });
+          });
         }
 
         return data;
@@ -693,23 +648,11 @@ class BigBangEmpire {
         this.log(`You ${wonOrLost} the duel! ${
           numeral(reward.honor).format('+0')} honor${addendum}`);
 
-        _.assign(this.userInfo.user, data.data.user);
-        _.assign(this.userInfo.character, data.data.character);
-        _.assign(this.userInfo.current_goal_values, data.data.current_goal_values);
-
         return this.makeAction('checkForDuelComplete');
       })
       .then(() => this.makeAction('claimDuelRewards', {
         discard_item: false,
-      }))
-      .then((data) => {
-        _.assign(this.userInfo.user, data.data.user);
-        _.assign(this.userInfo.character, data.data.character);
-        _.assign(this.userInfo.inventory, data.data.inventory);
-        _.assign(this.userInfo.current_goal_values, data.data.current_goal_values);
-
-        return true;
-      });
+      }));
   }
 
   handleMissedDuels() {
@@ -732,9 +675,6 @@ class BigBangEmpire {
           this.log(`Missed duel: ${wonOrLost}, ${duel.character_b_rewards.honor} honor`);
         });
 
-        _.assign(this.userInfo.user, data.data.user);
-        _.assign(this.userInfo.character, data.data.character);
-
         return this.makeAction('claimMissedDuelsRewards');
       });
   }
@@ -746,11 +686,7 @@ class BigBangEmpire {
 
     return this.makeAction('refreshMoviePool', {
       use_premium: false,
-    })
-      .then((data) => {
-        _.assign(this.userInfo.character, data.data.character);
-        _.assign(this.userInfo.movies, data.data.movies);
-      });
+    });
   }
 
   handleMovieChoice() {
@@ -774,10 +710,6 @@ class BigBangEmpire {
       movie_id: movies[0].id,
     })
       .then((data) => {
-        _.assign(this.userInfo.character, data.data.character);
-        _.assign(this.userInfo.movie, data.data.movie);
-        _.assign(this.userInfo.movie_quests, data.data.movie_quests);
-
         delete this.userInfo.movies;
 
         return true;
@@ -846,11 +778,6 @@ class BigBangEmpire {
           this.log(msg);
           this.bot.broadcastMsg(msg);
 
-          _.assign(this.userInfo.user, data.data.user);
-          _.assign(this.userInfo.character, data.data.character);
-          _.assign(this.userInfo.guild, data.data.guild);
-          _.assign(this.userInfo.current_goal_values, data.data.current_goal_values);
-
           delete this.userInfo.movie;
           delete this.userInfo.movie_quests;
 
@@ -864,14 +791,7 @@ class BigBangEmpire {
   makeMovieStar() {
     return this.makeAction('claimMovieStar', {
       discard_item: false,
-    })
-      .then((data) => {
-        _.assign(this.userInfo.character, data.data.character);
-        _.assign(this.userInfo.inventory, data.data.inventory);
-        _.assign(this.userInfo.movie, data.data.movie);
-
-        return true;
-      });
+    });
   }
 
   handleWork() {
@@ -880,13 +800,7 @@ class BigBangEmpire {
     const diff = now - lastWork;
 
     if (diff > 60 * 60 * 3) {
-      return this.makeAction('collectWork')
-        .then((data) => {
-          _.assign(this.userInfo.character, data.data.character);
-          _.assign(this.userInfo.current_goal_values, data.data.current_goal_values);
-
-          return true;
-        });
+      return this.makeAction('collectWork');
     }
 
     return true;
@@ -906,10 +820,7 @@ class BigBangEmpire {
     if (this.userInfo.character.pending_resource_requests > 0) {
       this.log('Accepting all resource requests');
 
-      return this.makeAction('acceptAllResourceRequests')
-        .then((data) => {
-          _.assign(this.userInfo.character, data.data.character);
-        });
+      return this.makeAction('acceptAllResourceRequests');
     }
 
     return true;
