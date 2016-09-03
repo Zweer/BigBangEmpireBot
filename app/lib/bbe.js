@@ -33,7 +33,7 @@ class BigBangEmpire {
     this.initGame()
       .then(() => { this.log('Init completed'); })
       .then(() => this.firstSyncGame())
-      .then(() => this.initSyncGame())
+      .then(() => this.syncGame())
       .catch((err) => {
         this.log(err);
       });
@@ -163,10 +163,10 @@ class BigBangEmpire {
     });
   }
 
-  initSyncGame() {
+  syncGame() {
     return this.makeAction('syncGame')
       .then(() => {
-        setTimeout(this.initSyncGame.bind(this), this.options.delaySyncGame);
+        setTimeout(this.syncGame.bind(this), this.options.delaySyncGame);
 
         return Promise.all([])
         // .then(() => { this.log('sync'); })
