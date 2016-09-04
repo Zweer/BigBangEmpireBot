@@ -27,6 +27,19 @@ class BigBangEmpire {
       3: 'stat',
     };
 
+    this.ITEM_TYPES = {
+      1: 'head',
+      2: 'chest',
+      3: 'belt',
+      4: 'legs',
+      5: 'boots',
+      6: 'necklace',
+      7: 'ring',
+      8: 'piercing',
+      9: 'gadget',
+      10: 'missiles',
+    };
+
     this.canDuel = true;
 
     this.log('Init started');
@@ -69,7 +82,9 @@ class BigBangEmpire {
     })
       .then((data) => {
         if (data.error === '') {
-          _.merge(this.userInfo, data.data);
+          const userInfo = _.omitBy(data.data, _.isEmpty);
+
+          _.merge(this.userInfo, userInfo);
         }
 
         return data;
@@ -330,7 +345,21 @@ class BigBangEmpire {
         }
 
         const item = _.find(this.userInfo.items, { id: value });
-        const type = item.identifier.split('_')[0];
+        if (!item) {
+          return true;
+        }
+
+        const type = this.ITEM_TYPES[item.type];
+
+        if (this.userInfo.inventory[`${type}_item_id`] === 0) {
+          this.log(`Moving item: ${type}`);
+
+          return this.makeAction('moveInventoryItem', {
+            item_id: item.id,
+            target_slot: item.type,
+          });
+        }
+
         const equipped = _.find(this.userInfo.items, {
           id: this.userInfo.inventory[`${type}_item_id`],
         });
@@ -345,18 +374,20 @@ class BigBangEmpire {
           equipped.stat_critical_rating + equipped.stat_dodge_rating + equipped.stat_weapon_damage;
 
         if (itemTotalStats < equippedTotalStats) {
-          this.log(`Selling item: ${type}`);
+          this.log(`Selling item: ${type}
+- my: ${equippedTotalStats} - bag: ${itemTotalStats}`);
 
           return this.makeAction('sellInventoryItem', {
             item_id: item.id,
           })
-            .then((data) => {
+            .then(() => {
               inventoryFull = false;
             });
         }
 
         if (itemTotalStats > equippedTotalStats + 15) {
-          this.log(`Moving item: ${type}`);
+          this.log(`Moving item: ${type}
+- my: ${equippedTotalStats} - bag: ${itemTotalStats}`);
 
           return this.makeAction('moveInventoryItem', {
             item_id: item.id,
@@ -366,6 +397,8 @@ class BigBangEmpire {
 
         return true;
       }
+
+      return true;
     })))
       .then(() => {
         if (inventoryFull) {
@@ -461,14 +494,20 @@ class BigBangEmpire {
     const quests = this.userInfo.quests.sort((a, b) => {
       if (typeof a.rewards === 'string') {
         a.rewards = JSON.parse(a.rewards); // eslint-disable-line no-param-reassign
+        delete a.rewards.movie_votes; // eslint-disable-line no-param-reassign
       }
 
       if (typeof b.rewards === 'string') {
         b.rewards = JSON.parse(b.rewards); // eslint-disable-line no-param-reassign
+        delete b.rewards.movie_votes; // eslint-disable-line no-param-reassign
       }
 
-      if (a.rewards.story_dungeon_point !== b.rewards.story_dungeon_point) {
-        return a.rewards.story_dungeon_point > b.rewards.story_dungeon_point ? -1 : 1;
+      if (Object.keys(a.rewards).length > 6) {
+        return -1;
+      }
+
+      if (Object.keys(b.rewards).length > 6) {
+        return 1;
       }
 
       if (a.rewards.item !== 0) {
@@ -504,8 +543,16 @@ class BigBangEmpire {
     startingString += `- ${Math.round(quest.rewards.xp / quest.energy_cost)} xp/energy\n`;
     startingString += `- ${quest.energy_cost} energy`;
 
-    if (quest.rewards.story_dungeon_point) {
-      startingString += '\n- with a "story dungeon point"';
+    const rewardKeys = Object.keys(quest.rewards);
+
+    if (rewardKeys.length > 6) {
+      rewardKeys.slice(6).forEach((reward) => {
+        if (reward === 'dungeon_key') {
+          this.bot.broadcastMsg(`Got a new "${reward}" in ${quest.energy_cost} minutes`);
+        }
+
+        startingString += `\n- with a "${reward}"`;
+      });
     }
 
     if (quest.rewards.item) {
