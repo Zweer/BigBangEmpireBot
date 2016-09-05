@@ -85,7 +85,10 @@ class BigBangEmpire {
           const userInfo = _.omitBy(data.data, _.isEmpty);
 
           _.merge(this.userInfo, userInfo);
-        } else {
+        } else if ([
+          'errFinishNotYetCompleted',
+          'errClaimMovieQuestRewardsInvalidQuest',
+        ].indexOf(data.error) !== -1) {
           this.log(`------------------ ERROR ------------------\n${data.error}`);
         }
 
