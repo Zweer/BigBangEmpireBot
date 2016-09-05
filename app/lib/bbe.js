@@ -88,6 +88,7 @@ class BigBangEmpire {
         } else if ([
           'errFinishNotYetCompleted',
           'errClaimMovieQuestRewardsInvalidQuest',
+          'errFinishInvalidStatus',
           'errGenerateNewMoviesNotYetAllowed',
         ].indexOf(data.error) === -1) {
           throw new Error(`${data.error} @ ${action} ${JSON.stringify(form)}`);
