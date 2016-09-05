@@ -88,7 +88,7 @@ class BigBangEmpire {
         } else if ([
           'errFinishNotYetCompleted',
           'errClaimMovieQuestRewardsInvalidQuest',
-        ].indexOf(data.error) !== -1) {
+        ].indexOf(data.error) === -1) {
           this.log(`------------------ ERROR ------------------\n${data.error}`);
         }
 
