@@ -85,6 +85,8 @@ class BigBangEmpire {
           const userInfo = _.omitBy(data.data, _.isEmpty);
 
           _.merge(this.userInfo, userInfo);
+        } else {
+          this.log(`------------------ ERROR ------------------\n${data.error}`);
         }
 
         return data;
@@ -566,8 +568,6 @@ class BigBangEmpire {
     })
       .then((data) => {
         if (data.error) {
-          this.log(data.error);
-
           return data;
         }
 
