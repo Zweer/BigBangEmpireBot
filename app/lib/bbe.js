@@ -90,6 +90,7 @@ class BigBangEmpire {
           'errClaimMovieQuestRewardsInvalidQuest',
           'errFinishInvalidStatus',
           'errGenerateNewMoviesNotYetAllowed',
+          'errCheckForQuestCompleteNoActiveQuest',
         ].indexOf(data.error) === -1) {
           throw new Error(`${data.error} @ ${action} ${JSON.stringify(form)}`);
         }
@@ -198,6 +199,7 @@ class BigBangEmpire {
           .then(() => this.handleCurrentQuest())
           .then(() => this.handleCurrentMovieQuest())
           .then(() => this.handleMovieVotes())
+          .then(() => this.handleStoryDungeonAttack())
           .then(() => this.handleBuyEnergy())
           .then(() => this.handleQuest())
           .then(() => this.handleDuel())
@@ -471,6 +473,28 @@ class BigBangEmpire {
             discard_item: false,
             movie_id: movies[0].id,
           });
+        });
+    }
+
+    return true;
+  }
+
+  handleStoryDungeonAttack() {
+    if (!this.userInfo.story_dungeon) {
+      return true;
+    }
+
+    const now = Math.round(new Date().getTime() / 1000);
+
+    if (now > this.userInfo.story_dungeon.ts_last_attack + 3600) {
+      return this.makeAction('startStoryDungeonBattle', {
+        finish_cooldown: false,
+      })
+        .then(() => this.makeAction('claimStoryDungeonReward', {
+          discard_item: false,
+        }))
+        .then(() => {
+          delete this.userInfo.story_dungeon;
         });
     }
 
