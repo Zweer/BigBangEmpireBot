@@ -41,29 +41,34 @@ class BigBangEmpireTelegram {
       const chatId = msg.chat.id;
       const questCompletion = this.bbe.retrieveQuestCompletion();
 
-      let message = `${this.bbe.userInfo.character.name}
+      Promise.resolve()
+        .then(() => this.bbe.retrieveRanking())
+        .then(({ rankLevel, rankHonor, rankFans }) => {
+          let message = `${this.bbe.userInfo.character.name}
 - lvl ${this.bbe.userInfo.character.level} (${numeral(this.bbe.retrieveLevelPerc())
-        .format('0%')}) (${this.bbe.rankLevel}°)
+            .format('0%')}) (${rankLevel}°)
 - ${numeral(this.bbe.userInfo.character.game_currency).format('$ 0,0')}
 - ${this.bbe.userInfo.user.premium_currency} gems
-- ${numeral(this.bbe.userInfo.character.honor).format('0,0')} honor (${this.bbe.rankHonor}°)
-- ${numeral(this.bbe.userInfo.character.fans).format('0.00a')} fans (${this.bbe.rankFans}°)
+- ${numeral(this.bbe.userInfo.character.honor).format('0,0')} honor (${rankHonor}°)
+- ${numeral(this.bbe.userInfo.character.fans).format('0.00a')} fans (${rankFans}°)
 --------------------
 - energy: ${this.bbe.userInfo.character.quest_energy} + ${
-  200 - this.bbe.userInfo.character.quest_energy_refill_amount_today} ${
-    questCompletion ? `(${questCompletion})` : ''}
+          200 - this.bbe.userInfo.character.quest_energy_refill_amount_today} ${
+            questCompletion ? `(${questCompletion})` : ''}
 - stamina: ${this.bbe.userInfo.character.duel_stamina} / ${
-  this.bbe.userInfo.character.max_duel_stamina} (${this.bbe.userInfo.character.duel_stamina_cost})`;
+            this.bbe.userInfo.character.max_duel_stamina} (${
+              this.bbe.userInfo.character.duel_stamina_cost})`;
 
-      if (this.bbe.userInfo.movie) {
-        message += `
+          if (this.bbe.userInfo.movie) {
+            message += `
 --------------------
 - movie: ${numeral(this.bbe.userInfo.movie.energy / this.bbe.userInfo.movie.needed_energy)
-            .format('0%')}
+              .format('0%')}
 - movie energy: ${this.bbe.userInfo.character.movie_energy}`;
-      }
+          }
 
-      this.bot.sendMessage(chatId, message);
+          this.bot.sendMessage(chatId, message);
+        });
     });
   }
 }

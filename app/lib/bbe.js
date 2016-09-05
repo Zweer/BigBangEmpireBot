@@ -91,6 +91,7 @@ class BigBangEmpire {
           'errFinishInvalidStatus',
           'errGenerateNewMoviesNotYetAllowed',
           'errCheckForQuestCompleteNoActiveQuest',
+          'errGenerateNewMoviesLimitReached',
         ].indexOf(data.error) === -1) {
           throw new Error(`${data.error} @ ${action} ${JSON.stringify(form)}`);
         }
@@ -211,8 +212,6 @@ class BigBangEmpire {
           .then(() => this.handleWork())
           .then(() => this.handleMessages())
           .then(() => this.handleCompletedGoals())
-
-          .then(() => this.retrieveRanking())
           // .then(() => { this.log('completed'); })
 
           .catch((err) => {
@@ -913,28 +912,35 @@ class BigBangEmpire {
   }
 
   retrieveRanking() {
-    return this.makeAction('retrieveLeaderboard', {
-      sort_type: 1,
-      character_name: this.userInfo.character.name,
-    })
-      .then((data) => {
-        this.rankHonor = data.data.centered_rank;
+    return Promise.all([
+      this.makeAction('retrieveLeaderboard', {
+        sort_type: 1,
+        character_name: this.userInfo.character.name,
+      }),
 
-        return this.makeAction('retrieveLeaderboard', {
-          sort_type: 2,
-          character_name: this.userInfo.character.name,
-        });
-      })
-      .then((data) => {
-        this.rankLevel = data.data.centered_rank;
+      this.makeAction('retrieveLeaderboard', {
+        sort_type: 2,
+        character_name: this.userInfo.character.name,
+      }),
 
-        return this.makeAction('retrieveLeaderboard', {
-          sort_type: 3,
-          character_name: this.userInfo.character.name,
-        });
-      })
-      .then((data) => {
-        this.rankFans = data.data.centered_rank;
+      this.makeAction('retrieveLeaderboard', {
+        sort_type: 3,
+        character_name: this.userInfo.character.name,
+      }),
+    ])
+      .then(([dataRankHonor, dataRankLevel, dataRankFans]) => ({
+        rankHonor: dataRankHonor.data.centered_rank,
+        rankLevel: dataRankLevel.data.centered_rank,
+        rankFans: dataRankFans.data.centered_rank,
+      }))
+      .catch((err) => {
+        this.log(err);
+
+        return {
+          rankHonor: 0,
+          rankLevel: 0,
+          rankFans: 0,
+        };
       });
   }
 
