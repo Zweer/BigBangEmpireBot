@@ -88,8 +88,9 @@ class BigBangEmpire {
         } else if ([
           'errFinishNotYetCompleted',
           'errClaimMovieQuestRewardsInvalidQuest',
+          'errGenerateNewMoviesNotYetAllowed',
         ].indexOf(data.error) === -1) {
-          this.log(`------------------ ERROR ------------------\n${data.error}`);
+          throw new Error(`${data.error} @ ${action} ${JSON.stringify(form)}`);
         }
 
         return data;
@@ -210,8 +211,10 @@ class BigBangEmpire {
 
           .then(() => this.retrieveRanking())
           // .then(() => { this.log('completed'); })
+
           .catch((err) => {
-            this.log(err);
+            this.log(`------------------ ERROR ------------------\n${err}`);
+            this.bot.broadcastMsg(`Error: ${err.message}`);
           });
       });
   }
@@ -617,6 +620,12 @@ class BigBangEmpire {
 
     return this.makeAction('getDuelOpponents')
       .then((data) => {
+        if (!data.data.opponents) {
+          this.log(data);
+
+          throw new Error('No opponents');
+        }
+
         const character = data.data.character;
         const opponents = data.data.opponents.sort((a, b) => a.honor < b.honor);
 
@@ -879,12 +888,14 @@ class BigBangEmpire {
   retrieveRanking() {
     return this.makeAction('retrieveLeaderboard', {
       sort_type: 1,
+      character_name: this.userInfo.character.name,
     })
       .then((data) => {
         this.rankHonor = data.data.centered_rank;
 
         return this.makeAction('retrieveLeaderboard', {
           sort_type: 2,
+          character_name: this.userInfo.character.name,
         });
       })
       .then((data) => {
@@ -892,6 +903,7 @@ class BigBangEmpire {
 
         return this.makeAction('retrieveLeaderboard', {
           sort_type: 3,
+          character_name: this.userInfo.character.name,
         });
       })
       .then((data) => {
