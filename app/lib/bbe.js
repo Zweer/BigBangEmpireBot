@@ -18,6 +18,7 @@ class BigBangEmpire {
 
     this.level = 0;
     this.endQuest = 0;
+    this.rankRetrieved = 0;
 
     this.bot = {};
 
@@ -212,6 +213,8 @@ class BigBangEmpire {
           .then(() => this.handleWork())
           .then(() => this.handleMessages())
           .then(() => this.handleCompletedGoals())
+
+          .then(() => this.retrieveRanking())
           // .then(() => { this.log('completed'); })
 
           .catch((err) => {
@@ -479,6 +482,10 @@ class BigBangEmpire {
   }
 
   handleStoryDungeonAttack() {
+    if (this.userInfo.character.active_quest_id || this.userInfo.character.quest_energy === 0) {
+      return true;
+    }
+
     if (!this.userInfo.story_dungeon) {
       return true;
     }
@@ -912,35 +919,32 @@ class BigBangEmpire {
   }
 
   retrieveRanking() {
-    return Promise.all([
-      this.makeAction('retrieveLeaderboard', {
-        sort_type: 1,
-        character_name: this.userInfo.character.name,
-      }),
+    this.rankRetrieved++;
 
-      this.makeAction('retrieveLeaderboard', {
-        sort_type: 2,
-        character_name: this.userInfo.character.name,
-      }),
+    const rankType = (this.rankRetrieved % 3) + 1;
 
-      this.makeAction('retrieveLeaderboard', {
-        sort_type: 3,
-        character_name: this.userInfo.character.name,
-      }),
-    ])
-      .then(([dataRankHonor, dataRankLevel, dataRankFans]) => ({
-        rankHonor: dataRankHonor.data.centered_rank,
-        rankLevel: dataRankLevel.data.centered_rank,
-        rankFans: dataRankFans.data.centered_rank,
-      }))
-      .catch((err) => {
-        this.log(err);
+    return this.makeAction('retrieveLeaderboard', {
+      sort_type: rankType,
+      character_name: this.userInfo.character.name,
+    })
+      .then((data) => {
+        switch (rankType) {
+          case 1:
+            this.rankHonor = data.data.centered_rank;
+            break;
 
-        return {
-          rankHonor: 0,
-          rankLevel: 0,
-          rankFans: 0,
-        };
+          case 2:
+            this.rankLevel = data.data.centered_rank;
+            break;
+
+          case 3:
+            this.rankFans = data.data.centered_rank;
+            break;
+
+          default:
+            this.log(data);
+            break;
+        }
       });
   }
 

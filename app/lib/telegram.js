@@ -42,15 +42,14 @@ class BigBangEmpireTelegram {
       const questCompletion = this.bbe.retrieveQuestCompletion();
 
       Promise.resolve()
-        .then(() => this.bbe.retrieveRanking())
-        .then(({ rankLevel, rankHonor, rankFans }) => {
+        .then(() => {
           let message = `${this.bbe.userInfo.character.name}
 - lvl ${this.bbe.userInfo.character.level} (${numeral(this.bbe.retrieveLevelPerc())
-            .format('0%')}) (${rankLevel}°)
+            .format('0%')}) (${this.bbe.rankLevel}°)
 - ${numeral(this.bbe.userInfo.character.game_currency).format('$ 0,0')}
 - ${this.bbe.userInfo.user.premium_currency} gems
-- ${numeral(this.bbe.userInfo.character.honor).format('0,0')} honor (${rankHonor}°)
-- ${numeral(this.bbe.userInfo.character.fans).format('0.00a')} fans (${rankFans}°)
+- ${numeral(this.bbe.userInfo.character.honor).format('0,0')} honor (${this.bbe.rankHonor}°)
+- ${numeral(this.bbe.userInfo.character.fans).format('0.00a')} fans (${this.bbe.rankFans}°)
 --------------------
 - energy: ${this.bbe.userInfo.character.quest_energy} + ${
           200 - this.bbe.userInfo.character.quest_energy_refill_amount_today} ${
