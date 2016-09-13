@@ -12,7 +12,7 @@ class BigBangEmpire {
     this.options = options;
     this.requestDataUrl = 'http://www.bigbangempire.com/platform/requestData.php';
     this.locale = 'en_US';
-    this.client_version = 'flash_40';
+    this.client_version = 'flash_41';
     this.user_session_id = 0;
     this.user_id = 0;
 
@@ -346,6 +346,8 @@ class BigBangEmpire {
       this.log(msg);
       this.bot.broadcastMsg(msg);
     }
+
+    return true;
 
     let inventoryFull = true;
 
