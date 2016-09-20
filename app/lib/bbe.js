@@ -13,6 +13,7 @@ class BigBangEmpire {
     this.baseUrl = 'http://us2.bigbangempire.com/';
     this.restart = false;
     this.close = false;
+    this.requestedResources = false;
 
     this.client_version = 'flash_41';
     this.user_session_id = 0;
@@ -262,6 +263,7 @@ class BigBangEmpire {
           .then(() => this.handleStoryDungeonAttack())
           .then(() => this.handleBuyEnergy())
           .then(() => this.handleQuest())
+          .then(() => this.handleResourceRequest())
           .then(() => this.handleDuel())
           .then(() => this.handleMissedDuels())
           .then(() => this.handleMovieRefresh())
@@ -735,6 +737,26 @@ class BigBangEmpire {
       });
   }
 
+  handleResourceRequest() {
+    if (this.requestedResources) {
+      return true;
+    }
+
+    this.requestedResources = true;
+
+    BigBangEmpire.log('Requesting resources');
+
+    return this.request('getAvailableResourceRequestFriends', {
+      platform: this.config.platform,
+      feature_type: 1,
+    }, false)
+      .then((data) => data.data.resource_request_friends.map((friend) => friend.user_id))
+      .then((friends) => friends.length && this.request('createResourceRequest', {
+        feature_type: 1,
+        user_ids: friends.join(';'),
+      }));
+  }
+
   handleDuel(best) {
     if (this.userInfo.character.duel_stamina < this.userInfo.character.duel_stamina_cost
       ||
@@ -934,7 +956,7 @@ class BigBangEmpire {
   makeMovieQuest(quest) {
     BigBangEmpire.log(`Starting a movie quest: ${quest.rewards.movie_progress} reward`);
 
-    this.request('startMovieQuest', {
+    return this.request('startMovieQuest', {
       movie_quest_id: quest.id,
     });
   }
