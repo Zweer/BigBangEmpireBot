@@ -1,26 +1,24 @@
 'use strict';
 
 const _ = require('lodash');
-const uuid = require('node-uuid');
 const crypto = require('crypto');
 const moment = require('moment');
 const numeral = require('numeral');
+const cheerio = require('cheerio');
 const request = require('request-promise');
 
 class BigBangEmpire {
-  constructor(options) {
+  constructor(options = {}) {
     this.options = options;
-    this.requestDataUrl = 'http://www.bigbangempire.com/platform/requestData.php';
-    this.locale = 'en_US';
+    this.baseUrl = 'http://us2.bigbangempire.com/';
+    this.restart = false;
+
     this.client_version = 'flash_41';
     this.user_session_id = 0;
     this.user_id = 0;
+    this.userInfo = {};
 
-    this.level = 0;
-    this.endQuest = 0;
-    this.rankRetrieved = 0;
-
-    this.bot = {};
+    this.AUTH_SALT = 'bpHgj5214'; // MD5: action + salt + userId
 
     this.QUEST_TYPES = {
       1: 'time',
@@ -41,59 +39,95 @@ class BigBangEmpire {
       10: 'missiles',
     };
 
-    this.canDuel = true;
+    /**
+     * {
+     * appCDNUrl: 'http://static.bigbangempire.com/',
+     * appConfigPlatform: 'standalone',
+     * appConfigLocale: 'en_US',
+     * appConfigServerId: 'us2',
+     * applicationTitle: 'Big Bang Empire',
+     * urlPublic: 'http://us2.bigbangempire.com/',
+     * urlRequestServer: 'http://us2.bigbangempire.com/request.php',
+     * urlSocketServer: 'http://us2c-sock1.bigbangempire.com',
+     * urlSwfPreloader: 'http://static.bigbangempire.com/swf/preloader.swf?fbe01a8a445bf72538a8456fe712b3dc',
+     * urlSwfMain: 'http://static.bigbangempire.com/swf/main.swf?a193f2c7e2c2f1ece01d8c0609e42ade',
+     * urlSwfCharacter: 'http://static.bigbangempire.com/swf/character.swf?3157e992cfb950a2f354b636a8df7db0',
+     * urlSwfCharacterUSK18: '',
+     * urlSwfUi: 'http://static.bigbangempire.com/swf/ui.swf?02486ce31d42b85b9594daa16cdaefd2',
+     * urlCDN: 'http://static.bigbangempire.com/',
+     * urlCDNGetImage: 'http://bbe-getimage.akamaized.net/',
+     * urlLogo: '',
+     * userId: '0',
+     * userSessionId: '0',
+     * testMode: 'false',
+     * debugRunTests: 'false',
+     * registrationSource: 'ref=;subid=;lp=;',
+     * startupParams: '',
+     * platform: 'standalone',
+     * ssoInfo: '',
+     * uniqueId: 'us21474388564',
+     * server_id: 'us2',
+     * default_locale: 'en_US',
+     * localeVersion: '986790a2a1d494789a2877e5894f5b45',
+     * blockRegistration: 'false',
+     * isFriendbarSupported: 'true'
+     * }
+     */
+    this.config = {};
 
-    this.log('Init started');
-    this.initGame()
-      .then(() => { this.log('Init completed'); })
-      .then(() => this.firstSyncGame())
-      .then(() => this.syncGame())
+    this.level = 0;
+    this.endQuest = 0;
+    this.rankRetrieved = 0;
+
+    this.bot = {};
+
+    Promise.resolve()
+      .then(() => this.init())
+      .then(() => this.initFriendBar())
+      .then(() => this.initGame())
+      .then(() => this.startGame())
       .catch((err) => {
-        this.log(err);
+        BigBangEmpire.log(err);
       });
   }
 
-  log(msg, what) {
-    const time = moment().format('HH:mm:ss');
-    const msgWhat = what ? ` - [${what}]` : '';
-
-    if (typeof msg !== 'string') {
-      console.log(msg);
-
-      return;
-    }
-
-    console.log(`${time}${msgWhat} - ${msg}`);
-  }
-
-  makeAction(action, form = {}) {
+  /**
+   * { user_id, rct, action, client_version, user_session_id, auth }
+   * @param action
+   * @param form
+   * @param save
+   * @return {Promise}
+   */
+  request(action, form = {}, save = true) {
     _.defaults(form, {
       user_id: this.user_id,
       rct: 1,
       action,
       client_version: this.client_version,
       user_session_id: this.user_session_id,
-      auth: crypto.createHash('md5').update(uuid.v4()).digest('hex'),
+      auth: crypto.createHash('md5').update(action + this.AUTH_SALT + this.user_id).digest('hex'),
     });
 
     return request.post({
-      url: this.urlRequestServer,
+      url: this.config.urlRequestServer,
       json: true,
       form,
     })
       .then((data) => {
         if (data.error === '') {
-          const userInfo = _.omitBy(data.data, _.isEmpty);
+          const userInfo = _.omitBy(data.data, (value) => _.isArray(value) && _.isEmpty(value));
 
-          _.merge(this.userInfo, userInfo);
+          if (save) {
+            _.merge(this.userInfo, userInfo);
+          }
         } else if ([
-          'errFinishNotYetCompleted',
-          'errClaimMovieQuestRewardsInvalidQuest',
-          'errFinishInvalidStatus',
-          'errGenerateNewMoviesNotYetAllowed',
-          'errCheckForQuestCompleteNoActiveQuest',
-          'errGenerateNewMoviesLimitReached',
-        ].indexOf(data.error) === -1) {
+            'errFinishNotYetCompleted',
+            'errClaimMovieQuestRewardsInvalidQuest',
+            'errFinishInvalidStatus',
+            'errGenerateNewMoviesNotYetAllowed',
+            'errCheckForQuestCompleteNoActiveQuest',
+            'errGenerateNewMoviesLimitReached',
+          ].indexOf(data.error) === -1) {
           throw new Error(`${data.error} @ ${action} ${JSON.stringify(form)}`);
         }
 
@@ -101,78 +135,70 @@ class BigBangEmpire {
       });
   }
 
-  initGame() {
+  init() {
+    BigBangEmpire.log('init started');
+
     return request
-      .post({
-        url: this.requestDataUrl,
-        json: true,
-        form: {
-          locale: this.locale,
-          server_id: '',
-          user_id: 0,
-          auth: crypto.createHash('md5').update(uuid.v4()).digest('hex'),
-          client_version: '',
-          platform: this.options.platform,
-          user_session_id: 0,
-          rct: 1,
-        },
+      .get({
+        url: this.baseUrl,
+        transform: (body) => cheerio.load(body),
       })
-      .then((data) => {
-        this.urlCDN = data.data.urlCDN;
-        this.urlCDNGetImage = data.data.urlCDNGetImage;
-        this.urlRequestServer = data.data.urlRequestServer;
-        this.urlSocketServer = data.data.urlSocketServer;
-        this.server_id = data.data.server_id;
-        this.localeVersion = data.data.localeVersion;
-        this.registrationSource = data.data.registrationSource;
+      .then(($) => {
+        const jsCode = $('#flashContainer script').text();
 
-        return this.makeAction('initFriendBar');
-      })
-      .then(() => this.makeAction('initGame', {
-        locale_version: this.localeVersion,
-        locale: this.locale,
-        swf_character_hash: '',
-        no_text: true,
-        swf_ui_hash: '',
-        swf_main_hash: '',
-      }))
-      .then((data) => {
-        this.gameInfo = data.data;
+        jsCode.split('\n').every((unformattedLine) => {
+          const line = unformattedLine.trim();
 
-        return this.makeAction('loginUserSSO', {
-          platform: this.options.platform,
-          platform_user_id: this.options.platform_user_id,
-          steam_access_token: this.options.steam_access_token,
-        });
-      })
-      .then((data) => {
-        this.userInfo = data.data;
+          if (line === '') {
+            return true;
+          }
 
-        if (typeof this.userInfo.user === 'undefined') {
-          this.log('Invalid credentials');
+          const matchVar = line.match(/(var )?(\w+)([\s=:]+)"([^"]*)"(;|,)?/);
+          if (matchVar) {
+            this.config[matchVar[2]] = matchVar[4];
 
-          process.exit(1);
-        }
+            return true;
+          }
 
-        this.user_session_id = this.userInfo.user.session_id;
-        this.user_id = this.userInfo.user.id;
-
-        this.character_id = this.userInfo.character.id;
-        this.guild_id = this.userInfo.character.guild_id;
-
-        return this.makeAction('loginFriendBar', {
-          platform: this.options.platform,
-          existing_user_id: this.user_id,
-          existing_session_id: this.user_session_id,
-        });
-      })
-      .then((data) => {
-        this.friends = data.data.friend_data;
-
-        return this.makeAction('updateGameSession', {
-          connection_type: 2,
+          return !!(line.match(/\/\//) || line.match(/var (\w+) = \{/));
         });
       });
+  }
+
+  initFriendBar() {
+    BigBangEmpire.log('initFriendBar started');
+
+    return this.request('initFriendBar', {
+      client_version: 'friendbar_1',
+    }, false);
+  }
+
+  initGame() {
+    BigBangEmpire.log('initGame started');
+
+    return this.request('initGame', {
+      locale: this.config.appConfigLocale,
+      locale_version: this.config.locale_version,
+      swf_ui_hash: BigBangEmpire.getHashFromUrl(this.config.urlSwfUi),
+      swf_character_hash: BigBangEmpire.getHashFromUrl(this.config.urlSwfCharacter),
+      swf_main_hash: BigBangEmpire.getHashFromUrl(this.config.urlSwfMain),
+      no_text: true,
+    }, false)
+      .then((data) => {
+        this.gameInfo = data.data;
+      });
+  }
+
+  startGame() {
+    BigBangEmpire.log('starting the routine');
+
+    return this.loginUser()
+      .then(() => this.firstSyncGame())
+      .then(() => this.syncGame());
+  }
+
+  restartGame() {
+    this.restart = true;
   }
 
   firstSyncGame() {
@@ -188,13 +214,35 @@ class BigBangEmpire {
     });
   }
 
+  loginUser() {
+    return this.request('loginUser', {
+      platform: '',
+      platform_user_id: '',
+      client_id: 'it11473609268',
+      email: this.options.auth.email,
+      password: this.options.auth.password,
+    })
+      .then((data) => {
+        this.user_id = data.data.user.id;
+        this.user_session_id = data.data.user.session_id;
+      });
+  }
+
   syncGame() {
-    return this.makeAction('syncGame')
+    if (this.restart) {
+      this.restart = false;
+
+      this.userInfo = {};
+
+      return this.startGame();
+    }
+
+    return this.request('syncGame', { force_sync: false })
       .then(() => {
         setTimeout(this.syncGame.bind(this), this.options.delaySyncGame);
 
         return Promise.all([])
-        // .then(() => { this.log('sync'); })
+        // .then(() => { BigBangEmpire.log('sync'); })
           .then(() => this.handleNewLevel())
           .then(() => this.handleStatPointAvailable())
           .then(() => this.handleInventory())
@@ -215,10 +263,10 @@ class BigBangEmpire {
           .then(() => this.handleCompletedGoals())
 
           .then(() => this.retrieveRanking())
-          // .then(() => { this.log('completed'); })
+          // .then(() => { BigBangEmpire.log('completed'); })
 
           .catch((err) => {
-            this.log(`------------------ ERROR ------------------\n${err}`);
+            BigBangEmpire.log(`------------------ ERROR ------------------\n${err}`);
             this.bot.broadcastMsg(`Error: ${err.message}`);
           });
       });
@@ -232,7 +280,7 @@ class BigBangEmpire {
     if (this.level !== this.userInfo.character.level && this.level !== 0) {
       const msg = `New level: ${this.userInfo.character.level}!!`;
 
-      this.log(msg);
+      BigBangEmpire.log(msg);
       this.bot.broadcastMsg(msg);
     }
 
@@ -275,9 +323,9 @@ class BigBangEmpire {
       });
 
       if (typeof nextGoalValue !== 'undefined' && value >= nextGoalValue) {
-        this.log(`Completing a goal: ${name}`);
+        BigBangEmpire.log(`Completing a goal: ${name}`);
 
-        return this.makeAction('collectGoalReward', {
+        return this.request('collectGoalReward', {
           value: nextGoalValue,
           identifier: name,
           discard_item: false,
@@ -293,7 +341,8 @@ class BigBangEmpire {
       return true;
     }
 
-    this.log(`You have stat point available: ${this.userInfo.character.stat_points_available}`);
+    BigBangEmpire.log(`You have stat point available: ${
+      this.userInfo.character.stat_points_available}`);
 
     return this.makeSkill();
   }
@@ -330,9 +379,9 @@ class BigBangEmpire {
       return 1;
     });
 
-    this.log(`Adding one stat point in: ${stats[0].name}`);
+    BigBangEmpire.log(`Adding one stat point in: ${stats[0].name}`);
 
-    return this.makeAction('improveCharacterStat', {
+    return this.request('improveCharacterStat', {
       stat_type: stats[0].index,
     });
   }
@@ -343,11 +392,43 @@ class BigBangEmpire {
 
       const msg = 'NO MORE MISSILES!!!!!!!';
 
-      this.log(msg);
+      BigBangEmpire.log(msg);
       this.bot.broadcastMsg(msg);
     }
 
-    return true;
+    let inventoryFull = true;
+
+    Promise.all(_.values(_.mapValues(this.userInfo.inventory, (value, key) => {
+      if (key.substr(0, 8) === 'bag_item') {
+        if (value === 0) {
+          inventoryFull = false;
+
+          return false;
+        }
+      }
+
+      return true;
+    })));
+
+    if (inventoryFull) {
+      this.canDuel = false;
+
+      const msg = 'INVENTORY FULL!!!!!!!';
+
+      BigBangEmpire.log(msg);
+      this.bot.broadcastMsg(msg);
+    }
+  }
+
+  handleInventoryFull() {
+    if (this.userInfo.inventory.missiles_item_id === 0) {
+      this.canDuel = false;
+
+      const msg = 'NO MORE MISSILES!!!!!!!';
+
+      BigBangEmpire.log(msg);
+      this.bot.broadcastMsg(msg);
+    }
 
     let inventoryFull = true;
 
@@ -367,9 +448,9 @@ class BigBangEmpire {
         const type = this.ITEM_TYPES[item.type];
 
         if (this.userInfo.inventory[`${type}_item_id`] === 0) {
-          this.log(`Moving item: ${type}`);
+          BigBangEmpire.log(`Moving item: ${type}`);
 
-          return this.makeAction('moveInventoryItem', {
+          return this.request('moveInventoryItem', {
             item_id: item.id,
             target_slot: item.type,
           });
@@ -389,10 +470,10 @@ class BigBangEmpire {
           equipped.stat_critical_rating + equipped.stat_dodge_rating + equipped.stat_weapon_damage;
 
         if (itemTotalStats < equippedTotalStats) {
-          this.log(`Selling item: ${type}
+          BigBangEmpire.log(`Selling item: ${type}
 - my: ${equippedTotalStats} - bag: ${itemTotalStats}`);
 
-          return this.makeAction('sellInventoryItem', {
+          return this.request('sellInventoryItem', {
             item_id: item.id,
           })
             .then(() => {
@@ -401,10 +482,10 @@ class BigBangEmpire {
         }
 
         if (itemTotalStats > equippedTotalStats + 15) {
-          this.log(`Moving item: ${type}
+          BigBangEmpire.log(`Moving item: ${type}
 - my: ${equippedTotalStats} - bag: ${itemTotalStats}`);
 
-          return this.makeAction('moveInventoryItem', {
+          return this.request('moveInventoryItem', {
             item_id: item.id,
             target_slot: item.type,
           });
@@ -418,20 +499,20 @@ class BigBangEmpire {
       .then(() => {
         if (inventoryFull) {
           this.canDuel = false;
-          this.log('INVENTORY FULL!!!!!!!');
+          BigBangEmpire.log('INVENTORY FULL!!!!!!!');
         }
       });
   }
 
   handleCurrentQuest() {
-    return this.makeAction('checkForQuestComplete')
+    return this.request('checkForQuestComplete')
       .then((dataComplete) => {
         if (
           (dataComplete.data.quest && dataComplete.data.quest.status === 4)
           ||
           dataComplete.error === 'errFinishInvalidStatus'
-          ) {
-          return this.makeAction('claimQuestRewards', {
+        ) {
+          return this.request('claimQuestRewards', {
             discard_item: false,
             create_new: true,
           })
@@ -451,7 +532,7 @@ class BigBangEmpire {
       return true;
     }
 
-    return this.makeAction('claimMovieQuestRewards')
+    return this.request('claimMovieQuestRewards')
       .then((data) => {
         if (data.error) {
           return true;
@@ -465,15 +546,15 @@ class BigBangEmpire {
 
   handleMovieVotes() {
     if (this.userInfo.character.movie_votes !== 0) {
-      return this.makeAction('getMoviesToVote', {
+      return this.request('getMoviesToVote', {
         refresh: false,
       })
         .then((data) => {
           const movies = data.data.movies_to_vote;
 
-          this.log(`Voting movie ${movies[0].id}`);
+          BigBangEmpire.log(`Voting movie ${movies[0].id}`);
 
-          return this.makeAction('voteForMovie', {
+          return this.request('voteForMovie', {
             discard_item: false,
             movie_id: movies[0].id,
           });
@@ -494,13 +575,13 @@ class BigBangEmpire {
 
     const now = Math.round(new Date().getTime() / 1000);
 
-    if (now > this.userInfo.story_dungeon.ts_last_attack + 3600) {
+    if (now > this.userInfo.story_dungeon.ts_last_attack + 3600 && false) {
       this.bot.broadcastMsg('Starting a Story Dungeon Attack');
 
-      return this.makeAction('startStoryDungeonBattle', {
+      return this.request('startStoryDungeonBattle', {
         finish_cooldown: false,
       })
-        .then(() => this.makeAction('claimStoryDungeonReward', {
+        .then(() => this.request('claimStoryDungeonReward', {
           discard_item: false,
         }))
         .then(() => {
@@ -517,7 +598,7 @@ class BigBangEmpire {
       &&
       this.userInfo.character.quest_energy + 50 < this.userInfo.character.max_quest_energy
     ) {
-      return this.makeAction('buyQuestEnergy', {
+      return this.request('buyQuestEnergy', {
         use_premium: false,
       });
     }
@@ -530,7 +611,7 @@ class BigBangEmpire {
       return true;
     }
 
-    this.log(`You have quest energy: ${this.userInfo.character.quest_energy}`);
+    BigBangEmpire.log(`You have quest energy: ${this.userInfo.character.quest_energy}`);
 
     let quest;
 
@@ -602,9 +683,9 @@ class BigBangEmpire {
       startingString += '\n- with an item';
     }
 
-    this.log(startingString);
+    BigBangEmpire.log(startingString);
 
-    return this.makeAction('startQuest', {
+    return this.request('startQuest', {
       quest_id: quest.id,
     })
       .then((data) => {
@@ -632,10 +713,10 @@ class BigBangEmpire {
           this.userInfo.character.used_resources[1] < 4
           &&
           quest.energy_cost > 8
-          ) {
-          this.log('Reducing quest time');
+        ) {
+          BigBangEmpire.log('Reducing quest time');
 
-          return this.makeAction('useResource', {
+          return this.request('useResource', {
             feature_type: 1,
           });
         }
@@ -646,17 +727,17 @@ class BigBangEmpire {
 
   handleDuel(best) {
     if (this.userInfo.character.duel_stamina < this.userInfo.character.duel_stamina_cost
-        ||
-        !this.canDuel) {
+      ||
+      !this.canDuel) {
       return true;
     }
 
-    this.log(`You have enough duel stamina: ${this.userInfo.character.duel_stamina}`);
+    BigBangEmpire.log(`You have enough duel stamina: ${this.userInfo.character.duel_stamina}`);
 
-    return this.makeAction('getDuelOpponents')
+    return this.request('getDuelOpponents')
       .then((data) => {
         if (!data.data.opponents) {
-          this.log(data);
+          BigBangEmpire.log(data);
 
           throw new Error('No opponents');
         }
@@ -673,7 +754,7 @@ class BigBangEmpire {
 
         opponents.every((tmpOpponent) => {
           if (!this.isOutOfGuild(tmpOpponent)) {
-            this.log(`${tmpOpponent.name} is in my guild: can't duel!`);
+            BigBangEmpire.log(`${tmpOpponent.name} is in my guild: can't duel!`);
 
             return true;
           }
@@ -706,16 +787,16 @@ class BigBangEmpire {
   }
 
   makeDuel(opponent) {
-    this.log(`Starting a duel with ${opponent.name}`);
+    BigBangEmpire.log(`Starting a duel with ${opponent.name}`);
 
-    return this.makeAction('startDuel', {
+    return this.request('startDuel', {
       character_id: opponent.id,
       use_premium: false,
     })
       .then((data) => {
         if (data.error === 'errStartDuelActiveDuelFound') {
-          return this.makeAction('checkForDuelComplete')
-            .then(() => this.makeAction('claimDuelRewards', {
+          return this.request('checkForDuelComplete')
+            .then(() => this.request('claimDuelRewards', {
               discard_item: false,
             }))
             .then(() => this.makeDuel(opponent))
@@ -739,12 +820,12 @@ class BigBangEmpire {
           addendum += `, ${reward.item} item`;
         }
 
-        this.log(`You ${wonOrLost} the duel! ${
+        BigBangEmpire.log(`You ${wonOrLost} the duel! ${
           numeral(reward.honor).format('+0')} honor${addendum}`);
 
-        return this.makeAction('checkForDuelComplete');
+        return this.request('checkForDuelComplete');
       })
-      .then(() => this.makeAction('claimDuelRewards', {
+      .then(() => this.request('claimDuelRewards', {
         discard_item: false,
       }));
   }
@@ -755,9 +836,9 @@ class BigBangEmpire {
     }
 
     const duels = this.userInfo.missed_duels === 1 ? 'duel' : 'duels';
-    this.log(`You have missed ${this.userInfo.missed_duels} ${duels}`);
+    BigBangEmpire.log(`You have missed ${this.userInfo.missed_duels} ${duels}`);
 
-    return this.makeAction('getMissedDuelsNew', {
+    return this.request('getMissedDuelsNew', {
       history: false,
     })
       .then((data) => {
@@ -766,10 +847,12 @@ class BigBangEmpire {
 
           // eslint-disable-next-line no-param-reassign
           duel.character_b_rewards = JSON.parse(duel.character_b_rewards);
-          this.log(`Missed duel: ${wonOrLost}, ${duel.character_b_rewards.honor} honor`);
+          BigBangEmpire.log(`Missed duel: ${wonOrLost}, ${duel.character_b_rewards.honor} honor`);
         });
 
-        return this.makeAction('claimMissedDuelsRewards');
+        this.userInfo.missed_duels = 0;
+
+        return this.request('claimMissedDuelsRewards');
       });
   }
 
@@ -778,7 +861,7 @@ class BigBangEmpire {
       return true;
     }
 
-    return this.makeAction('refreshMoviePool', {
+    return this.request('refreshMoviePool', {
       use_premium: false,
     });
   }
@@ -789,7 +872,7 @@ class BigBangEmpire {
     }
 
     const msg = 'Choosing the next movie';
-    this.log(msg);
+    BigBangEmpire.log(msg);
     this.bot.broadcastMsg(msg);
 
     const movies = this.userInfo.movies.sort((a, b) => {
@@ -800,10 +883,10 @@ class BigBangEmpire {
       return 1;
     });
 
-    return this.makeAction('startMovie', {
+    return this.request('startMovie', {
       movie_id: movies[0].id,
     })
-      .then((data) => {
+      .then(() => {
         delete this.userInfo.movies;
 
         return true;
@@ -839,9 +922,9 @@ class BigBangEmpire {
   }
 
   makeMovieQuest(quest) {
-    this.log(`Starting a movie quest: ${quest.rewards.movie_progress} reward`);
+    BigBangEmpire.log(`Starting a movie quest: ${quest.rewards.movie_progress} reward`);
 
-    this.makeAction('startMovieQuest', {
+    this.request('startMovieQuest', {
       movie_quest_id: quest.id,
     });
   }
@@ -865,11 +948,11 @@ class BigBangEmpire {
 
     if (energy >= needed && claimed < 3) {
       return this.makeMovieStar()
-        .then(() => this.makeAction('finishMovie'))
-        .then((data) => {
+        .then(() => this.request('finishMovie'))
+        .then(() => {
           const msg = 'Movie finished';
 
-          this.log(msg);
+          BigBangEmpire.log(msg);
           this.bot.broadcastMsg(msg);
 
           delete this.userInfo.movie;
@@ -883,7 +966,7 @@ class BigBangEmpire {
   }
 
   makeMovieStar() {
-    return this.makeAction('claimMovieStar', {
+    return this.request('claimMovieStar', {
       discard_item: false,
     });
   }
@@ -894,7 +977,7 @@ class BigBangEmpire {
     const diff = now - lastWork;
 
     if (diff > 60 * 60 * 3) {
-      return this.makeAction('collectWork');
+      return this.request('collectWork');
     }
 
     return true;
@@ -908,13 +991,13 @@ class BigBangEmpire {
     const msg = `You have ${this.userInfo.new_messages} new messages (${
       this.userInfo.character.pending_resource_requests} resource requests)`;
 
-    this.log(msg);
+    BigBangEmpire.log(msg);
     this.bot.broadcastMsg(msg);
 
     if (this.userInfo.character.pending_resource_requests > 0) {
-      this.log('Accepting all resource requests');
+      BigBangEmpire.log('Accepting all resource requests');
 
-      return this.makeAction('acceptAllResourceRequests');
+      return this.request('acceptAllResourceRequests');
     }
 
     return true;
@@ -925,7 +1008,7 @@ class BigBangEmpire {
 
     const rankType = (this.rankRetrieved % 3) + 1;
 
-    return this.makeAction('retrieveLeaderboard', {
+    return this.request('retrieveLeaderboard', {
       sort_type: rankType,
       character_name: this.userInfo.character.name,
     })
@@ -944,7 +1027,7 @@ class BigBangEmpire {
             break;
 
           default:
-            this.log(data);
+            BigBangEmpire.log(data);
             break;
         }
       });
@@ -977,6 +1060,23 @@ class BigBangEmpire {
 
     return `${minutes} minute${minutes === 1 ? '' : 's'} ${
       seconds} second${seconds === 1 ? '' : 's'}`;
+  }
+
+  static log(msg, what) {
+    const time = moment().format('HH:mm:ss');
+    const msgWhat = what ? ` - [${what}]` : '';
+
+    if (typeof msg !== 'string') {
+      console.log(msg);
+
+      return;
+    }
+
+    console.log(`${time}${msgWhat} - ${msg}`);
+  }
+
+  static getHashFromUrl(url) {
+    return url.split('?')[1];
   }
 }
 

@@ -1,12 +1,13 @@
 'use strict';
 
 module.exports = {
-  auth: {
+  bbe: {
     delaySyncGame: 10000,
 
-    platform: 'steam',
-    platform_user_id: 'your steam id',
-    steam_access_token: 'steam generated password',
+    auth: {
+      email: 'your email address',
+      password: 'your password',
+    },
   },
 
   telegram: {
