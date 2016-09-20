@@ -619,7 +619,18 @@ class BigBangEmpire {
   }
 
   handleQuest() {
-    if (this.userInfo.character.active_quest_id || this.userInfo.character.quest_energy === 0) {
+    if (this.userInfo.character.active_quest_id) {
+      return true;
+    }
+
+    if (this.userInfo.character.quest_energy === 0) {
+      const msg = 'No more energy, shutting down!';
+
+      BigBangEmpire.log(msg);
+      this.bot.broadcastMsg(msg);
+
+      this.closeGame();
+
       return true;
     }
 
