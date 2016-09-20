@@ -18,6 +18,7 @@ class BigBangEmpireTelegram {
   initRoutes() {
     this.routeInfo();
     this.routeRestart();
+    this.routeClose();
   }
 
   handleReceiver(msg) {
@@ -79,6 +80,16 @@ class BigBangEmpireTelegram {
 
       this.bbe.restartGame();
       this.bot.sendMessage(chatId, 'Game restarted!');
+    });
+  }
+
+  routeClose() {
+    this.bot.onText(/^\/close$/, (msg) => {
+      this.handleReceiver(msg);
+      const chatId = msg.chat.id;
+
+      this.bbe.closeGame();
+      this.bot.sendMessage(chatId, 'Game close, cya!');
     });
   }
 }

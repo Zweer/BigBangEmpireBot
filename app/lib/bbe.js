@@ -12,6 +12,7 @@ class BigBangEmpire {
     this.options = options;
     this.baseUrl = 'http://us2.bigbangempire.com/';
     this.restart = false;
+    this.close = false;
 
     this.client_version = 'flash_41';
     this.user_session_id = 0;
@@ -121,13 +122,13 @@ class BigBangEmpire {
             _.merge(this.userInfo, userInfo);
           }
         } else if ([
-            'errFinishNotYetCompleted',
-            'errClaimMovieQuestRewardsInvalidQuest',
-            'errFinishInvalidStatus',
-            'errGenerateNewMoviesNotYetAllowed',
-            'errCheckForQuestCompleteNoActiveQuest',
-            'errGenerateNewMoviesLimitReached',
-          ].indexOf(data.error) === -1) {
+          'errFinishNotYetCompleted',
+          'errClaimMovieQuestRewardsInvalidQuest',
+          'errFinishInvalidStatus',
+          'errGenerateNewMoviesNotYetAllowed',
+          'errCheckForQuestCompleteNoActiveQuest',
+          'errGenerateNewMoviesLimitReached',
+        ].indexOf(data.error) === -1) {
           throw new Error(`${data.error} @ ${action} ${JSON.stringify(form)}`);
         }
 
@@ -201,6 +202,10 @@ class BigBangEmpire {
     this.restart = true;
   }
 
+  closeGame() {
+    this.close = true;
+  }
+
   firstSyncGame() {
     // Retrieving current quest
     this.userInfo.quests.every((quest) => {
@@ -235,6 +240,11 @@ class BigBangEmpire {
       this.userInfo = {};
 
       return this.startGame();
+    }
+
+    if (this.close) {
+      process.exit(0);
+      return true;
     }
 
     return this.request('syncGame', { force_sync: false })
