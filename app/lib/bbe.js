@@ -14,6 +14,8 @@ class BigBangEmpire {
     this.restart = false;
     this.close = false;
     this.requestedResources = false;
+    this.alertMissiles = true;
+    this.alertInventory = true;
     this.canDuel = true;
 
     this.client_version = 'flash_41';
@@ -403,10 +405,14 @@ class BigBangEmpire {
     if (this.userInfo.inventory.missiles_item_id === 0) {
       this.canDuel = false;
 
-      const msg = 'NO MORE MISSILES!!!!!!!';
+      if (this.alertMissiles) {
+        this.alertMissiles = false;
 
-      BigBangEmpire.log(msg);
-      this.bot.broadcastMsg(msg);
+        const msg = 'NO MORE MISSILES!!!!!!!';
+
+        BigBangEmpire.log(msg);
+        this.bot.broadcastMsg(msg);
+      }
     }
 
     let inventoryFull = true;
@@ -426,10 +432,14 @@ class BigBangEmpire {
     if (inventoryFull) {
       this.canDuel = false;
 
-      const msg = 'INVENTORY FULL!!!!!!!';
+      if (this.alertInventory) {
+        this.alertInventory = false;
 
-      BigBangEmpire.log(msg);
-      this.bot.broadcastMsg(msg);
+        const msg = 'INVENTORY FULL!!!!!!!';
+
+        BigBangEmpire.log(msg);
+        this.bot.broadcastMsg(msg);
+      }
     }
   }
 
