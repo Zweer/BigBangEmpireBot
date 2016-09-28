@@ -13,10 +13,10 @@ class BigBangEmpire {
     this.baseUrl = 'http://us2.bigbangempire.com/';
     this.restart = false;
     this.close = false;
+    this.closeWhenNoEnergy = false;
     this.requestedResources = false;
-    this.alertMissiles = true;
-    this.alertInventory = true;
     this.canDuel = true;
+    this.alertMissiles = true;
 
     this.client_version = 'flash_41';
     this.user_session_id = 0;
@@ -210,6 +210,10 @@ class BigBangEmpire {
     this.close = true;
   }
 
+  closeGameWhenNoEnergy() {
+    this.closeWhenNoEnergy = true;
+  }
+
   firstSyncGame() {
     // Retrieving current quest
     this.userInfo.quests.every((quest) => {
@@ -266,6 +270,7 @@ class BigBangEmpire {
           .then(() => this.handleStoryDungeonAttack())
           .then(() => this.handleBuyEnergy())
           .then(() => this.handleQuest())
+          .then(() => this.handleDungeon())
           .then(() => this.handleResourceRequest())
           .then(() => this.handleDuel())
           .then(() => this.handleMissedDuels())
@@ -275,6 +280,8 @@ class BigBangEmpire {
           .then(() => this.handleMovieStar())
           .then(() => this.handleWork())
           .then(() => this.handleMessages())
+          .then(() => this.handleItemPattern())
+          .then(() => this.handleGuildBattle())
           .then(() => this.handleCompletedGoals())
 
           .then(() => this.retrieveRanking())
@@ -289,6 +296,30 @@ class BigBangEmpire {
 
   isOutOfGuild(character) {
     return this.userInfo.guild_members.every((member) => character.id !== member.id);
+  }
+
+  get myItems() {
+    const myItems = {};
+
+    _.forEach(this.userInfo.inventory, (value, key) => {
+      if (key.match(/_item_id$/)) {
+        myItems[key] = _.find(this.userInfo.items, { id: value });
+      }
+    });
+
+    return myItems;
+  }
+
+  get myBattleSkills() {
+    const myBattleSkills = {};
+
+    _.forEach(this.myItems, (value, key) => {
+      if (value && value.battle_skill) {
+        myBattleSkills[key] = JSON.parse(value.battle_skill);
+      }
+    });
+
+    return myBattleSkills;
   }
 
   handleNewLevel() {
@@ -432,14 +463,10 @@ class BigBangEmpire {
     if (inventoryFull) {
       this.canDuel = false;
 
-      if (this.alertInventory) {
-        this.alertInventory = false;
+      const msg = 'INVENTORY FULL!!!!!!!';
 
-        const msg = 'INVENTORY FULL!!!!!!!';
-
-        BigBangEmpire.log(msg);
-        this.bot.broadcastMsg(msg);
-      }
+      BigBangEmpire.log(msg);
+      this.bot.broadcastMsg(msg);
     }
   }
 
@@ -635,12 +662,14 @@ class BigBangEmpire {
     }
 
     if (this.userInfo.character.quest_energy === 0) {
-      const msg = 'No more energy, shutting down!';
+      if (this.closeWhenNoEnergy) {
+        const msg = 'No more energy, shutting down!';
 
-      BigBangEmpire.log(msg);
-      this.bot.broadcastMsg(msg);
+        BigBangEmpire.log(msg);
+        this.bot.broadcastMsg(msg);
 
-      this.closeGame();
+        this.closeGame();
+      }
 
       return true;
     }
@@ -759,6 +788,57 @@ class BigBangEmpire {
       });
   }
 
+  handleDungeon() {
+    if ((this.userInfo.character.active_quest_id && this.userInfo.character.quest_energy < 2) && false) {
+      return true;
+    }
+
+    if (!this.userInfo.character.has_dungeon_key) {
+      return true;
+    }
+
+    this.chooseDungeon();
+
+    return true;
+  }
+
+  chooseDungeon() {
+    const msg = 'Choosing the dungeon';
+
+    BigBangEmpire.log(msg);
+    this.bot.broadcastMsg(msg);
+
+    const dungeons = this.gameInfo.constants.dungeon_templates;
+
+    let dungeon;
+    let maxOffset = 0;
+
+    _.forEach(dungeons, (tmpDungeon) => {
+      tmpDungeon.maxOffset = 0; // eslint-disable-line no-param-reassign
+      tmpDungeon.maxLevel = 0; // eslint-disable-line no-param-reassign
+
+      _.forEach(tmpDungeon.levels, (level, levelNo) => {
+        if (this.userInfo.character.fans > level.min_fans) {
+          if (levelNo > tmpDungeon.maxLevel) {
+            tmpDungeon.maxLevel = levelNo; // eslint-disable-line no-param-reassign
+          }
+
+          if (level.reward_item_level_offset > tmpDungeon.maxOffset) {
+            // eslint-disable-next-line no-param-reassign
+            tmpDungeon.maxOffset = level.reward_item_level_offset;
+          }
+        }
+      });
+
+      if (tmpDungeon.maxOffset > maxOffset) {
+        dungeon = tmpDungeon;
+        maxOffset = dungeon.maxOffset;
+      }
+    });
+
+    BigBangEmpire.log(dungeon);
+  }
+
   handleResourceRequest() {
     if (this.requestedResources) {
       return true;
@@ -804,9 +884,13 @@ class BigBangEmpire {
           character.stat_total_critical_rating +
           character.stat_total_dodge_rating;
 
+        const myBattleSkills = Object.keys(this.myBattleSkills).length;
+
         let opponent;
 
         opponents.every((tmpOpponent) => {
+          const battleData = tmpOpponent.battle_data ? JSON.parse(tmpOpponent.battle_data) : {};
+
           if (!this.isOutOfGuild(tmpOpponent)) {
             BigBangEmpire.log(`${tmpOpponent.name} is in my guild: can't duel!`);
 
@@ -819,7 +903,9 @@ class BigBangEmpire {
             return false;
           }
 
-          if (myTotal > tmpOpponent.total_stats) {
+          if (myTotal > tmpOpponent.total_stats
+            &&
+            myBattleSkills > Object.keys(battleData.effects)) {
             opponent = tmpOpponent;
 
             return false;
@@ -1053,6 +1139,20 @@ class BigBangEmpire {
 
       return this.request('acceptAllResourceRequests');
     }
+
+    return true;
+  }
+
+  handleItemPattern() {
+    // collected_item_pattern
+    // current_item_pattern_values
+
+    return true;
+  }
+
+  handleGuildBattle() {
+    // guild_battle_guilds
+    // pending_guild_battle_attack
 
     return true;
   }

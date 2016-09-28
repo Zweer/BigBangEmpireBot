@@ -5,6 +5,7 @@
 - [x] new level -> adjust skills
 - [x] duels -> don't attack guild members
 - [x] duels -> if no good challenger, loose less points
+- [x] duels -> add the battle skill check
 - [x] inventory check -> full
 - [x] inventory check -> no more missiles
 - [x] inventory check -> sell useless items
