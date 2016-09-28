@@ -39,9 +39,9 @@ class BigBangEmpire {
       5: 'boots',
       6: 'necklace',
       7: 'ring',
-      8: 'piercing',
-      9: 'gadget',
-      10: 'missiles',
+      8: 'gadget',
+      9: 'missiles',
+      10: 'piercing',
     };
 
     this.DUNGEON_STATUS = [
@@ -52,6 +52,38 @@ class BigBangEmpire {
       'TimeUp',
       'Closed',
     ];
+
+    this.GUILD_EVENT_TYPES = {
+      0: 'Unknown',
+      1: 'MemberJoined',
+      2: 'MemberLeft',
+      3: 'MemberKicked',
+      4: 'MemberNewRank',
+      5: 'MemberDonated',
+      6: 'GuildStatChanged',
+      7: 'DescriptionChanged',
+      8: 'NoteChanged',
+      9: 'EmblemChanged',
+      10: 'MemberDeleted',
+      11: 'MissilesRecharged',
+      12: 'NameChanged',
+      13: 'ArenaChanged',
+      14: 'AutoJoinsRecharged',
+      101: 'GuildBattle_Attack',
+      102: 'GuildBattle_Defense',
+      103: 'GuildBattle_JoinedAttack',
+      104: 'GuildBattle_JoinedDefense',
+      105: 'GuildBattle_BattleWon',
+      106: 'GuildBattle_BattleLost',
+      107: 'GuildBattle_ArtifactWon',
+      108: 'GuildBattle_ArtifactLost',
+      109: 'GuildBattle_AbortedAttack',
+      110: 'GuildBattle_AbortedDefense',
+      111: 'GuildBattle_PremiumCurrencyReward',
+      301: 'GuildLeaderVote_Init',
+      302: 'GuildLeaderVote_Finished_SameLeader',
+      303: 'GuildLeaderVote_Finished_NewLeader',
+    };
 
     /**
      * {
@@ -272,7 +304,8 @@ class BigBangEmpire {
         // .then(() => { BigBangEmpire.log('sync'); })
           .then(() => this.handleNewLevel())
           .then(() => this.handleStatPointAvailable())
-          .then(() => this.handleInventory())
+          .then(() => this.handleInventoryBasic())
+          .then(() => this.handleInventoryAdvanced())
           .then(() => this.handleCurrentQuest())
           .then(() => this.handleCurrentMovieQuest())
           .then(() => this.handleMovieVotes())
@@ -289,6 +322,7 @@ class BigBangEmpire {
           .then(() => this.handleMovieStar())
           .then(() => this.handleWork())
           .then(() => this.handleMessages())
+          .then(() => this.handleGuildMessages())
           .then(() => this.handleItemPattern())
           .then(() => this.handleGuildBattle())
           .then(() => this.handleCompletedGoals())
@@ -298,7 +332,7 @@ class BigBangEmpire {
 
           .catch((err) => {
             BigBangEmpire.log(`------------------ ERROR ------------------\n${err}`);
-            this.bot.broadcastMsg(`Error: ${err.message}`);
+            this.broadcastMsg(`Error: ${err.message}`, false);
           });
       });
   }
@@ -312,7 +346,7 @@ class BigBangEmpire {
 
     _.forEach(this.userInfo.inventory, (value, key) => {
       if (key.match(/_item_id$/)) {
-        myItems[key] = _.find(this.userInfo.items, { id: value });
+        myItems[key] = this.findItem(value);
       }
     });
 
@@ -331,12 +365,13 @@ class BigBangEmpire {
     return myBattleSkills;
   }
 
+  findItem(id) {
+    return _.find(this.userInfo.items, { id });
+  }
+
   handleNewLevel() {
     if (this.level !== this.userInfo.character.level && this.level !== 0) {
-      const msg = `New level: ${this.userInfo.character.level}!!`;
-
-      BigBangEmpire.log(msg);
-      this.bot.broadcastMsg(msg);
+      this.broadcastMsg(`New level: ${this.userInfo.character.level}!!`);
     }
 
     this.level = this.userInfo.character.level;
@@ -441,18 +476,20 @@ class BigBangEmpire {
     });
   }
 
-  handleInventory() {
+  handleInventoryBasic() {
     if (this.userInfo.inventory.missiles_item_id === 0) {
       this.canDuel = false;
 
       if (this.alertMissiles) {
         this.alertMissiles = false;
 
-        const msg = 'NO MORE MISSILES!!!!!!!';
-
-        BigBangEmpire.log(msg);
-        this.bot.broadcastMsg(msg);
+        this.broadcastMsg('NO MORE MISSILES!!!!!!!');
       }
+    } else if (!this.canDuel) {
+      this.canDuel = true;
+      this.alertMissiles = true;
+
+      this.broadcastMsg('More Missiles...');
     }
 
     let inventoryFull = true;
@@ -472,21 +509,59 @@ class BigBangEmpire {
     if (inventoryFull) {
       this.canDuel = false;
 
-      const msg = 'INVENTORY FULL!!!!!!!';
-
-      BigBangEmpire.log(msg);
-      this.bot.broadcastMsg(msg);
+      this.broadcastMsg('INVENTORY FULL!!!!!!!');
+    } else if (this.userInfo.inventory.missiles_item_id !== 0) {
+      this.canDuel = true;
     }
+  }
+
+  handleInventoryAdvanced() {
+    let modified = false;
+
+    return Promise.all(_.values(_.mapValues(this.userInfo.inventory, (itemId, itemKey) => {
+      if (modified) {
+        return true;
+      }
+
+      if (itemKey.match(/^bag_item/) && itemId !== 0) {
+        const item = this.findItem(itemId);
+
+        if (item) {
+          const type = this.ITEM_TYPES[item.type];
+
+          if (this.userInfo.inventory[`${type}_item_id`] === 0) {
+            BigBangEmpire.log(`Moving item: ${type}`);
+
+            modified = true;
+
+            return this.request('moveInventoryItem', {
+              item_id: item.id,
+              target_slot: item.type,
+            });
+          }
+
+          const equipped = this.findItem(this.userInfo.inventory[`${type}_item_id`]);
+
+          const itemTotalStats = item.stat_stamina + item.stat_strength +
+            item.stat_critical_rating + item.stat_dodge_rating + item.stat_weapon_damage;
+          const equippedTotalStats = equipped.stat_stamina + equipped.stat_strength +
+            equipped.stat_critical_rating + equipped.stat_dodge_rating +
+            equipped.stat_weapon_damage;
+
+          BigBangEmpire.log(itemTotalStats);
+          BigBangEmpire.log(equippedTotalStats);
+        }
+      }
+
+      return true;
+    })));
   }
 
   handleInventoryFull() {
     if (this.userInfo.inventory.missiles_item_id === 0) {
       this.canDuel = false;
 
-      const msg = 'NO MORE MISSILES!!!!!!!';
-
-      BigBangEmpire.log(msg);
-      this.bot.broadcastMsg(msg);
+      this.broadcastMsg('NO MORE MISSILES!!!!!!!');
     }
 
     let inventoryFull = true;
@@ -499,7 +574,7 @@ class BigBangEmpire {
           return true;
         }
 
-        const item = _.find(this.userInfo.items, { id: value });
+        const item = this.findItem(value);
         if (!item) {
           return true;
         }
@@ -515,9 +590,7 @@ class BigBangEmpire {
           });
         }
 
-        const equipped = _.find(this.userInfo.items, {
-          id: this.userInfo.inventory[`${type}_item_id`],
-        });
+        const equipped = this.findItem(this.userInfo.inventory[`${type}_item_id`]);
 
         if (item.battle_skill || item.premium_item || item.type === 10) {
           return true;
@@ -637,7 +710,7 @@ class BigBangEmpire {
     if (this.userInfo.story_dungeon.status === 2
       &&
       now > this.userInfo.story_dungeon.ts_last_attack + 3600) {
-      this.bot.broadcastMsg('Starting a Story Dungeon Attack');
+      this.broadcastMsg('Starting a Story Dungeon Attack');
 
       return this.request('startStoryDungeonBattle', {
         finish_cooldown: false,
@@ -674,11 +747,7 @@ class BigBangEmpire {
 
     if (this.userInfo.character.quest_energy < 2) {
       if (this.closeWhenNoEnergy) {
-        const msg = 'No more energy, shutting down!';
-
-        BigBangEmpire.log(msg);
-        this.bot.broadcastMsg(msg);
-
+        this.broadcastMsg('No more energy, shutting down!');
         this.closeGame();
       }
 
@@ -746,7 +815,7 @@ class BigBangEmpire {
     if (rewardKeys.length > 6) {
       rewardKeys.slice(6).forEach((reward) => {
         if (reward === 'dungeon_key') {
-          this.bot.broadcastMsg(`Got a new "${reward}" in ${quest.energy_cost} minutes`);
+          this.broadcastMsg(`Got a new "${reward}" in ${quest.energy_cost} minutes`);
         }
 
         startingString += `\n- with a "${reward}"`;
@@ -814,10 +883,7 @@ class BigBangEmpire {
   }
 
   chooseDungeon() {
-    const msg = 'Choosing the dungeon';
-
-    BigBangEmpire.log(msg);
-    this.bot.broadcastMsg(msg);
+    this.broadcastMsg('Choosing the dungeon');
 
     const dungeons = this.gameInfo.constants.dungeon_templates;
 
@@ -1022,9 +1088,7 @@ class BigBangEmpire {
       return true;
     }
 
-    const msg = 'Choosing the next movie';
-    BigBangEmpire.log(msg);
-    this.bot.broadcastMsg(msg);
+    this.broadcastMsg('Choosing the next movie');
 
     const movies = this.userInfo.movies.sort((a, b) => {
       if (a.fans > b.fans) {
@@ -1101,10 +1165,7 @@ class BigBangEmpire {
       return this.makeMovieStar()
         .then(() => this.request('finishMovie'))
         .then(() => {
-          const msg = 'Movie finished';
-
-          BigBangEmpire.log(msg);
-          this.bot.broadcastMsg(msg);
+          this.broadcastMsg('Movie finished');
 
           delete this.userInfo.movie;
           delete this.userInfo.movie_quests;
@@ -1139,11 +1200,8 @@ class BigBangEmpire {
       return true;
     }
 
-    const msg = `You have ${this.userInfo.new_messages} new messages (${
-      this.userInfo.character.pending_resource_requests} resource requests)`;
-
-    BigBangEmpire.log(msg);
-    this.bot.broadcastMsg(msg);
+    this.broadcastMsg(`You have ${this.userInfo.new_messages} new messages (${
+      this.userInfo.character.pending_resource_requests} resource requests)`);
 
     if (this.userInfo.character.pending_resource_requests > 0) {
       BigBangEmpire.log('Accepting all resource requests');
@@ -1152,6 +1210,39 @@ class BigBangEmpire {
     }
 
     return true;
+  }
+
+  handleGuildMessages() {
+    if (!this.userInfo.new_guild_log_entries) {
+      return true;
+    }
+
+    const whoMany = this.userInfo.new_guild_log_entries;
+
+    return this.request('getGuildLog', { init_request: true })
+      .then(() => {
+        const logs = this.userInfo.guild_log.sort((a, b) => {
+          if (a.timestamp < b.timestamp) {
+            return 1;
+          }
+
+          if (a.timestamp > b.timestamp) {
+            return -1;
+          }
+
+          return 0;
+        });
+
+        BigBangEmpire.log(logs[0]);
+
+        for (let i = 0; i < whoMany; ++i) {
+          this.printGuildChatMsg(logs[i]);
+        }
+      });
+  }
+
+  printGuildChatMsg(msg) {
+    BigBangEmpire.log(msg);
   }
 
   handleItemPattern() {
@@ -1225,6 +1316,14 @@ class BigBangEmpire {
 
     return `${minutes} minute${minutes === 1 ? '' : 's'} ${
       seconds} second${seconds === 1 ? '' : 's'}`;
+  }
+
+  broadcastMsg(msg, log = true) {
+    if (log) {
+      BigBangEmpire.log(msg);
+    }
+
+    this.bot.broadcastMsg(msg);
   }
 
   static log(msg, what) {
