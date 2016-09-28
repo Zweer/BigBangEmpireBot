@@ -16,9 +16,11 @@ class BigBangEmpireTelegram {
   }
 
   initRoutes() {
-    this.routeInfo();
+    this.routeHelp();
+    this.routeProfile();
     this.routeRestart();
     this.routeClose();
+    this.routeCloseWhenNoEnergy();
   }
 
   handleReceiver(msg) {
@@ -36,7 +38,27 @@ class BigBangEmpireTelegram {
     });
   }
 
-  routeInfo() {
+  routeHelp() {
+    this.bot.onText(/^\/help$/, (msg) => {
+      this.handleReceiver(msg);
+      const chatId = msg.chat.id;
+
+      this.bot.sendMessage(chatId, `
+From here you can control your Big Bang Empire Bot.
+
+Commands are:
+
+/help - View this help message
+
+/profile - Print info about your hero
+/restart - Restarts the game (if something bad happened)
+/close - Shout down the game (enough?)
+/closeWhenNoEnergy - Set to shut down when no energy
+`);
+    });
+  }
+
+  routeProfile() {
     this.bot.onText(/^\/profile$/, (msg) => {
       this.handleReceiver(msg);
 
