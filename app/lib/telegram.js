@@ -120,7 +120,7 @@ Commands are:
       this.handleReceiver(msg);
       const chatId = msg.chat.id;
 
-      this.bbe.closeWhenNoEnergy();
+      this.bbe.closeGameWhenNoEnergy();
       this.bot.sendMessage(chatId, 'Game will close when no energy, cya!');
     });
   }

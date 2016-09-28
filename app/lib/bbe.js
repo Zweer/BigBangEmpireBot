@@ -44,6 +44,15 @@ class BigBangEmpire {
       10: 'missiles',
     };
 
+    this.DUNGEON_STATUS = [
+      'Unknown',
+      'Created',
+      'Open',
+      'Finished',
+      'TimeUp',
+      'Closed',
+    ];
+
     /**
      * {
      * appCDNUrl: 'http://static.bigbangempire.com/',
@@ -625,7 +634,9 @@ class BigBangEmpire {
 
     const now = Math.round(new Date().getTime() / 1000);
 
-    if (now > this.userInfo.story_dungeon.ts_last_attack + 3600 && false) {
+    if (this.userInfo.story_dungeon.status === 2
+      &&
+      now > this.userInfo.story_dungeon.ts_last_attack + 3600) {
       this.bot.broadcastMsg('Starting a Story Dungeon Attack');
 
       return this.request('startStoryDungeonBattle', {
