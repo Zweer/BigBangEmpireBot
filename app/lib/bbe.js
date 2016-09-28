@@ -789,7 +789,7 @@ class BigBangEmpire {
   }
 
   handleDungeon() {
-    if (this.userInfo.character.active_quest_id && this.userInfo.character.quest_energy < 2) {
+    if (this.userInfo.character.active_quest_id || this.userInfo.character.quest_energy < 2) {
       return true;
     }
 
