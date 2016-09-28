@@ -13,6 +13,7 @@ class BigBangEmpire {
     this.baseUrl = 'http://us2.bigbangempire.com/';
     this.restart = false;
     this.close = false;
+    this.closeWhenNoEnergy = false;
     this.requestedResources = false;
     this.canDuel = true;
     this.alertMissiles = true;
@@ -209,6 +210,10 @@ class BigBangEmpire {
     this.close = true;
   }
 
+  closeGameWhenNoEnergy() {
+    this.closeWhenNoEnergy = true;
+  }
+
   firstSyncGame() {
     // Retrieving current quest
     this.userInfo.quests.every((quest) => {
@@ -274,6 +279,8 @@ class BigBangEmpire {
           .then(() => this.handleMovieStar())
           .then(() => this.handleWork())
           .then(() => this.handleMessages())
+          .then(() => this.handleItemPattern())
+          .then(() => this.handleGuildBattle())
           .then(() => this.handleCompletedGoals())
 
           .then(() => this.retrieveRanking())
@@ -306,7 +313,7 @@ class BigBangEmpire {
     const myBattleSkills = {};
 
     _.forEach(this.myItems, (value, key) => {
-      if (value.battle_skill) {
+      if (value && value.battle_skill) {
         myBattleSkills[key] = JSON.parse(value.battle_skill);
       }
     });
@@ -654,12 +661,14 @@ class BigBangEmpire {
     }
 
     if (this.userInfo.character.quest_energy === 0) {
-      const msg = 'No more energy, shutting down!';
+      if (this.closeWhenNoEnergy) {
+        const msg = 'No more energy, shutting down!';
 
-      BigBangEmpire.log(msg);
-      this.bot.broadcastMsg(msg);
+        BigBangEmpire.log(msg);
+        this.bot.broadcastMsg(msg);
 
-      this.closeGame();
+        this.closeGame();
+      }
 
       return true;
     }
@@ -1078,6 +1087,20 @@ class BigBangEmpire {
 
       return this.request('acceptAllResourceRequests');
     }
+
+    return true;
+  }
+
+  handleItemPattern() {
+    // collected_item_pattern
+    // current_item_pattern_values
+
+    return true;
+  }
+
+  handleGuildBattle() {
+    // guild_battle_guilds
+    // pending_guild_battle_attack
 
     return true;
   }

@@ -92,6 +92,16 @@ class BigBangEmpireTelegram {
       this.bot.sendMessage(chatId, 'Game close, cya!');
     });
   }
+
+  routeCloseWhenNoEnergy() {
+    this.bot.onText(/^\/closeWhenNoEnergy$/, (msg) => {
+      this.handleReceiver(msg);
+      const chatId = msg.chat.id;
+
+      this.bbe.closeWhenNoEnergy();
+      this.bot.sendMessage(chatId, 'Game will close when no energy, cya!');
+    });
+  }
 }
 
 module.exports = BigBangEmpireTelegram;
