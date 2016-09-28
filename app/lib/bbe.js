@@ -14,6 +14,7 @@ class BigBangEmpire {
     this.restart = false;
     this.close = false;
     this.requestedResources = false;
+    this.canDuel = true;
 
     this.client_version = 'flash_41';
     this.user_session_id = 0;
