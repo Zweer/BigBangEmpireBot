@@ -290,6 +290,30 @@ class BigBangEmpire {
     return this.userInfo.guild_members.every((member) => character.id !== member.id);
   }
 
+  get myItems() {
+    const myItems = {};
+
+    _.forEach(this.userInfo.inventory, (value, key) => {
+      if (key.match(/_item_id$/)) {
+        myItems[key] = _.find(this.userInfo.items, { id: value });
+      }
+    });
+
+    return myItems;
+  }
+
+  get myBattleSkills() {
+    const myBattleSkills = {};
+
+    _.forEach(this.myItems, (value, key) => {
+      if (value.battle_skill) {
+        myBattleSkills[key] = JSON.parse(value.battle_skill);
+      }
+    });
+
+    return myBattleSkills;
+  }
+
   handleNewLevel() {
     if (this.level !== this.userInfo.character.level && this.level !== 0) {
       const msg = `New level: ${this.userInfo.character.level}!!`;
@@ -799,9 +823,13 @@ class BigBangEmpire {
           character.stat_total_critical_rating +
           character.stat_total_dodge_rating;
 
+        const myBattleSkills = Object.keys(this.myBattleSkills).length;
+
         let opponent;
 
         opponents.every((tmpOpponent) => {
+          const battleData = tmpOpponent.battle_data ? JSON.parse(tmpOpponent.battle_data) : {};
+
           if (!this.isOutOfGuild(tmpOpponent)) {
             BigBangEmpire.log(`${tmpOpponent.name} is in my guild: can't duel!`);
 
@@ -814,7 +842,9 @@ class BigBangEmpire {
             return false;
           }
 
-          if (myTotal > tmpOpponent.total_stats) {
+          if (myTotal > tmpOpponent.total_stats
+            &&
+            myBattleSkills > Object.keys(battleData.effects)) {
             opponent = tmpOpponent;
 
             return false;
