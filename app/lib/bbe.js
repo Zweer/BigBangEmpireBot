@@ -661,7 +661,7 @@ class BigBangEmpire {
       return true;
     }
 
-    if (this.userInfo.character.quest_energy === 0) {
+    if (this.userInfo.character.quest_energy < 2) {
       if (this.closeWhenNoEnergy) {
         const msg = 'No more energy, shutting down!';
 
@@ -789,7 +789,7 @@ class BigBangEmpire {
   }
 
   handleDungeon() {
-    if ((this.userInfo.character.active_quest_id && this.userInfo.character.quest_energy < 2) && false) {
+    if (this.userInfo.character.active_quest_id && this.userInfo.character.quest_energy < 2) {
       return true;
     }
 
