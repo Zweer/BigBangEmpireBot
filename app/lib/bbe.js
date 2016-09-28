@@ -270,6 +270,7 @@ class BigBangEmpire {
           .then(() => this.handleStoryDungeonAttack())
           .then(() => this.handleBuyEnergy())
           .then(() => this.handleQuest())
+          .then(() => this.handleDungeon())
           .then(() => this.handleResourceRequest())
           .then(() => this.handleDuel())
           .then(() => this.handleMissedDuels())
@@ -785,6 +786,57 @@ class BigBangEmpire {
 
         return data;
       });
+  }
+
+  handleDungeon() {
+    if ((this.userInfo.character.active_quest_id && this.userInfo.character.quest_energy < 2) && false) {
+      return true;
+    }
+
+    if (!this.userInfo.character.has_dungeon_key) {
+      return true;
+    }
+
+    this.chooseDungeon();
+
+    return true;
+  }
+
+  chooseDungeon() {
+    const msg = 'Choosing the dungeon';
+
+    BigBangEmpire.log(msg);
+    this.bot.broadcastMsg(msg);
+
+    const dungeons = this.gameInfo.constants.dungeon_templates;
+
+    let dungeon;
+    let maxOffset = 0;
+
+    _.forEach(dungeons, (tmpDungeon) => {
+      tmpDungeon.maxOffset = 0; // eslint-disable-line no-param-reassign
+      tmpDungeon.maxLevel = 0; // eslint-disable-line no-param-reassign
+
+      _.forEach(tmpDungeon.levels, (level, levelNo) => {
+        if (this.userInfo.character.fans > level.min_fans) {
+          if (levelNo > tmpDungeon.maxLevel) {
+            tmpDungeon.maxLevel = levelNo; // eslint-disable-line no-param-reassign
+          }
+
+          if (level.reward_item_level_offset > tmpDungeon.maxOffset) {
+            // eslint-disable-next-line no-param-reassign
+            tmpDungeon.maxOffset = level.reward_item_level_offset;
+          }
+        }
+      });
+
+      if (tmpDungeon.maxOffset > maxOffset) {
+        dungeon = tmpDungeon;
+        maxOffset = dungeon.maxOffset;
+      }
+    });
+
+    BigBangEmpire.log(dungeon);
   }
 
   handleResourceRequest() {
