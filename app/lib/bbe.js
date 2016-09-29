@@ -1265,6 +1265,8 @@ class BigBangEmpire {
       return true;
     }
 
+    this.broadcastMsg('Joining guild battle');
+
     return this.request('joinGuildBattle', { attack: true });
   }
 
