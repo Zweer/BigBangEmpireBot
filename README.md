@@ -26,6 +26,7 @@
 - [x] telegram -> notification when no missiles
 - [ ] telegram -> ask for remaining missiles
 - [ ] telegram -> forward guild chat
+- [ ] telegram -> forward messages
 - [ ] telegram -> create a sort of client
 - [x] movies -> can't initialize
 - [x] auto complete missions

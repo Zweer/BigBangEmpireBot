@@ -7,6 +7,8 @@ const numeral = require('numeral');
 const cheerio = require('cheerio');
 const request = require('request-promise');
 
+const DEBUG_DUNGEON = true;
+
 class BigBangEmpire {
   constructor(options = {}) {
     this.options = options;
@@ -313,6 +315,7 @@ class BigBangEmpire {
           .then(() => this.handleBuyEnergy())
           .then(() => this.handleQuest())
           .then(() => this.handleDungeon())
+          .then(() => this.handleDungeonQuest())
           .then(() => this.handleResourceRequest())
           .then(() => this.handleDuel())
           .then(() => this.handleMissedDuels())
@@ -548,8 +551,19 @@ class BigBangEmpire {
             equipped.stat_critical_rating + equipped.stat_dodge_rating +
             equipped.stat_weapon_damage;
 
-          BigBangEmpire.log(itemTotalStats);
-          BigBangEmpire.log(equippedTotalStats);
+          if (itemTotalStats < equippedTotalStats + 10) {
+            this.broadcastMsg(`Selling item: ${type}
+- my: ${equippedTotalStats} 
+- bag: ${itemTotalStats}`);
+
+            return this.request('sellInventoryItem', {
+              item_id: item.id,
+            });
+          }
+
+          this.broadcastMsg(`New item: ${type}
+- my: ${equippedTotalStats} 
+- bag: ${itemTotalStats}`);
         }
       }
 
@@ -741,7 +755,7 @@ class BigBangEmpire {
   }
 
   handleQuest() {
-    if (this.userInfo.character.active_quest_id) {
+    if (this.userInfo.character.active_quest_id || DEBUG_DUNGEON) {
       return true;
     }
 
@@ -869,11 +883,13 @@ class BigBangEmpire {
   }
 
   handleDungeon() {
-    if (this.userInfo.character.active_quest_id || this.userInfo.character.quest_energy < 2) {
-      return true;
+    if (!DEBUG_DUNGEON) {
+      if (this.userInfo.character.active_quest_id || this.userInfo.character.quest_energy < 2) {
+        return true;
+      }
     }
 
-    if (!this.userInfo.character.has_dungeon_key) {
+    if (!this.userInfo.character.has_dungeon_key || this.userInfo.dungeon) {
       return true;
     }
 
@@ -883,37 +899,62 @@ class BigBangEmpire {
   }
 
   chooseDungeon() {
-    this.broadcastMsg('Choosing the dungeon');
 
     const dungeons = this.gameInfo.constants.dungeon_templates;
 
-    let dungeon;
+    let identifier = '';
     let maxOffset = 0;
 
-    _.forEach(dungeons, (tmpDungeon) => {
-      tmpDungeon.maxOffset = 0; // eslint-disable-line no-param-reassign
-      tmpDungeon.maxLevel = 0; // eslint-disable-line no-param-reassign
+    _.forEach(dungeons, (dungeon, tmpIdentifier) => {
+      dungeon.maxOffset = 0; // eslint-disable-line no-param-reassign
+      dungeon.maxLevel = 0; // eslint-disable-line no-param-reassign
 
-      _.forEach(tmpDungeon.levels, (level, levelNo) => {
+      _.forEach(dungeon.levels, (level, levelNo) => {
         if (this.userInfo.character.fans > level.min_fans) {
-          if (levelNo > tmpDungeon.maxLevel) {
-            tmpDungeon.maxLevel = levelNo; // eslint-disable-line no-param-reassign
+          if (levelNo > dungeon.maxLevel) {
+            dungeon.maxLevel = levelNo; // eslint-disable-line no-param-reassign
           }
 
-          if (level.reward_item_level_offset > tmpDungeon.maxOffset) {
+          if (level.reward_item_level_offset > dungeon.maxOffset) {
             // eslint-disable-next-line no-param-reassign
-            tmpDungeon.maxOffset = level.reward_item_level_offset;
+            dungeon.maxOffset = level.reward_item_level_offset;
           }
         }
       });
 
-      if (tmpDungeon.maxOffset > maxOffset) {
-        dungeon = tmpDungeon;
+      if (dungeon.maxOffset > maxOffset) {
+        identifier = tmpIdentifier;
         maxOffset = dungeon.maxOffset;
       }
     });
 
-    BigBangEmpire.log(dungeon);
+    if (identifier) {
+      this.broadcastMsg(`Choosing the dungeon: ${identifier}`);
+
+      return this.request('openDungeon', { dungeon_identifier: identifier });
+    }
+
+    return true;
+  }
+
+  handleDungeonQuest() {
+    if (!this.userInfo.dungeon || !this.userInfo.dungeon_quest) {
+      return true;
+    }
+
+    BigBangEmpire.log('Starting dungeon quest');
+
+    return this.request('startDungeonQuest', {
+      dungeon_quest_id: this.userInfo.dungeon_quest.id,
+      finish_cooldown: false,
+    })
+      .then(() => this.request('finishDungeonQuest'))
+      .then(() => this.request('claimDungeonQuestRewards', { discard_item: false }))
+      .catch((err) => {
+        if (!err.message.match(/errStartDungeonQuestActiveCooldown/)) {
+          throw err;
+        }
+      });
   }
 
   handleResourceRequest() {
@@ -1253,9 +1294,6 @@ class BigBangEmpire {
   }
 
   handleGuildBattle() {
-    // guild_battle_guilds
-    // pending_guild_battle_attack
-
     if (!this.userInfo.pending_guild_battle_attack) {
       return true;
     }
