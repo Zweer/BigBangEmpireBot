@@ -1256,7 +1256,16 @@ class BigBangEmpire {
     // guild_battle_guilds
     // pending_guild_battle_attack
 
-    return true;
+    if (!this.userInfo.pending_guild_battle_attack) {
+      return true;
+    }
+
+    if (this.userInfo.pending_guild_battle_attack.character_ids
+        .indexOf(this.userInfo.character.id) !== -1) {
+      return true;
+    }
+
+    return this.request('joinGuildBattle', { attack: true });
   }
 
   retrieveRanking() {
