@@ -7,7 +7,7 @@ const numeral = require('numeral');
 const cheerio = require('cheerio');
 const request = require('request-promise');
 
-const DEBUG_DUNGEON = true;
+const DEBUG_DUNGEON = false;
 
 class BigBangEmpire {
   constructor(options = {}) {
@@ -314,8 +314,8 @@ class BigBangEmpire {
           .then(() => this.handleStoryDungeonAttack())
           .then(() => this.handleBuyEnergy())
           .then(() => this.handleQuest())
-          .then(() => this.handleDungeon())
-          .then(() => this.handleDungeonQuest())
+          // .then(() => this.handleDungeon())
+          // .then(() => this.handleDungeonQuest())
           .then(() => this.handleResourceRequest())
           .then(() => this.handleDuel())
           .then(() => this.handleMissedDuels())
