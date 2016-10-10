@@ -20,7 +20,7 @@ class BigBangEmpire {
     this.canDuel = true;
     this.alertMissiles = true;
 
-    this.client_version = 'flash_41';
+    this.client_version = 'flash_42';
     this.user_session_id = 0;
     this.user_id = 0;
     this.userInfo = {};
