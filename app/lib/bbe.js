@@ -12,7 +12,7 @@ const DEBUG_DUNGEON = false;
 class BigBangEmpire {
   constructor(options = {}) {
     this.options = options;
-    this.baseUrl = 'http://us2.bigbangempire.com/';
+    this.baseUrl = this.options.baseUrl;
     this.restart = false;
     this.close = false;
     this.closeWhenNoEnergy = false;
@@ -20,7 +20,7 @@ class BigBangEmpire {
     this.canDuel = true;
     this.alertMissiles = true;
 
-    this.client_version = 'flash_42';
+    this.client_version = 'flash_81';
     this.user_session_id = 0;
     this.user_id = 0;
     this.userInfo = {};

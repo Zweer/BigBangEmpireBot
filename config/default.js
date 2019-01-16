@@ -4,6 +4,8 @@ module.exports = {
   bbe: {
     delaySyncGame: 10000,
 
+    baseUrl: 'http://us2.bigbangempire.com/',
+
     auth: {
       email: 'your email address',
       password: 'your password',
