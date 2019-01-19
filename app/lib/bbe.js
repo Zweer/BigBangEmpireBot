@@ -12,7 +12,7 @@ const DEBUG_DUNGEON = false;
 class BigBangEmpire {
   constructor(options = {}) {
     this.options = options;
-    this.baseUrl = this.options.baseUrl;
+    this.baseUrl = this.options.BASE_URL;
     this.restart = false;
     this.close = false;
     this.closeWhenNoEnergy = false;
