@@ -1,5 +1,6 @@
 import Character, { characterRaw } from './character';
-import Quest, { questRaw } from './quest';
+import Inventory, { inventoryRaw } from './inventory';
+import Quest, { questRaw, questStatus } from './quest';
 import User, { userRaw } from './user';
 
 import DataObject from './utils/dataObject';
@@ -14,7 +15,7 @@ export type gameRaw = {
   success: boolean,
   user: object, // User
   valid: boolean,
-  inventory: object, // Inventory
+  inventory: inventoryRaw,
   quests: questRaw[],
   items: object[], // Item[]
   win_messages: string[],
@@ -29,7 +30,7 @@ export type gameRaw = {
   available: boolean,
   alternative: string,
   requested_character: characterRaw,
-  requested_character_inventory: object, // Inventory
+  requested_character_inventory: inventoryRaw,
   requested_character_inventory_items: object[], // Item[]
   requested_character_guild: object, // Guild
   marriages: object[], // Marriage[]
@@ -75,7 +76,7 @@ export type gameRaw = {
   missed_duel_data: object[], // MissedDuel[]
   missed_duel_opponents: object[], // DuelOpponent[]
   opponent: characterRaw,
-  opponent_inventory: object, // Inventory
+  opponent_inventory: inventoryRaw,
   opponent_inventory_items: object[], // Item[]
   title: object, // Title
   new_fan_foto_id: number,
@@ -197,15 +198,195 @@ export type gameRaw = {
 };
 
 export default class Game extends DataObject<gameRaw> {
+  public savedSeconds: number;
+  public quest: Quest;
+  public conventionShow: object; // Convention
   public character: Character;
-  public opponent: Character;
-  public quests: Quest[];
-  public requestedCharacter: Character;
+  public customBannerAdvertisments: object[]; // CustomBannerAdvertisement
+  public videoAdvertismentId: number;
+  public success: boolean;
   public user: User;
-
-  setQuests(quests: questRaw[]) {
-    this.quests = quests.map(quest => new Quest(quest));
-  }
+  public valid: boolean;
+  public inventory: Inventory;
+  public quests: Quest[];
+  public items: object[]; // Item[]
+  public winMessages: string[];
+  public reward: string;
+  public item: object; // Item
+  public slotmachineSlot1: number;
+  public slotmachineSlot2: number;
+  public slotmachineSlot3: number;
+  public slotmachineRewardQuality: number;
+  public work: object; // Work
+  public movieVoteReward: string;
+  public available: boolean;
+  public alternative: string;
+  public requestedCharacter: Character;
+  public requestedCharacterInventory: Inventory;
+  public requestedCharacterInventoryItems: object[]; // Item[]
+  public requestedCharacterGuild: object; // Guild
+  public marriages: object[]; // Marriage[]
+  public requestedCharacterOpticalChanges: object;
+  public requestedCharacterCurrentGoalValues: object;
+  public requestedCharacterCollectedGoals: object;
+  public maxSpendableAmount: number;
+  public characterSelectionData: object[]; // CharacterSelectionEntry[]
+  public redirectUrl: string;
+  public characterSelectionEntry: object; // CharacterSelectionEntry
+  public conventionPreviousStars: string[];
+  public convention: object; // Convention
+  public conventionReward: object[]; // ConventionReward[]
+  public battle: object; // Battle
+  public currentGoalValue: object;
+  public conventionCharacterData: object[];
+  public datingLookup: object; // Dating
+  public datingStep: object[]; // DatingStep[]
+  public completedDatingSteps: string[];
+  public eventQuest: object; // EventQuest
+  public guild: object; // Guild
+  public guildCompetitionData: object; // GuildCompetition
+  public storyDungeons: object[]; // StoryDungeon[]
+  public fanFoto: object; // FanPhoto
+  public currentItemPatternValues: object;
+  public dungeon: object; // Dungeon
+  public herobookObjectives: object[]; // HerobookObjective[]
+  public pendingGuildBattleAttack: object; // GuildBattle
+  public pendingGuildBattleDefense: object; // GuildBattle
+  public movie: object; // Movie
+  public dungeonLevel: object; // DungeonLevel
+  public dungeonLevels: object[]; // DungeonLevel[]
+  public dungeonQuest: object; // DungeonQuest
+  public hash: string;
+  public collectedItemPattern: object;
+  public isEnabled: boolean;
+  public duel: object; // Duel
+  public missedDuels: number;
+  public opponents: object[]; // Opponent[]
+  public missedDuel: object; // Duel
+  public missedDuelBattle: object; // Battle
+  public decreaseCounter: boolean;
+  public missedDuelData: object[]; // MissedDuel[]
+  public missedDuelOpponents: object[]; // DuelOpponent[]
+  public opponent: Character;
+  public opponentInventory: Inventory;
+  public opponentInventoryItems: object[]; // Item[]
+  public title: object; // Title
+  public newFanFotoId: number;
+  public friendData: object[]; // Friend[]
+  public text: object;
+  public synced: boolean;
+  public syncStates: object;
+  public platformFriends: object[]; // PlatformFriend[]
+  public versionCheck: string;
+  public configOverwrites: object;
+  public extendedConfig: object;
+  public textures: object;
+  public constants: object;
+  public serverSelectionData: object;
+  public newMessages: number;
+  public newGuildLogEntries: number;
+  public guildMembers: object[]; // GuildMember[]
+  public conventions: object[]; // Convention[]
+  public conventionRewards: object[]; // ConventionReward[]
+  public ingameNotifications: object;
+  public specialOffers: object[];
+  public dailyLoginBonusRewards: object;
+  public dailyLoginBonusDay: number;
+  public bonusInfo: object; // BonusInfo
+  public guildLeaderVote: object; // GuildLeaderVote
+  public syncTimestamp: number;
+  public expiredGuildBoosters: string[];
+  public constantsOverride: object[]; // Constant[]
+  public clientInfo: object; // ClientSessionInfo
+  public collectedGoals: object;
+  public guildBattleGuilds: object[]; // Guild[]
+  public requestedGuild: object; // Guild
+  public requestedGuildMembers: object[]; // GuildMember[]
+  public guildHistoryBattle: object; // GuildBattle
+  public guildHistoryBattles: object[]; // GuildHistoryBattle[]
+  public guildBattleEntries: object[]; // GuildBattleListEntry[]
+  public guildEntries: object[]; // GuildListEntry
+  public guildLog: object;
+  public tournamentGuildCompetitionReward: object; // TournamentGuildCompetitionReward
+  public tournamentSoloGuildCompetitionReward: object; // TournamentSoloGuildCompetitionReward
+  public leaderboardGuilds: object[]; // LeaderboardGuild[]
+  public maxGuilds: number;
+  public centeredRank: number;
+  public bankInventory: object; // BankInventory
+  public ownedItemTemplates: string[]
+  public leaderboardCharacters: object[]; // LeaderboardCharacter[]
+  public maxCharacters: number;
+  public message: object; // Message
+  public marriage: object; // Marriage
+  public messagesCharacterInfo: object;
+  public messages: object[]; // Message[]
+  public messagesRead: object[];
+  public messagesIgnoredCharacterInfo: object;
+  public messagesSentCount: number;
+  public messagesReceivedCount: number;
+  public movieQuests: object[]; // MovieQuest[]
+  public movieHistory: object[]; // MovieHistory[]
+  public moviesCount: number;
+  public movies: object[]; // Movie[]
+  public movieQuest: object; // MovieQuest
+  public movieBattle: object; // Battle
+  public moviesToSelect: object[]; // Movie[]
+  public selectedMovie: object; // Movie
+  public moviesToVote: object[]; // VoteMovie
+  public currentOpticalChanges: object; // OpticalChanges
+  public collectedOpticalChanges: object;
+  public chests: object[]; // OpticalChangeChest[]
+  public outfit: object; // Outfit
+  public outfits: object[]; // Outfit[]
+  public lastPaymentConfirmed: boolean;
+  public consumableOffers: object[];
+  public paymentPromotionData: object; // PaymentPromotion
+  public normalOffers: object[];
+  public paymentId: number;
+  public paymentLink: string;
+  public storyDungeon: object; // StoryDungeon
+  public resourceRequests: object[]; // ResourceRequest[]
+  public friendUserIds: number;
+  public resourceRequest: object; // ResourceRequest
+  public fromCharacterName: string;
+  public resourceRequestFriends: object[]; // Friend
+  public completedStoryDungeons: number;
+  public movieTournamentEndTimestamp: number;
+  public tournamentEndTimestamp: number;
+  public tournamentMovieRewards: object;
+  public tournamentRewards: object; // TournamentReward
+  public leaderboardGuildCompetitions: object[]; // LeaderboardGuildCompetition[]
+  public maxGuildCompetitions: number;
+  public guildsWithRewards: number;
+  public guildCompetitionTournamentEndTimestamp: number;
+  public leaderboardMovies: object[]; // LeaderboardMovie[]
+  public maxMovies: number;
+  public leaderboardSoloGuildCompetitions: object[]; // LeaderboardSoloGuildCOmpetition[]
+  public maxSoloGuildCompetitions: number;
+  public reactivationCode: string;
+  public campaigns: object;
+  public userGeoLocation: string;
+  public finishedGuildBattleAttack: object; // GuildBattle
+  public finishedGuildBattleDefense: object; // GuildBattle
+  public guildBattleRewards: object[]; // GuildBattleReward[]
+  public battles: object[]; // Battle[]
+  public ref: string;
+  public reskillEnabled: boolean;
+  public advertismentInfo: object;
+  public showAdvertisment: boolean;
+  public showPrerollAdvertisment: boolean;
+  public titles: object[]; // Title[]
+  public expiredBoosters: string[];
+  public tosUpdateNeeded: boolean;
+  public ppUpdateNeeded: boolean;
+  public newVersion: boolean;
+  public loginCount: number;
+  public serverTimestampOffset: number;
+  public adProviderKeys: string[];
+  public userVoucherRewards: object;
+  public isValid: boolean;
+  public voucher: object; // Voucher
+  public collectedWork: object; // CollectedWork
 
   setCharacter(character: characterRaw) {
     if (this.character) {
@@ -215,15 +396,37 @@ export default class Game extends DataObject<gameRaw> {
     }
   }
 
-  setRequestedCharacter(requestedCharacter: characterRaw) {
-    this.requestedCharacter = new Character(requestedCharacter);
+  setInventory(inventory: inventoryRaw) {
+    this.inventory = new Inventory(inventory);
   }
 
   setOpponent(opponent: characterRaw) {
     this.opponent = new Character(opponent);
   }
 
+  setOpponentInventory(inventory: inventoryRaw) {
+    this.opponentInventory = new Inventory(inventory);
+  }
+
+  setQuests(quests: questRaw[]) {
+    this.quests = quests
+      .map(quest => new Quest(quest))
+      .sort(Quest.sort);
+  }
+
+  setRequestedCharacter(requestedCharacter: characterRaw) {
+    this.requestedCharacter = new Character(requestedCharacter);
+  }
+
+  setRequestedCharacterInventory(inventory: inventoryRaw) {
+    this.requestedCharacterInventory = new Inventory(inventory);
+  }
+
   setUser(user: userRaw) {
     this.user = new User(user);
+  }
+
+  get currentQuest() {
+    return this.quests.find(quest => quest.status !== questStatus.CREATED);
   }
 }

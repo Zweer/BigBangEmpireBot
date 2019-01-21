@@ -1,3 +1,7 @@
+import { itemQuality } from './types/common';
+
+import DataObject from './utils/dataObject';
+
 export type rewardRaw = {
   xp: number;
   coins: number;
@@ -26,9 +30,9 @@ export type rewardRaw = {
   dating_item: string;
   repeat_dating_index: number;
   guild_competition_item: string;
-}
+};
 
-export default class Reward {
+export default class Reward extends DataObject<rewardRaw> {
   readonly xp: number;
   readonly coins: number;
   readonly honor: number;
@@ -57,36 +61,18 @@ export default class Reward {
   readonly repeatDatingIndex: number;
   readonly guildCompetitionItem: string;
 
-  constructor(rewardString: string) {
-    const reward: rewardRaw = JSON.parse(rewardString);
+  readonly nonStandardAttributes: string[];
 
-    this.xp = reward.xp;
-    this.coins = reward.coins;
-    this.honor = reward.honor;
-    this.premium = reward.premium;
-    this.item = reward.item;
-    this.dungeonKey = reward.dungeon_key;
-    this.movieVotes = reward.movie_votes;
-    this.title = reward.title;
-    this.improvementPoint = reward.improvement_point;
-    this.movieProgress = reward.movie_progress;
-    this.storyDungeonPoint = reward.story_dungeon_point;
-    this.repeatStoryDungeonIndex = reward.repeat_story_dungeon_index;
-    this.opticalChangeResource = reward.optical_change_resource;
-    this.fanFotoResource = reward.fan_foto_resource;
-    this.eventItem = reward.event_item;
-    this.herobookItemCommon = reward.herobook_item_common;
-    this.herobookItemRare = reward.herobook_item_rare;
-    this.herobookItemEpic = reward.herobook_item_epic;
-    this.slotmachineJetons = reward.slotmachine_jetons;
-    this.questEnergy = reward.quest_energy;
-    this.statPoints = reward.statPoints;
-    this.artifactId = reward.artifact_id;
-    this.artifactStolen = reward.artifact_stolen;
-    this.missiles = reward.missiles;
-    this.datingItem = reward.dating_item;
-    this.repeatDatingIndex = reward.repeat_dating_index;
-    this.guildCompetitionItem = reward.guild_competition_item;
+  static STANDARD_ATTRIBUTES = ['coins', 'xp', 'honor', 'premium', 'statPoints'];
+
+  constructor(rewardString: string) {
+    const rewardRaw: rewardRaw = JSON.parse(rewardString);
+
+    super(rewardRaw);
+
+    this.nonStandardAttributes = Object.keys(rewardRaw)
+      .filter(key => !Reward.STANDARD_ATTRIBUTES.includes(key))
+      .filter(key => !!rewardRaw[key]);
   }
 
   get herobookItem(): string {
@@ -107,17 +93,17 @@ export default class Reward {
 
   get herobookItemQuality(): number {
     if (this.herobookItemCommon) {
-      return 1;
+      return itemQuality.COMMON;
     }
 
     if (this.herobookItemRare) {
-      return 2;
+      return itemQuality.RARE;
     }
 
     if (this.herobookItemEpic) {
-      return 3;
+      return itemQuality.EPIC;
     }
 
-    return 1;
+    return itemQuality.COMMON;
   }
 }

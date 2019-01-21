@@ -1,3 +1,5 @@
+import { resource } from './types/common';
+
 import DataObject from './utils/dataObject';
 
 export type characterRaw = {
@@ -158,8 +160,181 @@ export type characterRaw = {
   ts_last_slotmachine_refill: number,
   new_user_voucher_ids: string,
   herobook_objectives_renewed_today: number,
-}
+};
+
+type resources = {
+  [resource.QUEST_REDUCTION]: number,
+  [resource.SLOTMACHINE]: number,
+  [resource.SLOTMACHINE_JETON]: number,
+};
 
 export default class Character extends DataObject<characterRaw> {
+  id: number;
+  userId: number;
+  name: string;
+  locale: string;
+  gender: string;
+  sexuality: string;
+  title: string;
+  gameCurrency: number;
+  xp: number;
+  level: number;
+  description: string;
+  note: string;
+  tsLastAction: number;
+  onlineStatus: number;
+  scoreHonor: number;
+  scoreLevel: number;
+  scoreFans: number;
+  statPointsAvailable: number;
+  statBaseStamina: number;
+  statBaseStrength: number;
+  statBaseCriticalRating: number;
+  statBaseDodgeRating: number;
+  statTotalStamina: number;
+  statTotalStrength: number;
+  statTotalCriticalRating: number;
+  statTotalDodgeRating: number;
+  statWeaponDamage: number;
+  statTotal: number;
+  statBoughtStamina: number;
+  statBoughtStrength: number;
+  statBoughtCriticalRating: number;
+  statBoughtDodgeRating: number;
+  activeQuestBoosterId: string;
+  tsActiveQuestBoostExpires: number;
+  activeStatsBoosterId: string;
+  tsActiveStatsBoostExpires: number;
+  activeWorkBoosterId: string;
+  tsActiveWorkBoostExpires: number;
+  tsActiveSenseBoostExpires: number;
+  tsActiveMultitaskingBoostExpires: number;
+  maxQuestStage: number;
+  currentQuestStage: number;
+  currentLocation: number;
+  questEnergy: number;
+  maxQuestEnergy: number;
+  tsLastQuestEnergyRefill: number;
+  questEnergyRefillAmountToday: number;
+  activeQuestId: number;
+  questPool: string;
+  honor: number;
+  tsLastDuel: number;
+  activeDuelId: number;
+  duelStamina: number;
+  maxDuelStamina: number;
+  tsLastDuelStaminaChange: number;
+  duelStaminaCost: number;
+  tsLastDuelEnemiesRefresh: number;
+  currentWorkOfferId: string;
+  tsLastWorkCollection: number;
+  activeConventionShowId: number;
+  tsDungeonKeyFound: number;
+  activeDungeonQuestId: number;
+  tsLastDungeonQuest: number;
+  lastDungeonQuestLost: boolean;
+  activeDungeonId: number;
+  tsLastDungeonStarted: number;
+  appearanceSkinColor: number;
+  appearanceHairType: number;
+  appearanceHairColor: number;
+  appearanceHeadType: number;
+  appearanceEyesType: number;
+  appearanceEyebrowsType: number;
+  appearanceEyebrowsColor: number;
+  appearanceNoseType: number;
+  appearanceMouthType: number;
+  appearanceFacialHairType: number;
+  appearanceFacialHairColor: number;
+  appearanceDecorationType: number;
+  showHeadItem: boolean;
+  showChestItemUnlocked: boolean;
+  showChestItem: boolean;
+  showBeltItemUnlocked: boolean;
+  showBeltItem: boolean;
+  showLegsItemUnlocked: boolean;
+  showLegsItem: boolean;
+  showBootsItemUnlocked: boolean;
+  showBootsItem: boolean;
+  appearancePhotoRectType: number;
+  appearancePhotoBorderType: number;
+  appearancePhotoBackgroundType: number;
+  appearancePhotoFilterType: number;
+  appearancePhotoIconType: number;
+  appearancePhotoSexualityType: number;
+  appearanceTattooArmLeft: number;
+  appearanceTattooArmRight: number;
+  appearanceTattooBody: number;
+  appearanceTattooLegLeft: number;
+  appearanceTattooLegRight: number;
+  appearanceBraType: number;
+  appearancePantiesType: number;
+  appearanceGenitalsType: number;
+  appearanceGenitalsHairType: number;
+  appearanceGenitalsHairColor: number;
+  avatarImage: string;
+  tutorialFlags: string;
+  storygoal: string;
+  guildId: number;
+  guildRank: number;
+  finishedGuildBattleAttackId: number;
+  finishedGuildBattleDefenseId: number;
+  guildDonatedGameCurrency: number;
+  guildDonatedPremiumCurrency: number;
+  guildCompetitionPointsGathered: number;
+  pendingGuildCompetitionTournamentRewards: number;
+  pendingSoloGuildCompetitionTournamentRewards: number;
+  conventionId: number;
+  conventionShowCount: number;
+  conventionShowIdentifier: string;
+  conventionShowReward: number;
+  tsLastWashItem: number;
+  tsLastDailyLoginBonus: number;
+  dailyLoginBonusDay: number;
+  pendingTournamentRewards: number;
+  tsLastShopRefresh: number;
+  maxFreeShopRefreshes: number;
+  shopRefreshes: number;
+  movieEnergy: number;
+  maxMovieEnergy: number;
+  tsLastMovieEnergyChange: number;
+  moviePool: string;
+  movieId: number;
+  movies: number;
+  fans: number;
+  tsLastMovieFinished: number;
+  moviesStartedToday: number;
+  movieVotes: number;
+  selectedMovieId: number;
+  selectableMoviesCount: number;
+  pendingMovieTournamentRewards: number;
+  friendData: string;
+  pendingResourceRequests: number;
+  unusedResources: resources;
+  usedResources: resources;
+  battleData: string;
+  tsLastCustomizeItem: number;
+  pendingCustomizeItem: string;
+  currentStoryDungeonIndex: number;
+  activeStoryDungeonAttackId: number;
+  currentRepeatStoryDungeonId: number;
+  activeRepeatStoryDungeonAttackId: number;
+  eventQuestId: number;
+  currentEnergyStorage: number;
+  currentSlotmachineSpin: number;
+  slotmachineSpinCount: number;
+  tsLastSlotmachineRefill: number;
+  newUserVoucherIds: string;
+  herobookObjectivesRenewedToday: number;
 
+  setUnusedResources(unusedResources: string) {
+    if (unusedResources && typeof unusedResources === 'string') {
+      this.unusedResources = JSON.parse(unusedResources);
+    }
+  }
+  setUsedResources(usedResources: string) {
+    if (usedResources && typeof usedResources === 'string') {
+      this.usedResources = JSON.parse(usedResources);
+    }
+  }
 }

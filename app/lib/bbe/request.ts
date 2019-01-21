@@ -4,13 +4,17 @@ import * as request from 'request-promise';
 
 import BigBangEmpireError from './utils/error';
 
+import { resource } from './types/common';
 import { optionsWeb } from './types/options';
 
+import Character from './character';
 import Constants from './constants';
 import ExtendedConfig from './extendedConfig';
 import Friend from './friend';
 import Game from './game';
+import Inventory from './inventory';
 import Quest from './quest';
+import User from './user';
 
 export default class Request {
   readonly baseUrl: string;
@@ -31,18 +35,15 @@ export default class Request {
   static ACTION_LOGIN_FRIEND_BAR = 'loginFriendBar';
   static ACTION_SYNC_GAME = 'syncGame';
   static ACTION_CHECK_FOR_QUEST_COMPLETE = 'checkForQuestComplete';
+  static ACTION_CLAIM_QUEST_REWARDS = 'claimQuestRewards';
+  static ACTION_START_QUEST = 'startQuest';
+  static ACTION_USE_RESOURCES = 'useResource';
 
-  constructor(baseUrl: string, readonly server: string, readonly email: string, readonly password: string) {
+  static STATUS_CHECK_FOR_QUEST_COMPLETE = ['errFinishInvalidStatus', 'errCheckForQuestCompleteNoActiveQuest', 'errFinishNotYetCompleted'];
+
+  constructor(baseUrl: string, readonly server: string, readonly email: string, readonly password: string, readonly game: Game) {
     this.baseUrl = baseUrl.replace('{SERVER}', this.server);
     this.clientId = `${this.server}${moment().format('X')}`;
-  }
-
-  setUserId(userId: number) {
-    this.userId = userId;
-  }
-
-  setUserSessionId(userSessionId: number) {
-    this.userSessionId = userSessionId;
   }
 
   async request(action: string, parameters: object = {}): Promise<any> {
@@ -92,7 +93,7 @@ export default class Request {
     };
   }
 
-  async login(email, password): Promise<Game> {
+  async login(email, password): Promise<void> {
     const game = await this.request(Request.ACTION_LOGIN_USER, {
       email,
       password,
@@ -102,7 +103,9 @@ export default class Request {
       client_id: this.clientId,
     });
 
-    return new Game(game);
+    this.game.update(game);
+    this.userId = this.game.user.id;
+    this.userSessionId = this.game.user.sessionId;
   }
 
   async initOffers(locale) {
@@ -126,10 +129,10 @@ export default class Request {
     return friendsRaw.map(friendRaw => new Friend(friendRaw));
   }
 
-  async syncGame(): Promise<Game> {
+  async syncGame(): Promise<void> {
     const game = await this.request(Request.ACTION_SYNC_GAME, { force_sync: false });
 
-    return new Game(game);
+    this.game.update(game);
   }
 
   async checkForQuestComplete(): Promise<Quest> {
@@ -140,11 +143,56 @@ export default class Request {
     } catch (errorRaw) {
       const error = errorRaw as BigBangEmpireError;
 
-      if (error.code === 'errCheckForQuestCompleteNoActiveQuest' || error.code === 'errFinishInvalidStatus') {
+      if (Request.STATUS_CHECK_FOR_QUEST_COMPLETE.includes(error.code)) {
         return null;
       }
 
       throw errorRaw;
     }
+  }
+
+  async claimQuestRewards(): Promise<{ currentGoalValues: object, currentItemPatternValues: object }> {
+    const {
+      character,
+      current_goal_values: currentGoalValues,
+      current_item_pattern_values: currentItemPatternValues,
+      inventory,
+      quests,
+      user,
+    } = await this.request(Request.ACTION_CLAIM_QUEST_REWARDS, {
+      discard_item: false,
+      create_new: true,
+    });
+
+    this.game.character.update(character);
+    this.game.inventory.update(inventory);
+    this.game.user.update(user);
+
+    this.game.quests = quests.map(quest => new Quest(quest));
+
+    Object.assign(this.game.currentGoalValue, currentGoalValues);
+    Object.assign(this.game.currentItemPatternValues, currentItemPatternValues);
+
+    return {
+      currentGoalValues,
+      currentItemPatternValues,
+    };
+  }
+
+  async startQuest(questId: number): Promise<Quest> {
+    const { character, quest, user } = await this.request(Request.ACTION_START_QUEST, { quest_id: questId });
+
+    this.game.character.update(character);
+    this.game.user.update(user);
+
+    return new Quest(quest);
+  }
+
+  async useResource(resourceType: resource) {
+    const response = await this.request(Request.ACTION_USE_RESOURCES, {
+      feature_type: resourceType,
+    });
+
+    console.log(response);
   }
 }

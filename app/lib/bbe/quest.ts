@@ -1,7 +1,10 @@
 import * as moment from 'moment';
 
 import Reward from './reward';
-import { difficulty, stat } from './common/types';
+
+import { difficulty, stat } from './types/common';
+
+import DataObject from './utils/dataObject';
 
 export type questRaw = {
   id: number,
@@ -22,7 +25,7 @@ export type questRaw = {
   fight_battle_id: number,
   won: boolean,
   rewards: string,
-}
+};
 
 export enum questType {
   TIME = 1,
@@ -39,44 +42,49 @@ export enum questStatus {
   REWARD_PROCESSED,
 }
 
-export default class Quest {
-  readonly id: number;
-  readonly characterId: number;
-  readonly identifier: string;
-  readonly type: questType;
-  readonly stat: stat;
-  readonly stage: number;
-  readonly level: number;
-  readonly status: questStatus;
-  readonly durationType: number;
-  readonly durationRaw: number;
-  readonly duration: number;
-  readonly completedAt: moment.Moment;
-  readonly energyCost: number;
-  readonly fightDifficulty: difficulty;
-  readonly fightNpcIdentifier: string;
-  readonly fightBattleId: number;
-  readonly won: boolean;
-  readonly rewards: Reward;
+export default class Quest extends DataObject<questRaw> {
+  id: number;
+  characterId: number;
+  identifier: string;
+  type: questType;
+  stat: stat;
+  stage: number;
+  level: number;
+  status: questStatus;
+  durationType: number;
+  durationRaw: number;
+  duration: number;
+  tsComplete: moment.Moment;
+  energyCost: number;
+  fightDifficulty: difficulty;
+  fightNpcIdentifier: string;
+  fightBattleId: number;
+  won: boolean;
+  rewards: Reward;
 
-  constructor(quest: questRaw) {
-    this.id = quest.id;
-    this.characterId = quest.character_id;
-    this.identifier = quest.identifier;
-    this.type = quest.type;
-    this.stat = quest.stat;
-    this.stage = quest.stage;
-    this.level = quest.level;
-    this.status = quest.status;
-    this.durationType = quest.duration_type;
-    this.durationRaw = quest.duration_raw;
-    this.duration = quest.duration;
-    this.completedAt = moment(quest.ts_complete, 'X');
-    this.energyCost = quest.energy_cost;
-    this.fightDifficulty = quest.fight_difficulty;
-    this.fightNpcIdentifier = quest.fight_npc_identifier;
-    this.fightBattleId = quest.fight_battle_id;
-    this.won = quest.won;
-    this.rewards = new Reward(quest.rewards);
+  setTsComplete(tsComplete: number) {
+    this.tsComplete = moment(tsComplete, 'X');
+  }
+
+  setRewards(rewards: string) {
+    this.rewards = new Reward(rewards);
+  }
+
+  get xpPerEnergy(): number {
+    return Math.round((this.rewards.xp / this.energyCost) * 100) / 100;
+  }
+
+  static sort(a: Quest, b: Quest): number {
+    const deltaPremium = b.rewards.premium - a.rewards.premium;
+    if (deltaPremium !== 0) {
+      return deltaPremium;
+    }
+
+    const deltaNonStandardAttributes = b.rewards.nonStandardAttributes.length - a.rewards.nonStandardAttributes.length;
+    if (deltaNonStandardAttributes !== 0) {
+      return deltaNonStandardAttributes;
+    }
+
+    return b.xpPerEnergy - a.xpPerEnergy;
   }
 }
