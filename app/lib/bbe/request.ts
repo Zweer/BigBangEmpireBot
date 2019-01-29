@@ -20,7 +20,7 @@ export default class Request {
   private userId: number = 0;
   private userSessionId: number = 0;
 
-  static CLIENT_VERSION: number = 81;
+  static CLIENT_VERSION: number = 82;
   static AUTH_SALT: string = 'bpHgj5214';
 
   static ENDPOINT_REQUEST: string = '/request.php';
