@@ -46,11 +46,6 @@ package com.playata.application.data.dataobject
          return getInt("points_collected");
       }
       
-      public function get tsComplete() : int
-      {
-         return getInt("ts_complete");
-      }
-      
       public function get tsLastAttack() : int
       {
          return getInt("ts_last_attack");

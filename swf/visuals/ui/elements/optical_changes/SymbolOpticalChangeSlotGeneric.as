@@ -19,9 +19,7 @@ package visuals.ui.elements.optical_changes
       
       public var iconBorderEpic:SymbolOpticalChangeIconEpicGeneric = null;
       
-      public var locked:SymbolPlaceholderGeneric = null;
-      
-      public var unlocked:SymbolPlaceholderGeneric = null;
+      public var icon:SymbolPlaceholderGeneric = null;
       
       public var iconEffect:SymbolDummyGeneric = null;
       
@@ -40,8 +38,7 @@ package visuals.ui.elements.optical_changes
          iconBorderCommon = new SymbolOpticalChangeIconCommonGeneric(_nativeObject.iconBorderCommon);
          iconBorderRare = new SymbolOpticalChangeIconRareGeneric(_nativeObject.iconBorderRare);
          iconBorderEpic = new SymbolOpticalChangeIconEpicGeneric(_nativeObject.iconBorderEpic);
-         locked = new SymbolPlaceholderGeneric(_nativeObject.locked);
-         unlocked = new SymbolPlaceholderGeneric(_nativeObject.unlocked);
+         icon = new SymbolPlaceholderGeneric(_nativeObject.icon);
          iconEffect = new SymbolDummyGeneric(_nativeObject.iconEffect);
       }
       
@@ -66,13 +63,9 @@ package visuals.ui.elements.optical_changes
          {
             iconBorderEpic.setNativeInstance(_nativeObject.iconBorderEpic);
          }
-         if(_nativeObject.locked)
+         if(_nativeObject.icon)
          {
-            locked.setNativeInstance(_nativeObject.locked);
-         }
-         if(_nativeObject.unlocked)
-         {
-            unlocked.setNativeInstance(_nativeObject.unlocked);
+            icon.setNativeInstance(_nativeObject.icon);
          }
          if(_nativeObject.iconEffect)
          {

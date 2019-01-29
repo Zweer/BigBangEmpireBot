@@ -31,6 +31,8 @@ package com.playata.application.ui.elements.payment
          _offerContent.backgroundSelected.gotoAndStop(1);
          _offerContent.backgroundUnselected.gotoAndStop(1);
          _offerContent.background.removeAllChildren();
+         _offerContent.txtName.fontSize = 14;
+         _offerContent.txtName.autoFontSize = true;
       }
       
       override public function dispose() : void
@@ -96,8 +98,7 @@ package com.playata.application.ui.elements.payment
          tooltip = param1.description;
          _offerContent.background.setUriSprite(param1.backgroundImage,100,140,true,8,null,true);
          _offerContent.iconItem.setUriSprite(param1.itemImage,60,60,true,2,null,true);
-         _offerContent.txtName.text = StringUtil.replace(param1.name,"-","- ");
-         _offerContent.txtName.autoFontSize = true;
+         _offerContent.txtName.text = StringUtil.replace(param1.slotName,"-","- ");
          _offerContent.txtPrice.fontSize = 18;
          _offerContent.txtPrice.text = _product.priceString;
          _offerContent.txtPrice.autoFontSize = true;

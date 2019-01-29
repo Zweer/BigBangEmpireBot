@@ -50,5 +50,10 @@ package com.playata.application.data.goal
       {
          return getBoolean("sbg");
       }
+      
+      public function get showTitleGoals() : Boolean
+      {
+         return getBoolean("stg",true);
+      }
    }
 }

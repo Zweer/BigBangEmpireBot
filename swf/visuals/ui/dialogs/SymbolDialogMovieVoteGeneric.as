@@ -63,7 +63,7 @@ package visuals.ui.dialogs
       
       public var txtReportMovie:ILabel = null;
       
-      public var txtInfo:ILabelArea = null;
+      public var txtInfo:ILabel = null;
       
       public var txtInfoError:ILabelArea = null;
       
@@ -99,7 +99,7 @@ package visuals.ui.dialogs
          iconPremiumCurrency = new SymbolIconPremiumCurrencyGeneric(_nativeObject.iconPremiumCurrency);
          iconCoins = new SymbolIconGameCurrencyGeneric(_nativeObject.iconCoins);
          txtReportMovie = FlashLabel.fromNative(_nativeObject.txtReportMovie);
-         txtInfo = FlashLabelArea.fromNative(_nativeObject.txtInfo);
+         txtInfo = FlashLabel.fromNative(_nativeObject.txtInfo);
          txtInfoError = FlashLabelArea.fromNative(_nativeObject.txtInfoError);
          loader = new SymbolBlockerAnimationGeneric(_nativeObject.loader);
       }
@@ -173,7 +173,7 @@ package visuals.ui.dialogs
             iconCoins.setNativeInstance(_nativeObject.iconCoins);
          }
          FlashLabel.setNativeInstance(txtReportMovie,_nativeObject.txtReportMovie);
-         FlashLabelArea.setNativeInstance(txtInfo,_nativeObject.txtInfo);
+         FlashLabel.setNativeInstance(txtInfo,_nativeObject.txtInfo);
          FlashLabelArea.setNativeInstance(txtInfoError,_nativeObject.txtInfoError);
          if(_nativeObject.loader)
          {

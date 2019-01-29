@@ -735,6 +735,27 @@ package com.playata.application.module
                _user.character.refreshOutfits(appData.outfits);
             }
          }
+         if(appData.hasData("daily_bonus_lookup",true))
+         {
+            if(_user.character != null)
+            {
+               _user.character.refreshDailyBonusLookup(appData.daily_bonus_lookup);
+            }
+         }
+         if(appData.hasData("daily_bonus_rewards",true))
+         {
+            if(_user.character != null)
+            {
+               _user.character.refreshDailyBonusRewards(appData.daily_bonus_rewards);
+            }
+         }
+         if(appData.hasData("daily_bonus_reward",true))
+         {
+            if(_user.character != null)
+            {
+               _user.character.refreshDailyBonusReward(appData.daily_bonus_reward);
+            }
+         }
          if(appData.hasData("sync_states",true))
          {
             SyncStates.refresh(appData.sync_states);

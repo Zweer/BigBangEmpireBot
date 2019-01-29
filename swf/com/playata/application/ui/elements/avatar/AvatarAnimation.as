@@ -60,14 +60,7 @@ package com.playata.application.ui.elements.avatar
          var _loc3_:* = _avatarAnimations;
          for each(var _loc2_ in _avatarAnimations)
          {
-            if(!_enableAnimations)
-            {
-               _loc2_.stopAnimation();
-            }
-            else
-            {
-               _loc2_.startAnimation();
-            }
+            _loc2_.restartAnimation();
          }
       }
       
@@ -108,6 +101,7 @@ package com.playata.application.ui.elements.avatar
          }
          _frontAnimations.length = 0;
          _settingsHash = null;
+         _currentSettings = null;
       }
       
       public function stopAnimation() : void
@@ -117,6 +111,12 @@ package com.playata.application.ui.elements.avatar
       
       public function startAnimation() : void
       {
+         update(_currentSettings);
+      }
+      
+      public function restartAnimation() : void
+      {
+         _settingsHash = null;
          update(_currentSettings);
       }
       
@@ -180,6 +180,7 @@ package com.playata.application.ui.elements.avatar
       
       private function setEquipment(param1:int, param2:AppearanceSettings) : void
       {
+         var _loc8_:int = 0;
          var _loc6_:* = null;
          var _loc5_:* = null;
          var _loc3_:String = null;
@@ -212,6 +213,14 @@ package com.playata.application.ui.elements.avatar
                if(param2.hasData("show_legs_item") && param2.show_legs_item == false)
                {
                   param2.setData(_loc3_,null);
+               }
+               else
+               {
+                  _loc8_ = getDisplayOption(2,param2);
+                  if(_loc8_ == 7 || _loc8_ == 8)
+                  {
+                     param2.setData(_loc3_,null);
+                  }
                }
                break;
             case 4:
@@ -257,6 +266,39 @@ package com.playata.application.ui.elements.avatar
                }
             }
          }
+      }
+      
+      private function getDisplayOption(param1:int, param2:AppearanceSettings) : int
+      {
+         var _loc5_:int = 0;
+         var _loc3_:String = "";
+         switch(int(param1) - 1)
+         {
+            case 0:
+               _loc3_ = "head";
+               break;
+            case 1:
+               _loc3_ = "chest";
+               break;
+            case 2:
+               _loc3_ = "belt";
+               break;
+            case 3:
+               _loc3_ = "legs";
+               break;
+            case 4:
+               _loc3_ = "boots";
+         }
+         var _loc4_:String = param2.getString(_loc3_);
+         if(_loc4_ != null)
+         {
+            if(CItemTemplate.exists(_loc4_))
+            {
+               _loc5_ = CItemTemplate.fromId(_loc4_).displayOptions;
+               return _loc5_;
+            }
+         }
+         return 0;
       }
    }
 }

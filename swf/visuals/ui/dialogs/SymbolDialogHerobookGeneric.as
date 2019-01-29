@@ -4,6 +4,7 @@ package visuals.ui.dialogs
    import com.playata.framework.display.lib.flash.FlashDisplayObjectContainer;
    import com.playata.framework.display.lib.flash.FlashSprite;
    import flash.display.MovieClip;
+   import visuals.ui.elements.bonus.SymbolDailyBonusHerobookGeneric;
    import visuals.ui.elements.buttons.SymbolButtonCloseGeneric;
    import visuals.ui.elements.buttons.SymbolButtonHelpGeneric;
    import visuals.ui.elements.herobook.SymbolHerobookCompleteGeneric;
@@ -15,6 +16,8 @@ package visuals.ui.dialogs
        
       
       private var _nativeObject:SymbolDialogHerobook = null;
+      
+      public var dailyBonusHerobook:SymbolDailyBonusHerobookGeneric = null;
       
       public var btnClose:SymbolButtonCloseGeneric = null;
       
@@ -46,6 +49,7 @@ package visuals.ui.dialogs
          }
          super(null,FlashSprite.fromNative(_nativeObject));
          var _loc2_:FlashDisplayObjectContainer = _sprite as FlashDisplayObjectContainer;
+         dailyBonusHerobook = new SymbolDailyBonusHerobookGeneric(_nativeObject.dailyBonusHerobook);
          btnClose = new SymbolButtonCloseGeneric(_nativeObject.btnClose);
          btnHelp = new SymbolButtonHelpGeneric(_nativeObject.btnHelp);
          line1 = new SymbolHerobookLineGeneric(_nativeObject.line1);
@@ -66,6 +70,10 @@ package visuals.ui.dialogs
       
       public function syncInstances() : void
       {
+         if(_nativeObject.dailyBonusHerobook)
+         {
+            dailyBonusHerobook.setNativeInstance(_nativeObject.dailyBonusHerobook);
+         }
          if(_nativeObject.btnClose)
          {
             btnClose.setNativeInstance(_nativeObject.btnClose);

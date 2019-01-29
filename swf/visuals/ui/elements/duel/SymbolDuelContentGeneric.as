@@ -9,6 +9,7 @@ package visuals.ui.elements.duel
    import visuals.ui.base.SymbolIconButtonCharacterGeneric;
    import visuals.ui.base.SymbolIconButtonRefreshDuelEnemiesGeneric;
    import visuals.ui.elements.backgrounds.SymbolSlice9BackgroundDialogGeneric;
+   import visuals.ui.elements.bonus.SymbolDailyBonusGeneric;
    import visuals.ui.elements.buttons.SymbolButtonPlusStaticGeneric;
    import visuals.ui.elements.buttons.SymbolButtonPremiumGeneric;
    
@@ -39,6 +40,8 @@ package visuals.ui.elements.duel
       public var enemyLine8:SymbolDuelEnemyLineGeneric = null;
       
       public var enemyLine9:SymbolDuelEnemyLineGeneric = null;
+      
+      public var dailyBonusDuel:SymbolDailyBonusGeneric = null;
       
       public var txtNameCaption:ILabel = null;
       
@@ -85,6 +88,7 @@ package visuals.ui.elements.duel
          enemyLine7 = new SymbolDuelEnemyLineGeneric(_nativeObject.enemyLine7);
          enemyLine8 = new SymbolDuelEnemyLineGeneric(_nativeObject.enemyLine8);
          enemyLine9 = new SymbolDuelEnemyLineGeneric(_nativeObject.enemyLine9);
+         dailyBonusDuel = new SymbolDailyBonusGeneric(_nativeObject.dailyBonusDuel);
          txtNameCaption = FlashLabel.fromNative(_nativeObject.txtNameCaption);
          txtHonorCaption = FlashLabel.fromNative(_nativeObject.txtHonorCaption);
          btnViewPlayer = new SymbolIconButtonCharacterGeneric(_nativeObject.btnViewPlayer);
@@ -150,6 +154,10 @@ package visuals.ui.elements.duel
          if(_nativeObject.enemyLine9)
          {
             enemyLine9.setNativeInstance(_nativeObject.enemyLine9);
+         }
+         if(_nativeObject.dailyBonusDuel)
+         {
+            dailyBonusDuel.setNativeInstance(_nativeObject.dailyBonusDuel);
          }
          FlashLabel.setNativeInstance(txtNameCaption,_nativeObject.txtNameCaption);
          FlashLabel.setNativeInstance(txtHonorCaption,_nativeObject.txtHonorCaption);

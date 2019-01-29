@@ -20,6 +20,12 @@ package com.playata.application.assets
       public static const item_sparkleAtlas:Class = §item_sparkle_atlas$f64b6337dd0246d6c87aaed45f460bdd-860459944§;
       
       public static const item_sparkleTexture:Class = item_sparkle_png$2ac4e05e7a7dc17f9636ab591172f6771533909693;
+      
+      public static const item_angel:Class = §item_angel_json$cda6ba39874172fe1083a624da13813e-1693256930§;
+      
+      public static const item_angelAtlas:Class = item_angel_atlas$63c9137fca90fd52cc8806708421889a1897624565;
+      
+      public static const item_angelTexture:Class = item_angel_png$862359e044476c6440299a0d3ad33638449345296;
        
       
       public function EmbeddedSpineAssetsFlash()

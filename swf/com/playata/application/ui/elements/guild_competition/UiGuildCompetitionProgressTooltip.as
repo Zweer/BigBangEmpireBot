@@ -28,7 +28,6 @@ package com.playata.application.ui.elements.guild_competition
             _tooltipContent = new SymbolUiGuildCompetitionProgressTooltipGeneric();
             _tooltipContent.tooltip.autoAdjustWidthHeight = TextFieldAutoAdjustWidthHeight.VERTICAL;
             _tooltipContent.txtNoRewards.autoAdjustWidthHeight = TextFieldAutoAdjustWidthHeight.VERTICAL;
-            _tooltipContent.txtRewardsCaption.text = LocText.current.text("dialog/guild_competition_reward/reward_caption");
          }
          _tooltipContent.visible = false;
          super(param1,_tooltipContent);
@@ -62,6 +61,7 @@ package com.playata.application.ui.elements.guild_competition
             return;
          }
          _tooltipContent.visible = true;
+         _tooltipContent.txtRewardsCaption.text = LocText.current.text("dialog/guild_competition_reward/reward_caption");
          _tooltipContent.txtNoRewards.visible = false;
          if(_guildCompetition.score >= CConstant.guild_competition_min_score)
          {

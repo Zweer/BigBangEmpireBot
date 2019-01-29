@@ -3,6 +3,7 @@ package com.playata.application.ui.dialogs
    import com.playata.application.data.herobook.Herobook;
    import com.playata.application.data.herobook.HerobookObjective;
    import com.playata.application.data.user.User;
+   import com.playata.application.ui.elements.bonus.UiDailyBonusHerobook;
    import com.playata.application.ui.elements.generic.button.UiButton;
    import com.playata.application.ui.elements.generic.dialog.UiDialog;
    import com.playata.application.ui.elements.herobook.UiHerobookLine;
@@ -38,6 +39,8 @@ package com.playata.application.ui.dialogs
       
       private var _herobook:Herobook = null;
       
+      private var _dailyBonus:UiDailyBonusHerobook = null;
+      
       public function DialogHerobook(param1:Herobook)
       {
          var _loc2_:SymbolDialogHerobookGeneric = new SymbolDialogHerobookGeneric();
@@ -53,8 +56,9 @@ package com.playata.application.ui.dialogs
          _line5 = new UiHerobookLine(_loc2_.line5,switchToInfo,refresh);
          _objectiveInfo = new UiHerobookObjectiveInfo(_loc2_.goalInfo,switchToList,switchToCompleteFromInfo);
          _objectiveComplete = new UiHerobookObjectiveComplete(_loc2_.goalComplete,switchToList,close);
-         _loc2_.goalInfo.x = 490;
-         _loc2_.goalComplete.x = 420;
+         _dailyBonus = new UiDailyBonusHerobook(_loc2_.dailyBonusHerobook,1);
+         _loc2_.goalInfo.x = 440;
+         _loc2_.goalComplete.x = 370;
          refresh();
       }
       
@@ -86,6 +90,8 @@ package com.playata.application.ui.dialogs
          _objectiveInfo = null;
          _objectiveComplete.dispose();
          _objectiveComplete = null;
+         _dailyBonus.dispose();
+         _dailyBonus = null;
          super.dispose();
       }
       
@@ -120,6 +126,7 @@ package com.playata.application.ui.dialogs
          {
             refreshList(_herobook.objectives);
          }
+         _dailyBonus.refresh();
       }
       
       private function refreshList(param1:Vector.<HerobookObjective>) : void
@@ -152,13 +159,13 @@ package com.playata.application.ui.dialogs
          var _loc2_:SymbolDialogHerobookGeneric = _vo as SymbolDialogHerobookGeneric;
          stopTweens();
          var _loc1_:* = 0.3;
-         _line1.content.tweenTo(_loc1_,{"x":-358});
-         _line2.content.tweenTo(_loc1_,{"x":-358});
-         _line3.content.tweenTo(_loc1_,{"x":-358});
-         _line4.content.tweenTo(_loc1_,{"x":-358});
-         _line5.content.tweenTo(_loc1_,{"x":-358});
-         _loc2_.goalInfo.tweenTo(_loc1_,{"x":490});
-         _loc2_.goalComplete.tweenTo(_loc1_,{"x":420});
+         _line1.content.tweenTo(_loc1_,{"x":-408});
+         _line2.content.tweenTo(_loc1_,{"x":-408});
+         _line3.content.tweenTo(_loc1_,{"x":-408});
+         _line4.content.tweenTo(_loc1_,{"x":-408});
+         _line5.content.tweenTo(_loc1_,{"x":-408});
+         _loc2_.goalInfo.tweenTo(_loc1_,{"x":440});
+         _loc2_.goalComplete.tweenTo(_loc1_,{"x":370});
          this.refresh();
          Environment.audio.playFX("ui_dialog_open.mp3");
       }
@@ -188,13 +195,13 @@ package com.playata.application.ui.dialogs
          }
          stopTweens();
          var _loc2_:* = 0.3;
-         _line1.content.tweenTo(_loc2_,{"x":-1200});
-         _line2.content.tweenTo(_loc2_,{"x":-1200});
-         _line3.content.tweenTo(_loc2_,{"x":-1200});
-         _line4.content.tweenTo(_loc2_,{"x":-1200});
-         _line5.content.tweenTo(_loc2_,{"x":-1200});
-         _loc3_.goalInfo.tweenTo(_loc2_,{"x":-358});
-         _loc3_.goalComplete.tweenTo(_loc2_,{"x":-358});
+         _line1.content.tweenTo(_loc2_,{"x":-1250});
+         _line2.content.tweenTo(_loc2_,{"x":-1250});
+         _line3.content.tweenTo(_loc2_,{"x":-1250});
+         _line4.content.tweenTo(_loc2_,{"x":-1250});
+         _line5.content.tweenTo(_loc2_,{"x":-1250});
+         _loc3_.goalInfo.tweenTo(_loc2_,{"x":-408});
+         _loc3_.goalComplete.tweenTo(_loc2_,{"x":-408});
          Environment.audio.playFX("ui_dialog_open.mp3");
       }
       
@@ -212,10 +219,10 @@ package com.playata.application.ui.dialogs
          _objectiveComplete.content.visible = true;
          _objectiveComplete.refresh(objective);
          stopTweens();
-         _objectiveComplete.content.x = 420;
+         _objectiveComplete.content.x = 370;
          var duration:Number = 0.3;
-         _objectiveInfo.content.tweenTo(duration,{"x":-980});
-         _objectiveComplete.content.tweenTo(duration,{"x":-358});
+         _objectiveInfo.content.tweenTo(duration,{"x":-1030});
+         _objectiveComplete.content.tweenTo(duration,{"x":-408});
          var cleanupCallback:Function = function():void
          {
             if(!_objectiveInfo)
@@ -223,7 +230,7 @@ package com.playata.application.ui.dialogs
                return;
             }
             _objectiveInfo.content.visible = false;
-            _objectiveInfo.content.x = -358;
+            _objectiveInfo.content.x = -408;
          };
          Runtime.delayFunction(cleanupCallback,0.3);
          Environment.audio.playFX("ui_dialog_open.mp3");

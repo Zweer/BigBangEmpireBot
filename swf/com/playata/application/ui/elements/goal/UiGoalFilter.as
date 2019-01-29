@@ -34,6 +34,8 @@ package com.playata.application.ui.elements.goal
       private static var _showEnergyGoals:Boolean = true;
       
       private static var _showBoosterGoals:Boolean = true;
+      
+      private static var _showTitleGoals:Boolean = true;
        
       
       private var _content:SymbolGoalFilterGeneric = null;
@@ -55,6 +57,8 @@ package com.playata.application.ui.elements.goal
       private var _ckbShowEnergy:UiCheckBox = null;
       
       private var _ckbShowBooster:UiCheckBox = null;
+      
+      private var _ckbShowTitle:UiCheckBox = null;
       
       private var _tooltipSearch:UiTextTooltip = null;
       
@@ -83,6 +87,8 @@ package com.playata.application.ui.elements.goal
          _content.txtShowEnergyGoal.autoFontSize = true;
          _content.txtShowBoosterGoal.text = LocText.current.text("dialog/goals/show_booster_goals");
          _content.txtShowBoosterGoal.autoFontSize = true;
+         _content.txtShowTitleGoal.text = LocText.current.text("dialog/goals/show_title_goals");
+         _content.txtShowTitleGoal.autoFontSize = true;
          _ckbOnlyUnlocked = new UiCheckBox(_content.ckbOnlyUnlocked,_filterLocked,"",onCheckedChangedOnlyUnlocked,null,_content.txtOnlyUnlocked);
          _ckbShowGameCurrency = new UiCheckBox(_content.ckbShowCoinGoals,_showGameCurrencyGoals,"",onCheckedChangedShowCoinGoals,null,_content.txtShowCoinGoals);
          _ckbShowPremium = new UiCheckBox(_content.ckbShowPremiumGoal,_showPremiumGoals,"",onCheckedChangedShowPremiumGoals,null,_content.txtShowPremiumGoal);
@@ -91,6 +97,7 @@ package com.playata.application.ui.elements.goal
          _ckbShowItem = new UiCheckBox(_content.ckbShowItemGoal,_showItemGoals,"",onCheckedChangedShowItemGoals,null,_content.txtShowItemGoal);
          _ckbShowEnergy = new UiCheckBox(_content.ckbShowEnergyGoal,_showEnergyGoals,"",onCheckedChangedShowEnergyGoals,null,_content.txtShowEnergyGoal);
          _ckbShowBooster = new UiCheckBox(_content.ckbShowBoosterGoal,_showBoosterGoals,"",onCheckedChangedShowBoosterGoals,null,_content.txtShowBoosterGoal);
+         _ckbShowTitle = new UiCheckBox(_content.ckbShowTitleGoal,_showTitleGoals,"",onCheckedChangedShowTitleGoals,null,_content.txtShowTitleGoal);
          _tooltipSearch = new UiTextTooltip(_content.inputSearch,LocText.current.text("dialog/goals/button_search_tooltip"));
          if(_filterText != "")
          {
@@ -132,6 +139,10 @@ package com.playata.application.ui.elements.goal
             case 6:
                _loc3_ = _showBoosterGoals;
          }
+         if(param1.hasTitleReward)
+         {
+            _loc3_ = _showTitleGoals;
+         }
          if(!_loc3_)
          {
             return _loc3_;
@@ -153,7 +164,7 @@ package com.playata.application.ui.elements.goal
       
       public static function get isFilterActive() : Boolean
       {
-         return !_showGameCurrencyGoals || !_showPremiumGoals || !_showStatGoals || !_showXPGoals || !_showItemGoals || !_showEnergyGoals || !_showBoosterGoals || _filterLocked;
+         return !_showGameCurrencyGoals || !_showPremiumGoals || !_showStatGoals || !_showXPGoals || !_showItemGoals || !_showEnergyGoals || !_showBoosterGoals || !_showTitleGoals || _filterLocked;
       }
       
       public function dispose() : void
@@ -172,6 +183,8 @@ package com.playata.application.ui.elements.goal
          _ckbShowXP = null;
          _ckbShowItem.dispose();
          _ckbShowItem = null;
+         _ckbShowTitle.dispose();
+         _ckbShowTitle = null;
          _tooltipSearch.dispose();
          _tooltipSearch = null;
          _callback = null;
@@ -185,6 +198,7 @@ package com.playata.application.ui.elements.goal
          _showXPGoals = true;
          _showEnergyGoals = true;
          _showBoosterGoals = true;
+         _showTitleGoals = true;
       }
       
       private function getSavedSettings() : void
@@ -200,6 +214,7 @@ package com.playata.application.ui.elements.goal
             _showItemGoals = _loc1_.showItemGoals;
             _showEnergyGoals = _loc1_.showEnergyGoals;
             _showBoosterGoals = _loc1_.showBoosterGoals;
+            _showTitleGoals = _loc1_.showTitleGoals;
          }
          else
          {
@@ -210,7 +225,7 @@ package com.playata.application.ui.elements.goal
       private function updateSavedSettings(param1:InteractionEvent) : void
       {
          var _loc2_:* = null;
-         if(!_showGameCurrencyGoals && !_showPremiumGoals && !_showStatGoals && !_showXPGoals && !_showItemGoals && !_showEnergyGoals && !_showBoosterGoals && _filterLocked)
+         if(!_showGameCurrencyGoals && !_showPremiumGoals && !_showStatGoals && !_showXPGoals && !_showItemGoals && !_showEnergyGoals && !_showBoosterGoals && !_showTitleGoals && _filterLocked)
          {
             _loc2_ = {
                "fl":false,
@@ -220,7 +235,8 @@ package com.playata.application.ui.elements.goal
                "sxg":true,
                "sig":true,
                "seg":true,
-               "sbg":true
+               "sbg":true,
+               "stg":true
             };
          }
          else
@@ -233,7 +249,8 @@ package com.playata.application.ui.elements.goal
                "sxg":_showXPGoals,
                "sig":_showItemGoals,
                "seg":_showEnergyGoals,
-               "sbg":_showBoosterGoals
+               "sbg":_showBoosterGoals,
+               "stg":_showTitleGoals
             };
          }
          User.current.setSettingValue("goal_filter_settings",_loc2_);
@@ -340,12 +357,19 @@ package com.playata.application.ui.elements.goal
          updateSaveButton();
       }
       
+      private function onCheckedChangedShowTitleGoals(param1:Boolean) : void
+      {
+         _showTitleGoals = param1;
+         _callback();
+         updateSaveButton();
+      }
+      
       private function updateSaveButton() : void
       {
          var _loc1_:GoalFilter = User.current.goalFilter;
          if(_loc1_)
          {
-            _btnSaveSettings.buttonEnabled = !(_filterLocked == _loc1_.filterLocked && _showGameCurrencyGoals == _loc1_.showGameCurrencyGoals && _showPremiumGoals == _loc1_.showPremiumGoals && _showStatGoals == _loc1_.showStatGoals && _showXPGoals == _loc1_.showXPGoals && _showItemGoals == _loc1_.showItemGoals && _showEnergyGoals == _loc1_.showEnergyGoals && _showBoosterGoals == _loc1_.showBoosterGoals);
+            _btnSaveSettings.buttonEnabled = !(_filterLocked == _loc1_.filterLocked && _showGameCurrencyGoals == _loc1_.showGameCurrencyGoals && _showPremiumGoals == _loc1_.showPremiumGoals && _showStatGoals == _loc1_.showStatGoals && _showXPGoals == _loc1_.showXPGoals && _showItemGoals == _loc1_.showItemGoals && _showEnergyGoals == _loc1_.showEnergyGoals && _showBoosterGoals == _loc1_.showBoosterGoals && _showTitleGoals == _loc1_.showTitleGoals);
          }
          else
          {

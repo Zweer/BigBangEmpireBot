@@ -22,7 +22,6 @@ package com.playata.application.ui.elements.dating
          if(!_tooltipContent)
          {
             _tooltipContent = new SymbolUiRepeatStoryDungeonKeyButtonTooltipGeneric();
-            _tooltipContent.captionReward.text = LocText.current.text("dialog/change_stage/dating_reward_tooltip");
             _tooltipContent.captionReward.autoFontSize = true;
             _tooltipContent.captionName.autoFontSize = true;
             _tooltipContent.txtDescription.autoFontSize = true;
@@ -51,6 +50,7 @@ package com.playata.application.ui.elements.dating
             return;
          }
          _tooltipContent.visible = true;
+         _tooltipContent.captionReward.text = LocText.current.text("dialog/change_stage/dating_reward_tooltip");
          _tooltipContent.captionName.text = DatingUtil.getRepeatKeyName(_datingIndex);
          _tooltipContent.txtDescription.text = DatingUtil.getRepeatKeyDescription(_datingIndex);
          _tooltipContent.txtReward.text = LocText.current.text("general/item_reward_text");

@@ -40,7 +40,6 @@ package com.playata.application.ui.elements.item
             _tooltipContent.txtItemName.autoAdjustWidthHeight = TextFieldAutoAdjustWidthHeight.VERTICAL;
             _setInfo = new UiLinkedItemTooltipSetInfo(_tooltipContent.setInfo);
             _battleSkill = new UiBattleSkill(_tooltipContent.battleSkill,3);
-            _tooltipContent.txtStatsCaption.text = LocText.current.text("general/item_attributes_caption","");
             _tooltipContent.txtCompareCaption.visible = false;
             _tooltipContent.txtCompareCaption.text = "";
             _tooltipContent.txtCompareValue.visible = false;
@@ -93,6 +92,7 @@ package com.playata.application.ui.elements.item
             _tooltipContent.visible = false;
             return;
          }
+         _tooltipContent.txtStatsCaption.text = LocText.current.text("general/item_attributes_caption","");
          refreshContent();
       }
       

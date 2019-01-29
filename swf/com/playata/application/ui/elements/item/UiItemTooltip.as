@@ -50,8 +50,6 @@ package com.playata.application.ui.elements.item
             _tooltipContent.txtItemName.autoAdjustWidthHeight = TextFieldAutoAdjustWidthHeight.VERTICAL;
             _setInfo = new UiItemTooltipSetInfo(_tooltipContent.setInfo);
             _battleSkill = new UiBattleSkill(_tooltipContent.battleSkill,3);
-            _tooltipContent.txtStatsCaption.text = LocText.current.text("general/item_attributes_caption","");
-            _tooltipContent.txtOutfitsCaption.text = LocText.current.text("general/item_outfits_caption");
             _tooltipContent.stat1.txtStat.autoFontSize = true;
             _tooltipContent.stat2.txtStat.autoFontSize = false;
             _tooltipContent.stat3.txtStat.autoFontSize = false;
@@ -136,6 +134,8 @@ package com.playata.application.ui.elements.item
          {
             refreshItem();
          }
+         _tooltipContent.txtStatsCaption.text = LocText.current.text("general/item_attributes_caption","");
+         _tooltipContent.txtOutfitsCaption.text = LocText.current.text("general/item_outfits_caption");
          LocText.current.gender = _loc1_;
       }
       

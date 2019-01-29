@@ -40,7 +40,6 @@ package com.playata.application.ui.elements.dungeon
             _tooltipContent = new SymbolUiTooltipDungeonLevelGeneric();
             _tooltipContent.title.autoAdjustWidthHeight = TextFieldAutoAdjustWidthHeight.VERTICAL;
             _tooltipContent.tooltip.autoAdjustWidthHeight = TextFieldAutoAdjustWidthHeight.VERTICAL;
-            _tooltipContent.txtRequirements.text = LocText.current.text("dialog/dungeon_status/tooltip_level_requirements_title");
          }
          _tooltipContent.visible = false;
          super(_interactiveDisplayObject,_tooltipContent);
@@ -65,6 +64,7 @@ package com.playata.application.ui.elements.dungeon
             return;
          }
          _tooltipContent.visible = true;
+         _tooltipContent.txtRequirements.text = LocText.current.text("dialog/dungeon_status/tooltip_level_requirements_title");
          _tooltipContent.title.text = LocText.current.text("dialog/dungeon_status/tooltip_level_title",_currentDungeonLevel.level);
          if(_currentDungeonLevel.isFinished)
          {

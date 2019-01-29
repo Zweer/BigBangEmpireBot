@@ -39,7 +39,7 @@ package com.playata.application.ui.elements.debug
          _rawContent.txtHeader.visible = _rawItem.header;
          _rawContent.txtDebugFunction.visible = !_rawItem.header;
          _rawContent.btnSend.visible = !_rawItem.header;
-         if(_rawItem.defaultValue)
+         if(!§§pop())
          {
             var _loc3_:Boolean = true;
             _rawContent.txtInput.visible = _loc3_;

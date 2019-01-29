@@ -7,6 +7,7 @@ package com.playata.application.platform
    import com.playata.framework.core.Core;
    import com.playata.framework.core.TypedObject;
    import com.playata.framework.core.util.AlphaNumericSortUtil;
+   import com.playata.framework.core.util.StringUtil;
    
    public class ServerInfo
    {
@@ -181,6 +182,14 @@ package com.playata.application.platform
       
       private static function sortByName(param1:String, param2:String) : int
       {
+         if(param1 == "en_WO")
+         {
+            return 1;
+         }
+         if(param2 == "en_WO")
+         {
+            return -1;
+         }
          return AlphaNumericSortUtil.compare(param1,param2);
       }
       
@@ -192,6 +201,11 @@ package com.playata.application.platform
       public static function get serverId() : String
       {
          return AppConfig.serverId;
+      }
+      
+      public static function get isInternational() : Boolean
+      {
+         return StringUtil.startsWith(serverId,"int");
       }
       
       public static function get isTest() : Boolean

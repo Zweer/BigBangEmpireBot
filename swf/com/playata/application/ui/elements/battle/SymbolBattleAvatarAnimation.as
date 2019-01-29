@@ -771,6 +771,7 @@ package com.playata.application.ui.elements.battle
       {
          displayObject = param1;
          displayObject.visible = true;
+         displayObject.alpha = 1;
          var teamMissileExplodeAnimation:TimelineMax = new TimelineMax({
             "paused":true,
             "onComplete":function():void

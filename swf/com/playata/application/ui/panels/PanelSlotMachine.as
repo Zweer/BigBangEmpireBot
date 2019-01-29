@@ -84,6 +84,17 @@ package com.playata.application.ui.panels
          _animation = null;
       }
       
+      override public function refreshPanelLocalization() : void
+      {
+         var _loc1_:ResourceFeature = new ResourceFeature(3);
+         _btnSpin.caption = _loc1_.useDialogButtonText;
+         _btnFreeSpin.caption = LocText.current.text("panel/slotmachine/button_free_spin");
+         if(_shown)
+         {
+            refresh();
+         }
+      }
+      
       override public function show(param1:* = null) : void
       {
          super.show(param1);

@@ -27,9 +27,7 @@ package com.playata.application.ui.elements.herobook
          if(!_tooltipContent)
          {
             _tooltipContent = new SymbolUiGoalItemButtonTooltipGeneric();
-            _tooltipContent.captionProgress.text = LocText.current.text("dialog/change_stage/herobook_progress_tooltip");
             _tooltipContent.captionProgress.autoFontSize = true;
-            _tooltipContent.captionReward.text = LocText.current.text("dialog/change_stage/herobook_reward_tooltip");
             _tooltipContent.captionReward.autoFontSize = true;
             _progressBar = new UiProgressBarBig(_tooltipContent.progressBar);
          }
@@ -73,6 +71,8 @@ package com.playata.application.ui.elements.herobook
          {
             return;
          }
+         _tooltipContent.captionProgress.text = LocText.current.text("dialog/change_stage/herobook_progress_tooltip");
+         _tooltipContent.captionReward.text = LocText.current.text("dialog/change_stage/herobook_reward_tooltip");
          _tooltipContent.txtName.text = _loc2_.name;
          _tooltipContent.txtName.autoFontSize = true;
          _progressBar.value = _loc2_.progress * 100;

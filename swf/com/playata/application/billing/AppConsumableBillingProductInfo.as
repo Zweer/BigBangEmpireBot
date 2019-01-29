@@ -34,10 +34,13 @@ package com.playata.application.billing
       
       private var _displayBackgroundImage:String = null;
       
+      private var _slotName:String = null;
+      
       public function AppConsumableBillingProductInfo(param1:TypedObject)
       {
          super(param1);
          var _loc3_:TypedObject = param1.getTypedObject("display_info");
+         _slotName = _loc3_.getString("slot_name");
          _minLevel = _loc3_.getInt("min_level");
          _category = _loc3_.getString("category");
          _itemIdentifiers = _loc3_.getStringVector("item_identifiers");
@@ -211,6 +214,11 @@ package com.playata.application.billing
             return true;
          }
          return true;
+      }
+      
+      public function get slotName() : String
+      {
+         return _slotName;
       }
    }
 }

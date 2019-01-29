@@ -30,7 +30,6 @@ package com.playata.application.ui.elements.leaderboard
             _tooltipContent = new SymbolUiTooltipLeaderboardMovieGeneric();
             _tooltipContent.txtMovieTitle.autoAdjustWidthHeight = TextFieldAutoAdjustWidthHeight.VERTICAL;
             _cover = new UiMovieCover(_tooltipContent.cover);
-            _tooltipContent.txtStudioTitle.text = LocText.current.text("dialog/movie_history/studio_caption");
          }
          super(param1,_tooltipContent);
       }
@@ -57,6 +56,7 @@ package com.playata.application.ui.elements.leaderboard
             _tooltipContent.visible = false;
             return;
          }
+         _tooltipContent.txtStudioTitle.text = LocText.current.text("dialog/movie_history/studio_caption");
          _coverRefreshed = false;
          _tooltipContent.txtMovieTitle.text = _movie.title;
          _tooltipContent.txtMovieTitle.y = 13 + (100 - _tooltipContent.txtMovieTitle.height) * 0.5;

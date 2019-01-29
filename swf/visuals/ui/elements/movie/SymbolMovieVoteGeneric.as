@@ -2,9 +2,7 @@ package visuals.ui.elements.movie
 {
    import com.playata.framework.display.Sprite;
    import com.playata.framework.display.lib.flash.FlashDisplayObjectContainer;
-   import com.playata.framework.display.lib.flash.FlashLabel;
    import com.playata.framework.display.lib.flash.FlashSprite;
-   import com.playata.framework.display.ui.controls.ILabel;
    import flash.display.MovieClip;
    
    public class SymbolMovieVoteGeneric extends Sprite
@@ -15,7 +13,9 @@ package visuals.ui.elements.movie
       
       public var cover:SymbolCoverImagePlaceholderGeneric = null;
       
-      public var txtMovieTitle:ILabel = null;
+      public var iconOwnGuild:SymbolMovieVoteOwnGuildGeneric = null;
+      
+      public var iconCustomTitle:SymbolMovieVoteCustomTitleGeneric = null;
       
       public function SymbolMovieVoteGeneric(param1:MovieClip = null)
       {
@@ -30,7 +30,8 @@ package visuals.ui.elements.movie
          super(null,FlashSprite.fromNative(_nativeObject));
          var _loc2_:FlashDisplayObjectContainer = _sprite as FlashDisplayObjectContainer;
          cover = new SymbolCoverImagePlaceholderGeneric(_nativeObject.cover);
-         txtMovieTitle = FlashLabel.fromNative(_nativeObject.txtMovieTitle);
+         iconOwnGuild = new SymbolMovieVoteOwnGuildGeneric(_nativeObject.iconOwnGuild);
+         iconCustomTitle = new SymbolMovieVoteCustomTitleGeneric(_nativeObject.iconCustomTitle);
       }
       
       public function setNativeInstance(param1:SymbolMovieVote) : void
@@ -46,7 +47,14 @@ package visuals.ui.elements.movie
          {
             cover.setNativeInstance(_nativeObject.cover);
          }
-         FlashLabel.setNativeInstance(txtMovieTitle,_nativeObject.txtMovieTitle);
+         if(_nativeObject.iconOwnGuild)
+         {
+            iconOwnGuild.setNativeInstance(_nativeObject.iconOwnGuild);
+         }
+         if(_nativeObject.iconCustomTitle)
+         {
+            iconCustomTitle.setNativeInstance(_nativeObject.iconCustomTitle);
+         }
       }
    }
 }

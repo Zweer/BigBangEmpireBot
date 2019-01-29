@@ -15,6 +15,7 @@ package com.playata.application.ui.panels
    import com.playata.application.ui.dialogs.DialogMissedDuels;
    import com.playata.application.ui.dialogs.DialogTutorialPopup;
    import com.playata.application.ui.elements.action_bar.ActionBarLayer;
+   import com.playata.application.ui.elements.bonus.UiDailyBonus;
    import com.playata.application.ui.elements.duel.UiDuelEnemyLine;
    import com.playata.application.ui.elements.duel.UiDuelStaminaBar;
    import com.playata.application.ui.elements.duel.UiRefreshDuelEnemiesButton;
@@ -87,7 +88,9 @@ package com.playata.application.ui.panels
       
       private var _enemyLine9:UiDuelEnemyLine = null;
       
-      private var _honorPanel:UiHonorPanel;
+      private var _honorPanel:UiHonorPanel = null;
+      
+      private var _dailyBonus:UiDailyBonus = null;
       
       public function PanelDuels(param1:SymbolPanelDuelsGeneric)
       {
@@ -119,6 +122,7 @@ package com.playata.application.ui.panels
             _duelStaminaRefillHint.content.x = _duelStaminaRefillHint.content.x + 55;
          }
          _honorPanel = new UiHonorPanel(param1.honorPanel);
+         _dailyBonus = new UiDailyBonus(param1.content.dailyBonusDuel,2);
          _timer = Environment.createTimer("UiDuelsContent::timer",1000,onTimerEvent);
          MessageRouter.addListener("ViewMessage.notifyBattleFinished",handleMessages);
          MessageRouter.addListener("ViewMessage.notifyRefreshDuelOpponents",handleMessages);
@@ -246,6 +250,8 @@ package com.playata.application.ui.panels
          _honorPanel = null;
          _timer.dispose();
          _timer = null;
+         _dailyBonus.dispose();
+         _dailyBonus = null;
          MessageRouter.removeAllListeners(handleMessages);
       }
       
@@ -466,6 +472,7 @@ package com.playata.application.ui.panels
             _duelStaminaBar.setValue(_loc1_.duelStamina);
          }
          refreshHistoryButton();
+         _dailyBonus.refresh();
       }
       
       public function refreshHistoryButton() : void

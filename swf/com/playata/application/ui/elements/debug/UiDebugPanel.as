@@ -38,7 +38,6 @@ package com.playata.application.ui.elements.debug
          addDebug("SyncGame","syncGame");
          addDebug("CrashClient","crashClient");
          addDebug("SimulateNewDay","gameTestSimulateNewDay");
-         addDebug("SyncLeaderboard","gameTestSyncLeaderboard");
          addSeperator("Character");
          addDebug("LevelUp","gameTestLevelUp",1);
          addDebug("MaxLevel","gameTestMaxLevel");
@@ -59,8 +58,13 @@ package com.playata.application.ui.elements.debug
          addDebug("GuildBoostersAlmostExpired","gameTestGuildBoostersAlmostExpired");
          addDebug("RandomGuildArtifacts","gameTestRandomGuildArtifacts");
          addDebug("ResetGuildArtifacts","gameTestResetGuildArtifacts");
+         addSeperator("Leaderboard");
+         addDebug("SyncLeaderboard","gameTestSyncLeaderboard");
+         addDebug("addAllCharactersToLeaderboard","gameTestAddAllCharactersToLeaderboard");
+         addDebug("addLeaderboardTestCharactersAndGuilds","gameTestAddLeaderboardTestCharactersAndGuilds",100);
+         addDebug("removeLeaderboardTestCharactersAndGuilds","gameTestRemoveLeaderboardTestCharactersAndGuilds",100);
          addSeperator("Convention");
-         addDebug("StartConvention","gameTestStartConvention");
+         addDebug("StartConvention","gameTestStartConvention","");
          addDebug("PerformShow","gameTestPerformConventionShow");
          addDebug("FinishConventionFailed","gameTestFinishConventionFailed");
          addDebug("ConventionAlmostSuccess","gameTestConventionAlmostSuccess");
@@ -172,7 +176,10 @@ package com.playata.application.ui.elements.debug
                Environment.application.sendActionRequest("gameTestFinishPendingGuildBattle",{"attack":false},handleRequests);
                break;
             case "gameTestStartConvention":
-               Environment.application.sendActionRequest("gameTestStartConvention",{"stage":User.current.character.currentQuestStage},handleRequests);
+               Environment.application.sendActionRequest("gameTestStartConvention",{
+                  "stage":User.current.character.currentQuestStage,
+                  "identifier":param2
+               },handleRequests);
                break;
             case "gameTestPerformConventionShow":
                _loc3_ = User.current.character.conventionId;

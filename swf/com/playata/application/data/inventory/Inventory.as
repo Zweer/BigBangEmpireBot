@@ -251,6 +251,7 @@ package com.playata.application.data.inventory
                {
                   Environment.audio.playFX("shop_new_items.mp3");
                   Environment.application.updateData(param1.data);
+                  _forcePremiumShopRefresh = false;
                }
                else
                {

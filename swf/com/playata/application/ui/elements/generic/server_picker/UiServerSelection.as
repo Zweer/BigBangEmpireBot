@@ -36,13 +36,14 @@ package com.playata.application.ui.elements.generic.server_picker
       
       public function setToCurrentServer() : void
       {
-         _localePicker.setActiveLocale(Environment.info.defaultLocale);
+         var _loc2_:String = !!ServerInfo.isInternational?"en_WO":Environment.info.defaultLocale;
+         _localePicker.setActiveLocale(_loc2_);
          if(_serverPicker)
          {
             _serverPicker.dispose();
             _serverPicker = null;
          }
-         var _loc1_:Vector.<String> = ServerInfo.getServersForLocale(Environment.info.defaultLocale);
+         var _loc1_:Vector.<String> = ServerInfo.getServersForLocale(_loc2_);
          _serverPicker = new UiServerPicker(_content.serverPicker,_loc1_,ServerInfo.serverId,onServerChange,onServerOpen);
       }
       

@@ -74,6 +74,10 @@ package visuals.ui.elements.goal
       
       public var btnSaveSettings:SymbolIconSaveFilterGeneric = null;
       
+      public var ckbShowTitleGoal:SymbolUiCheckboxGeneric = null;
+      
+      public var txtShowTitleGoal:ILabelArea = null;
+      
       public var inputSearch:ITextInput = null;
       
       public function SymbolGoalFilterGeneric(param1:MovieClip = null)
@@ -113,6 +117,8 @@ package visuals.ui.elements.goal
          symbolIconEnergy = new SymbolIconEnergyGeneric(_nativeObject.symbolIconEnergy);
          symbolIconBooster = new SymbolIconBoosterGeneric(_nativeObject.symbolIconBooster);
          btnSaveSettings = new SymbolIconSaveFilterGeneric(_nativeObject.btnSaveSettings);
+         ckbShowTitleGoal = new SymbolUiCheckboxGeneric(_nativeObject.ckbShowTitleGoal);
+         txtShowTitleGoal = FlashLabelArea.fromNative(_nativeObject.txtShowTitleGoal);
          inputSearch = FlashTextInput.fromNative(_nativeObject.inputSearch);
       }
       
@@ -201,6 +207,11 @@ package visuals.ui.elements.goal
          {
             btnSaveSettings.setNativeInstance(_nativeObject.btnSaveSettings);
          }
+         if(_nativeObject.ckbShowTitleGoal)
+         {
+            ckbShowTitleGoal.setNativeInstance(_nativeObject.ckbShowTitleGoal);
+         }
+         FlashLabelArea.setNativeInstance(txtShowTitleGoal,_nativeObject.txtShowTitleGoal);
          FlashTextInput.setNativeInstance(inputSearch,_nativeObject.inputSearch);
       }
    }

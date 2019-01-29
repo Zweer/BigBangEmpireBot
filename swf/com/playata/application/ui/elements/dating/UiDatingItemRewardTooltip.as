@@ -31,9 +31,7 @@ package com.playata.application.ui.elements.dating
          if(!_tooltipContent)
          {
             _tooltipContent = new SymbolUiStoryDungeonItemButtonTooltipGeneric();
-            _tooltipContent.captionProgress.text = LocText.current.text("dialog/change_stage/dating_progress_tooltip");
             _tooltipContent.captionProgress.autoFontSize = true;
-            _tooltipContent.captionReward.text = LocText.current.text("dialog/change_stage/dating_reward_tooltip");
             _tooltipContent.captionReward.autoFontSize = true;
             _progressBar = new UiProgressBarBig(_tooltipContent.progressBar);
          }
@@ -84,6 +82,8 @@ package com.playata.application.ui.elements.dating
          }
          _datingStep = _loc3_;
          _tooltipContent.visible = true;
+         _tooltipContent.captionProgress.text = LocText.current.text("dialog/change_stage/dating_progress_tooltip");
+         _tooltipContent.captionReward.text = LocText.current.text("dialog/change_stage/dating_reward_tooltip");
          _tooltipContent.txtName.text = DatingUtil.getName(_loc3_.datingIndex);
          _tooltipContent.txtName.autoFontSize = true;
          _progressBar.value = _loc3_.progress;

@@ -188,6 +188,8 @@ package com.playata.application.ui.panels
          _btnTabDescription.caption = LocText.current.text("screen/guild/button_tab_description");
          _btnTabDescription.tooltip = LocText.current.text("screen/guild/button_tab_description_tooltip");
          _btnGuildBooster.tooltip = LocText.current.text("dialog/guild_booster/own_guild_no_booster");
+         _guildMemberInfoTab.refreshLocalization();
+         _guildChatTab.refreshLocalization();
       }
       
       override public function dispose() : void

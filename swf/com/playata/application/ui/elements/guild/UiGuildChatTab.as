@@ -297,6 +297,86 @@ package com.playata.application.ui.elements.guild
          _processedLogIds = new StringMap();
       }
       
+      public function refreshLocalization() : void
+      {
+         var _loc3_:int = 0;
+         var _loc4_:int = 0;
+         var _loc2_:* = null;
+         CHAT_COMMAND_GUILD_MESSAGE_SHORT = LocText.current.text("chat/command/guild_short");
+         CHAT_COMMAND_GUILD_MESSAGE_LONG = LocText.current.text("chat/command/guild_long");
+         CHAT_COMMAND_GUILD_MESSAGE_SHORT_FALLBACK = LocText.current.text("chat/command/guild_short_fallback");
+         CHAT_COMMAND_GUILD_MESSAGE_LONG_FALLBACK = LocText.current.text("chat/command/guild_long_fallback");
+         if(CHAT_COMMAND_GUILD_MESSAGE_SHORT_FALLBACK.charAt(0) != "/")
+         {
+            CHAT_COMMAND_GUILD_MESSAGE_SHORT_FALLBACK = CHAT_COMMAND_GUILD_MESSAGE_SHORT;
+         }
+         if(CHAT_COMMAND_GUILD_MESSAGE_LONG_FALLBACK.charAt(0) != "/")
+         {
+            CHAT_COMMAND_GUILD_MESSAGE_LONG_FALLBACK = CHAT_COMMAND_GUILD_MESSAGE_LONG;
+         }
+         CHAT_COMMAND_OFFICER_MESSAGE_SHORT = LocText.current.text("chat/command/officer_short");
+         CHAT_COMMAND_OFFICER_MESSAGE_LONG = LocText.current.text("chat/command/officer_long");
+         CHAT_COMMAND_OFFICER_MESSAGE_SHORT_FALLBACK = LocText.current.text("chat/command/officer_short_fallback");
+         CHAT_COMMAND_OFFICER_MESSAGE_LONG_FALLBACK = LocText.current.text("chat/command/officer_long_fallback");
+         if(CHAT_COMMAND_OFFICER_MESSAGE_SHORT_FALLBACK.charAt(0) != "/")
+         {
+            CHAT_COMMAND_OFFICER_MESSAGE_SHORT_FALLBACK = CHAT_COMMAND_OFFICER_MESSAGE_SHORT;
+         }
+         if(CHAT_COMMAND_OFFICER_MESSAGE_LONG_FALLBACK.charAt(0) != "/")
+         {
+            CHAT_COMMAND_OFFICER_MESSAGE_LONG_FALLBACK = CHAT_COMMAND_OFFICER_MESSAGE_LONG;
+         }
+         CHAT_COMMAND_PRIVATE_MESSAGE = LocText.current.text("chat/command/private");
+         CHAT_COMMAND_PRIVATE_MESSAGE_FALLBACK = LocText.current.text("chat/command/private_fallback");
+         if(CHAT_COMMAND_PRIVATE_MESSAGE_FALLBACK.charAt(0) != "/")
+         {
+            CHAT_COMMAND_PRIVATE_MESSAGE_FALLBACK = CHAT_COMMAND_PRIVATE_MESSAGE;
+         }
+         CHAT_COMMAND_ANSWER = LocText.current.text("chat/command/answer");
+         CHAT_COMMAND_ANSWER_FALLBACK = LocText.current.text("chat/command/answer_fallback");
+         if(CHAT_COMMAND_ANSWER_FALLBACK.charAt(0) != "/")
+         {
+            CHAT_COMMAND_ANSWER_FALLBACK = CHAT_COMMAND_ANSWER;
+         }
+         CHAT_COMMAND_HELP = LocText.current.text("chat/command/help");
+         CHAT_COMMAND_HELP_FALLBACK = LocText.current.text("chat/command/help_fallback");
+         if(CHAT_COMMAND_HELP_FALLBACK.charAt(0) != "/")
+         {
+            CHAT_COMMAND_HELP_FALLBACK = CHAT_COMMAND_HELP;
+         }
+         CHAT_COMMAND_EMOTE = LocText.current.text("chat/command/emote");
+         CHAT_COMMAND_HIDE_EVENTS = LocText.current.text("chat/command/hide_events");
+         CHAT_COMMAND_HIDE_EVENTS_FALLBACK = LocText.current.text("chat/command/hide_events_fallback");
+         if(CHAT_COMMAND_HIDE_EVENTS_FALLBACK.charAt(0) != "/")
+         {
+            CHAT_COMMAND_HIDE_EVENTS_FALLBACK = CHAT_COMMAND_HIDE_EVENTS;
+         }
+         CHAT_COMMAND_HIDE_EMOTICONS = LocText.current.text("chat/command/hide_emotions");
+         CHAT_COMMAND_HIDE_EMOTICONS_FALLBACK = LocText.current.text("chat/command/hide_emotions_fallback");
+         if(CHAT_COMMAND_HIDE_EMOTICONS_FALLBACK.charAt(0) != "/")
+         {
+            CHAT_COMMAND_HIDE_EMOTICONS_FALLBACK = CHAT_COMMAND_HIDE_EMOTICONS;
+         }
+         var _loc1_:String = LocText.current.text("guild/chat/prefix_tooltip");
+         if(!AppConfig.emoticonsEnabled)
+         {
+            _loc3_ = _loc1_.indexOf(CHAT_COMMAND_HIDE_EMOTICONS);
+            _loc4_ = _loc1_.indexOf("/",_loc3_ + 1);
+            _loc2_ = _loc1_.substring(0,_loc3_);
+            if(_loc4_ > 0)
+            {
+               _loc2_ = _loc2_ + _loc1_.substring(_loc4_);
+            }
+            _loc1_ = StringUtil.trim(_loc2_);
+         }
+         _loc1_ = _loc1_ + ("\n\n" + LocText.current.text("guild/chat/_character_guild_link_tooltip"));
+         _tooltipPrefix.text = _loc1_;
+         _btnBackgroundCollapse.tooltip = LocText.current.text("guild/bottom_frame/collapse_tooltip");
+         _btnBackgroundExpand.tooltip = LocText.current.text("guild/bottom_frame/expand_tooltip");
+         _btnScrollDown.tooltip = LocText.current.text("guild/chat/btn_scroll_down");
+         setInputMode(_currentInputMode,_content.inputMessage.text);
+      }
+      
       public function dispose() : void
       {
          _btnBackgroundCollapse.dispose();
@@ -1145,9 +1225,9 @@ package com.playata.application.ui.elements.guild
                if(response.error == "")
                {
                   Environment.application.updateData(response.data);
-                  if(response.appResponse.guild_log.length == 1)
+                  if(response.appResponse.guild_chat_message != null)
                   {
-                     var serverMessage:GuildLogMessage = new GuildLogMessage(response.appResponse.guild_log.getData([response.appResponse.guild_log.keys[0]].toString()));
+                     var serverMessage:GuildLogMessage = new GuildLogMessage(response.appResponse.guild_chat_message);
                      var clientMessage:String = response.request.getString("message");
                      if(clientMessage.toLowerCase().indexOf(CHAT_COMMAND_EMOTE + " ") == 0)
                      {

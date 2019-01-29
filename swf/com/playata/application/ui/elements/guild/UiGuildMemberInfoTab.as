@@ -156,6 +156,18 @@ package com.playata.application.ui.elements.guild
          super.dispose();
       }
       
+      public function refreshLocalization() : void
+      {
+         _btnProfile.tooltip = LocText.current.text("screen/guild/member_info/button_profile_tooltip");
+         _btnMessage.tooltip = LocText.current.text("screen/guild/member_info/button_message_tooltip");
+         _btnOptions.tooltip = LocText.current.text("screen/guild/member_info/button_options_tooltip");
+         _btnTeamMessage.tooltip = LocText.current.text("screen/guild/member_info/button_team_mail_tooltip");
+         _btnSortRank.tooltip = LocText.current.text("screen/guild/member_info/button_sort_rank_tooltip");
+         _btnSortPremiumCurrency.tooltip = LocText.current.text("screen/guild/member_info/button_sort_premium_currency_tooltip");
+         _btnSortGameCurrency.tooltip = LocText.current.text("screen/guild/member_info/button_sort_game_currency_tooltip");
+         _btnSortGuildCompetition.tooltip = LocText.current.text("screen/guild/member_info/button_sort_guild_competition_tooltip");
+      }
+      
       public function resetOffset() : void
       {
          _offset = 0;

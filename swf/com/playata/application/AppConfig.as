@@ -227,6 +227,16 @@ package com.playata.application
          return Core.config.getBoolean("team_locale_enabled");
       }
       
+      public static function get dailyBonusHerobookEnabled() : Boolean
+      {
+         return Core.config.getBoolean("daily_bonus_herobook_enabled");
+      }
+      
+      public static function get dailyBonusDuelEnabled() : Boolean
+      {
+         return Core.config.getBoolean("daily_bonus_duel_enabled");
+      }
+      
       public static function get specialOfferShopEnabled() : Boolean
       {
          return Core.config.getBoolean("special_offer_shop_enabled");

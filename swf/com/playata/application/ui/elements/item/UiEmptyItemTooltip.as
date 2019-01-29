@@ -23,7 +23,6 @@ package com.playata.application.ui.elements.item
          {
             _tooltipContent = new SymbolEmptyItemTooltipGeneric();
             _tooltipContent.txtItemName.autoAdjustWidthHeight = TextFieldAutoAdjustWidthHeight.VERTICAL;
-            _tooltipContent.txtStatsCaption.text = LocText.current.text("general/item_attributes_caption","");
          }
          if(param3)
          {
@@ -46,6 +45,7 @@ package com.playata.application.ui.elements.item
             _tooltipContent.visible = false;
             return;
          }
+         _tooltipContent.txtStatsCaption.text = LocText.current.text("general/item_attributes_caption","");
          _tooltipContent.txtItemName.text = _item.name;
          _tooltipContent.txtItemCategory.text = _item.typeName;
          _tooltipContent.txtItemQualityCommon.text = _item.qualityName;

@@ -34,13 +34,13 @@ package visuals.ui.elements.item
       
       public var iconLock:SymbolIconLockGeneric = null;
       
-      public var iconCheckmark:SymbolIconCheckmarkGeneric = null;
-      
       public var iconEventItem:SymbolIconEventGeneric = null;
       
       public var iconItemPattern:SymbolIconItemPatternGeneric = null;
       
       public var iconEffect:SymbolDummyGeneric = null;
+      
+      public var iconCheckmark:SymbolIconCheckmarkGeneric = null;
       
       public var tooltipLayer:SymbolDummyGeneric = null;
       
@@ -64,10 +64,10 @@ package visuals.ui.elements.item
          iconOutfit = new SymbolIconOutfitInfoGeneric(_nativeObject.iconOutfit);
          iconPremiumCurrency = new SymbolItemSlotPremiumCurrencyGeneric(_nativeObject.iconPremiumCurrency);
          iconLock = new SymbolIconLockGeneric(_nativeObject.iconLock);
-         iconCheckmark = new SymbolIconCheckmarkGeneric(_nativeObject.iconCheckmark);
          iconEventItem = new SymbolIconEventGeneric(_nativeObject.iconEventItem);
          iconItemPattern = new SymbolIconItemPatternGeneric(_nativeObject.iconItemPattern);
          iconEffect = new SymbolDummyGeneric(_nativeObject.iconEffect);
+         iconCheckmark = new SymbolIconCheckmarkGeneric(_nativeObject.iconCheckmark);
          tooltipLayer = new SymbolDummyGeneric(_nativeObject.tooltipLayer);
       }
       
@@ -112,10 +112,6 @@ package visuals.ui.elements.item
          {
             iconLock.setNativeInstance(_nativeObject.iconLock);
          }
-         if(_nativeObject.iconCheckmark)
-         {
-            iconCheckmark.setNativeInstance(_nativeObject.iconCheckmark);
-         }
          if(_nativeObject.iconEventItem)
          {
             iconEventItem.setNativeInstance(_nativeObject.iconEventItem);
@@ -127,6 +123,10 @@ package visuals.ui.elements.item
          if(_nativeObject.iconEffect)
          {
             iconEffect.setNativeInstance(_nativeObject.iconEffect);
+         }
+         if(_nativeObject.iconCheckmark)
+         {
+            iconCheckmark.setNativeInstance(_nativeObject.iconCheckmark);
          }
          if(_nativeObject.tooltipLayer)
          {

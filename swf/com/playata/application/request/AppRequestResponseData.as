@@ -12,6 +12,8 @@ package com.playata.application.request
    import com.playata.application.data.dataobject.DOConventionReward;
    import com.playata.application.data.dataobject.DOConventionShow;
    import com.playata.application.data.dataobject.DOCustomBannerAdvertisment;
+   import com.playata.application.data.dataobject.DODailyBonusLookup;
+   import com.playata.application.data.dataobject.DODailyBonusReward;
    import com.playata.application.data.dataobject.DODatingLookup;
    import com.playata.application.data.dataobject.DODatingStep;
    import com.playata.application.data.dataobject.DODuel;
@@ -134,11 +136,6 @@ package com.playata.application.request
          return null;
       }
       
-      public function get valid() : Boolean
-      {
-         return getBoolean("valid");
-      }
-      
       public function get inventory() : DOInventory
       {
          if(hasData("inventory",true))
@@ -166,43 +163,27 @@ package com.playata.application.request
          return null;
       }
       
-      public function get win_messages() : Vector.<String>
+      public function get daily_bonus_reward() : DODailyBonusReward
       {
-         return getStringVector("win_messages");
-      }
-      
-      public function get reward() : String
-      {
-         return getString("reward");
-      }
-      
-      public function get item() : DOItem
-      {
-         if(hasData("item",true))
+         if(hasData("daily_bonus_reward",true))
          {
-            return new DOItem(getData("item"));
+            return new DODailyBonusReward(getData("daily_bonus_reward"));
          }
          return null;
       }
       
-      public function get slotmachine_slot1() : int
+      public function get daily_bonus_lookup() : DODailyBonusLookup
       {
-         return getInt("slotmachine_slot1");
+         if(hasData("daily_bonus_lookup",true))
+         {
+            return new DODailyBonusLookup(getData("daily_bonus_lookup"));
+         }
+         return null;
       }
       
-      public function get slotmachine_slot2() : int
+      public function get daily_bonus_reward_data() : TypedObject
       {
-         return getInt("slotmachine_slot2");
-      }
-      
-      public function get slotmachine_slot3() : int
-      {
-         return getInt("slotmachine_slot3");
-      }
-      
-      public function get slotmachine_reward_quality() : int
-      {
-         return getInt("slotmachine_reward_quality");
+         return getTypedObject("daily_bonus_reward_data");
       }
       
       public function get work() : DOWork
@@ -336,6 +317,15 @@ package com.playata.application.request
          if(hasData("convention_reward",true))
          {
             return new DOConventionReward(getData("convention_reward"));
+         }
+         return null;
+      }
+      
+      public function get item() : DOItem
+      {
+         if(hasData("item",true))
+         {
+            return new DOItem(getData("item"));
          }
          return null;
       }
@@ -863,6 +853,11 @@ package com.playata.application.request
          return getTypedObject("guild_log");
       }
       
+      public function get guild_chat_message() : TypedObject
+      {
+         return getTypedObject("guild_chat_message");
+      }
+      
       public function get tournament_guild_competition_reward() : DOTournamentGuildCompetitionReward
       {
          if(hasData("tournament_guild_competition_reward",true))
@@ -1178,6 +1173,41 @@ package com.playata.application.request
          return null;
       }
       
+      public function get valid() : Boolean
+      {
+         return getBoolean("valid");
+      }
+      
+      public function get win_messages() : Vector.<String>
+      {
+         return getStringVector("win_messages");
+      }
+      
+      public function get reward() : String
+      {
+         return getString("reward");
+      }
+      
+      public function get slotmachine_slot1() : int
+      {
+         return getInt("slotmachine_slot1");
+      }
+      
+      public function get slotmachine_slot2() : int
+      {
+         return getInt("slotmachine_slot2");
+      }
+      
+      public function get slotmachine_slot3() : int
+      {
+         return getInt("slotmachine_slot3");
+      }
+      
+      public function get slotmachine_reward_quality() : int
+      {
+         return getInt("slotmachine_reward_quality");
+      }
+      
       public function get completed_story_dungeons() : Vector.<int>
       {
          return getIntVector("completed_story_dungeons");
@@ -1372,6 +1402,15 @@ package com.playata.application.request
       public function get server_timestamp_offset() : int
       {
          return getInt("server_timestamp_offset");
+      }
+      
+      public function get daily_bonus_rewards() : DataObjectArray
+      {
+         if(hasData("daily_bonus_rewards",true))
+         {
+            return new DataObjectArray(getArray("daily_bonus_rewards"),DODailyBonusReward);
+         }
+         return null;
       }
       
       public function get ad_provider_keys() : Vector.<String>

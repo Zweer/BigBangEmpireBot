@@ -8,6 +8,8 @@ package com.playata.application.data.character
    import com.playata.application.data.battle.Battle;
    import com.playata.application.data.battle.BattleSkill;
    import com.playata.application.data.bonus.BonusInfo;
+   import com.playata.application.data.bonus.DailyBonusLookup;
+   import com.playata.application.data.bonus.DailyBonusReward;
    import com.playata.application.data.constants.CBooster;
    import com.playata.application.data.constants.CCharacterAppearance;
    import com.playata.application.data.constants.CConstant;
@@ -24,6 +26,8 @@ package com.playata.application.data.character
    import com.playata.application.data.dataobject.DOConvention;
    import com.playata.application.data.dataobject.DOConventionReward;
    import com.playata.application.data.dataobject.DOConventionShow;
+   import com.playata.application.data.dataobject.DODailyBonusLookup;
+   import com.playata.application.data.dataobject.DODailyBonusReward;
    import com.playata.application.data.dataobject.DODatingLookup;
    import com.playata.application.data.dataobject.DODuel;
    import com.playata.application.data.dataobject.DODuelOpponentEntry;
@@ -80,6 +84,7 @@ package com.playata.application.data.character
    import com.playata.application.messaging.MessageRouter;
    import com.playata.application.ui.ViewManager;
    import com.playata.application.ui.dialogs.DialogBoosterExpired;
+   import com.playata.application.ui.dialogs.DialogCollectDailyBonusReward;
    import com.playata.application.ui.elements.avatar.ICharacterTooltipProvider;
    import com.playata.application.ui.elements.generic.dialog.UiInfoDialog;
    import com.playata.application.ui.elements.goal.UiGoalFilter;
@@ -177,6 +182,8 @@ package com.playata.application.data.character
       private var _outfits:Outfits = null;
       
       private var _dating:Dating = null;
+      
+      private var _dailyBonusLookup:DailyBonusLookup = null;
       
       private var _fanFoto:FanFoto = null;
       
@@ -4314,6 +4321,48 @@ package com.playata.application.data.character
             return getIntVector("optical_changes");
          }
          return null;
+      }
+      
+      public function refreshDailyBonusLookup(param1:DODailyBonusLookup) : void
+      {
+         this.dailyBonusLookup.update(param1);
+      }
+      
+      public function refreshDailyBonusRewards(param1:DataObjectArray) : void
+      {
+         var _loc2_:* = null;
+         dailyBonusLookup.refreshRewards(param1);
+         if(User.current && !DialogCollectDailyBonusReward._isOpen)
+         {
+            _loc2_ = dailyBonusLookup.getReward();
+            if(_loc2_)
+            {
+               Environment.panelManager.showDialog(new DialogCollectDailyBonusReward(_loc2_));
+            }
+         }
+      }
+      
+      public function refreshDailyBonusReward(param1:DODailyBonusReward) : void
+      {
+         var _loc2_:* = null;
+         dailyBonusLookup.refreshReward(param1);
+         if(User.current && !DialogCollectDailyBonusReward._isOpen)
+         {
+            _loc2_ = dailyBonusLookup.getReward();
+            if(_loc2_)
+            {
+               Environment.panelManager.showDialog(new DialogCollectDailyBonusReward(_loc2_));
+            }
+         }
+      }
+      
+      public function get dailyBonusLookup() : DailyBonusLookup
+      {
+         if(!_dailyBonusLookup)
+         {
+            _dailyBonusLookup = new DailyBonusLookup();
+         }
+         return _dailyBonusLookup;
       }
    }
 }

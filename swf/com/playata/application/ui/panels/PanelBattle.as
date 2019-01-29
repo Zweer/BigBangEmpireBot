@@ -324,7 +324,7 @@ package com.playata.application.ui.panels
       
       override public function refreshPanelLocalization() : void
       {
-         _btnSkip.tooltip = LocText.current.text("screen/battle_visualization/button_skip");
+         _btnSkip.caption = LocText.current.text("screen/battle_visualization/button_skip");
          _btnSkipMember.tooltip = LocText.current.text("screen/battle_visualization/button_skip_member");
       }
       

@@ -18,6 +18,7 @@ package com.playata.application.ui.elements.account_settings
       public function set caption(param1:String) : void
       {
          var _loc2_:ILabel = (_content as IDisplayObjectContainer).getChildByName("caption") as ILabel;
+         _loc2_.autoFontSize = true;
          _loc2_.text = param1;
       }
    }

@@ -39,9 +39,7 @@ package com.playata.application.ui.elements.event
          if(!_tooltipContent)
          {
             _tooltipContent = new SymbolUiGoalItemButtonTooltipGeneric();
-            _tooltipContent.captionProgress.text = LocText.current.text("dialog/change_stage/event_progress_tooltip");
             _tooltipContent.captionProgress.autoFontSize = true;
-            _tooltipContent.captionReward.text = LocText.current.text("dialog/change_stage/event_reward_tooltip");
             _tooltipContent.captionReward.autoFontSize = true;
             _tooltipContent.txtReward.autoFontSize = true;
             _tooltipContent.txtName.autoFontSize = true;
@@ -88,6 +86,8 @@ package com.playata.application.ui.elements.event
             return;
          }
          _tooltipContent.visible = true;
+         _tooltipContent.captionProgress.text = LocText.current.text("dialog/change_stage/event_progress_tooltip");
+         _tooltipContent.captionReward.text = LocText.current.text("dialog/change_stage/event_reward_tooltip");
          _progressBar.value = _loc1_.progressValue;
          _tooltipContent.txtName.text = _loc1_.name;
          _tooltipContent.txtProgress.text = _loc1_.currentValue + "/" + _loc1_.value;
