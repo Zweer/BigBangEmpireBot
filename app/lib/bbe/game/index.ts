@@ -3,6 +3,9 @@ import Inventory, { inventoryRaw } from './inventory';
 import Quest, { questRaw, questStatus } from './quest';
 import User, { userRaw } from './user';
 
+import CollectedGoal from './goal/collected';
+import CurrentGoal from './goal/current';
+
 import DataObject from './utils/dataObject';
 
 export type gameRaw = {
@@ -313,7 +316,7 @@ export default class Game extends DataObject<gameRaw> {
   public maxGuilds: number;
   public centeredRank: number;
   public bankInventory: object; // BankInventory
-  public ownedItemTemplates: string[]
+  public ownedItemTemplates: string[];
   public leaderboardCharacters: object[]; // LeaderboardCharacter[]
   public maxCharacters: number;
   public message: object; // Message
@@ -387,6 +390,18 @@ export default class Game extends DataObject<gameRaw> {
   public isValid: boolean;
   public voucher: object; // Voucher
   public collectedWork: object; // CollectedWork
+
+  setCollectedGoals(collectedGoals: object[]) {
+    this.collectedGoals = collectedGoals.map((collectedGoal) => {
+      const [name] = Object.keys(collectedGoal);
+
+      return new CollectedGoal({ name, ...collectedGoal[name] });
+    });
+  }
+
+  setCurrentGoalValues(currentGoalValues: object) {
+    this.currentGoalValue = Object.keys(currentGoalValues).map(name => new CurrentGoal({ name, ...currentGoalValues[name] }));
+  }
 
   setCharacter(character: characterRaw) {
     if (this.character) {
