@@ -1,20 +1,21 @@
+import _ from 'lodash';
 import * as config from 'config';
 import * as moment from 'moment';
 import * as winston from 'winston';
 
-import { resource } from './types/common';
-import { optionsConfig, optionsWeb } from './types/options';
+import { resource } from './game/types/common';
+import { optionsConfig, optionsWeb } from './game/types/options';
 
-import Constants from './constants';
-import ExtendedConfig from './extendedConfig';
-import Friend from './friend';
 import Game from './game';
-import Quest, { questStatus } from './quest';
+import Constants from './game/constants';
+import ExtendedConfig from './game/extendedConfig';
+import Friend from './game/friend';
+import Quest, { questStatus } from './game/quest';
 import Request from './request';
 import RequestWeb from './requestWeb';
 
 export default class BigBangEmpireBot {
-  private game: Game;
+  readonly game: Game;
   private extendedConfig: ExtendedConfig;
   private constants: Constants;
   private offers: { consumable; normal; special; text };
@@ -89,6 +90,8 @@ export default class BigBangEmpireBot {
 
     await this.handleCurrentQuest();
     await this.handleStartQuest();
+
+    await this.handleCompleteGoals();
   }
 
   async syncGame() {
@@ -153,6 +156,14 @@ export default class BigBangEmpireBot {
     if (this.game.character.unusedResources[resource.QUEST_REDUCTION] > 0 && this.game.character.usedResources[resource.QUEST_REDUCTION] < 4 && currentQuest.energyCost > 8) {
       await this.request.useResource(resource.QUEST_REDUCTION);
     }
+  }
+
+  async handleCompleteGoals() {
+    console.log('ooo');
+
+    const completedGoals = _.values(this.game.currentGoalValue, (name, goal) => {
+
+    });
   }
 }
 

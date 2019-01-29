@@ -2,19 +2,16 @@ import { createHash } from 'crypto';
 import * as moment from 'moment';
 import * as request from 'request-promise';
 
-import BigBangEmpireError from './utils/error';
+import BigBangEmpireError from './game/error';
 
-import { resource } from './types/common';
-import { optionsWeb } from './types/options';
+import { resource } from './game/types/common';
+import { optionsWeb } from './game/types/options';
 
-import Character from './character';
-import Constants from './constants';
-import ExtendedConfig from './extendedConfig';
-import Friend from './friend';
+import Constants from './game/constants';
+import ExtendedConfig from './game/extendedConfig';
+import Friend from './game/friend';
 import Game from './game';
-import Inventory from './inventory';
-import Quest from './quest';
-import User from './user';
+import Quest from './game/quest';
 
 export default class Request {
   readonly baseUrl: string;
@@ -154,8 +151,8 @@ export default class Request {
   async claimQuestRewards(): Promise<{ currentGoalValues: object, currentItemPatternValues: object }> {
     const {
       character,
-      current_goal_values: currentGoalValues,
-      current_item_pattern_values: currentItemPatternValues,
+      current_goal_values: currentGoalValues = {},
+      current_item_pattern_values: currentItemPatternValues = {},
       inventory,
       quests,
       user,

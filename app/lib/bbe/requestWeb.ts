@@ -1,7 +1,7 @@
 import * as cheerio from 'cheerio';
 import * as request from 'request-promise';
 
-import { optionsWeb } from './types/options';
+import { optionsWeb } from './game/types/options';
 
 export default class RequestWeb {
   readonly baseUrl: string;
@@ -21,24 +21,27 @@ export default class RequestWeb {
 
     jsCode.split('\n').forEach((unformattedLine) => {
       const line = unformattedLine.trim();
-      const matchUrlParam = line.match(/^url(\w+): "(.+)\?(.+)",?$/);
+      const matchUrlParam = line.match(/^url(\w+): "((.+)\?(.+))",?$/);
 
       if (matchUrlParam) {
-        switch (matchUrlParam[1]) {
+        const [, param, fullUrl, , hash] = matchUrlParam;
+
+        switch (param) {
           case 'SwfUi':
-            [, , , configFromWeb.swfUi] = matchUrlParam;
+            configFromWeb.swfUi = hash;
             break;
 
           case 'SwfMain':
-            [, , , configFromWeb.swfMain] = matchUrlParam;
+            configFromWeb.swfMain = hash;
+            console.log(`SWF url: ${fullUrl}`);
             break;
 
           case 'SwfCharacter':
-            [, , , configFromWeb.swfCharacter] = matchUrlParam;
+            configFromWeb.swfCharacter = hash;
             break;
 
           case 'SwfMovieCover':
-            [, , , configFromWeb.swfMovieCover] = matchUrlParam;
+            configFromWeb.swfMovieCover = hash;
             break;
 
           default: // do nothing
