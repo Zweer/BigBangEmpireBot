@@ -89,4 +89,41 @@ export default class Inventory extends DataObject<inventoryRaw> {
   shopItem9Id: number;
 
   itemSetData: string;
+
+  get bagItemsId() {
+    return [
+      this.bagItem1Id,
+      this.bagItem2Id,
+      this.bagItem3Id,
+      this.bagItem4Id,
+      this.bagItem5Id,
+      this.bagItem6Id,
+      this.bagItem7Id,
+      this.bagItem8Id,
+      this.bagItem9Id,
+      this.bagItem10Id,
+      this.bagItem11Id,
+      this.bagItem12Id,
+      this.bagItem13Id,
+      this.bagItem14Id,
+      this.bagItem15Id,
+      this.bagItem16Id,
+      this.bagItem17Id,
+      this.bagItem18Id,
+    ];
+  }
+
+  get shopItemsId() {
+    return [
+      this.shopItem1Id,
+      this.shopItem2Id,
+      this.shopItem3Id,
+      this.shopItem4Id,
+      this.shopItem5Id,
+      this.shopItem6Id,
+      this.shopItem7Id,
+      this.shopItem8Id,
+      this.shopItem9Id,
+    ];
+  }
 }

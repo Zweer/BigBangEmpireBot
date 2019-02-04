@@ -22,6 +22,8 @@ export default class BigBangEmpireBot {
   private friends: Friend[];
 
   private level: number = 0;
+  private canDuel: boolean = true;
+  private alertMissiles: boolean = true;
 
   private options: optionsConfig;
   private optionsWeb: optionsWeb;
@@ -91,6 +93,7 @@ export default class BigBangEmpireBot {
     await this.syncGame();
 
     this.handleNewLevel();
+    this.handleInventoryBasic();
 
     await this.handleCurrentQuest();
     await this.handleStartQuest();
@@ -108,6 +111,29 @@ export default class BigBangEmpireBot {
     }
 
     this.level = this.game.character.level;
+  }
+
+  handleInventoryBasic() {
+    if (this.game.inventory.missilesItemId === 0) {
+      this.canDuel = false;
+
+      if (this.alertMissiles) {
+        this.alertMissiles = false;
+
+        this.log.warn('No more missiles!');
+      }
+    } else if (!this.canDuel) {
+      this.canDuel = true;
+      this.alertMissiles = true;
+
+      this.log.info('More missiles...');
+    }
+
+    if (this.game.inventory.bagItemsId.every(bagItemId => bagItemId !== 0)) {
+      this.canDuel = false;
+
+      this.log.warn('Inventory is full!');
+    }
   }
 
   async handleCurrentQuest() {

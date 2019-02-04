@@ -306,7 +306,7 @@ class BigBangEmpire {
         // .then(() => { BigBangEmpire.log('sync'); })
           .then(() => this.handleNewLevel())            // done
           .then(() => this.handleStatPointAvailable())
-          .then(() => this.handleInventoryBasic())
+          .then(() => this.handleInventoryBasic())      // done
           .then(() => this.handleInventoryAdvanced())
           .then(() => this.handleCurrentQuest())        // done
           .then(() => this.handleCurrentMovieQuest())
