@@ -304,16 +304,16 @@ class BigBangEmpire {
 
         return Promise.all([])
         // .then(() => { BigBangEmpire.log('sync'); })
-          .then(() => this.handleNewLevel())
+          .then(() => this.handleNewLevel())            // done
           .then(() => this.handleStatPointAvailable())
           .then(() => this.handleInventoryBasic())
           .then(() => this.handleInventoryAdvanced())
-          .then(() => this.handleCurrentQuest())
+          .then(() => this.handleCurrentQuest())        // done
           .then(() => this.handleCurrentMovieQuest())
           .then(() => this.handleMovieVotes())
           .then(() => this.handleStoryDungeonAttack())
           .then(() => this.handleBuyEnergy())
-          .then(() => this.handleQuest())
+          .then(() => this.handleQuest())               // done
           // .then(() => this.handleDungeon())
           // .then(() => this.handleDungeonQuest())
           .then(() => this.handleResourceRequest())

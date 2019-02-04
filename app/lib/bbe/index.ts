@@ -21,6 +21,8 @@ export default class BigBangEmpireBot {
   private offers: { consumable; normal; special; text };
   private friends: Friend[];
 
+  private level: number = 0;
+
   private options: optionsConfig;
   private optionsWeb: optionsWeb;
 
@@ -88,6 +90,8 @@ export default class BigBangEmpireBot {
   async playRound() {
     await this.syncGame();
 
+    this.handleNewLevel();
+
     await this.handleCurrentQuest();
     await this.handleStartQuest();
 
@@ -96,6 +100,14 @@ export default class BigBangEmpireBot {
 
   async syncGame() {
     await this.request.syncGame();
+  }
+
+  handleNewLevel() {
+    if (this.level !== this.game.character.level && this.level !== 0) {
+      this.log.info(`New level: ${this.game.character.level}!!`);
+    }
+
+    this.level = this.game.character.level;
   }
 
   async handleCurrentQuest() {
