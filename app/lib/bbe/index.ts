@@ -159,14 +159,41 @@ export default class BigBangEmpireBot {
   }
 
   async handleCompleteGoals() {
-    console.log('ooo');
+    await Object.keys(this.game.currentGoalValue)
+      .map((goalName) => {
+        const currentGoalValue = this.game.currentGoalValue[goalName];
+        const collectedGoal = this.game.collectedGoals[goalName] || { value: 0 };
+        const goal = this.constants.goals[goalName];
 
-    const completedGoals = _.values(this.game.currentGoalValue, (name, goal) => {
+        if (currentGoalValue.currentValue <= collectedGoal.value) {
+          return;
+        }
 
-    });
+        let nextGoalValue;
+        Object.keys(goal.values)
+          .sort((a, b) => parseInt(a, 10) < parseInt(b, 10) ? -1 : 1)
+          .every((goalValue) => {
+            if (parseInt(goalValue, 10) > collectedGoal.value) {
+              nextGoalValue = goalValue;
+
+              return false;
+            }
+
+            return true;
+          });
+
+        if (nextGoalValue && currentGoalValue.value >= nextGoalValue) {
+          return { goalName, nextGoalValue };
+        }
+      })
+      .filter(goal => !!goal)
+      .reduce((previousPromise, { goalName, nextGoalValue }) => previousPromise.then(async () => {
+        this.log.info(`Completing a goal: ${goalName} (${nextGoalValue})`);
+
+        await this.request.collectGoalReward(goalName, nextGoalValue);
+      }), Promise.resolve());
   }
 }
 
-new BigBangEmpireBot()
-  .run()
+new BigBangEmpireBot().run()
   .catch(err => console.error(err));

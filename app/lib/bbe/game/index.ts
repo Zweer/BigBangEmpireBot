@@ -1,12 +1,15 @@
+import { mapValues } from 'lodash';
+
 import Character, { characterRaw } from './character';
 import Inventory, { inventoryRaw } from './inventory';
 import Quest, { questRaw, questStatus } from './quest';
 import User, { userRaw } from './user';
 
-import CollectedGoal from './goal/collected';
-import CurrentGoal from './goal/current';
+import CollectedGoal, { collectedGoalRaw } from './goal/collected';
+import CurrentGoal, { currentGoalRaw } from './goal/current';
 
 import DataObject from './utils/dataObject';
+import { goalRaw } from './goal';
 
 export type gameRaw = {
   saved_seconds: number,
@@ -38,7 +41,7 @@ export type gameRaw = {
   requested_character_guild: object, // Guild
   marriages: object[], // Marriage[]
   requested_character_optical_changes: object,
-  requested_character_current_goal_values: object,
+  requested_character_current_goal_values: { [key: string]: currentGoalRaw },
   requested_character_collected_goals: object,
   max_spendable_amount: number,
   character_selection_data: object[], // CharacterSelectionEntry[]
@@ -48,7 +51,7 @@ export type gameRaw = {
   convention: object, // Convention
   convention_reward: object[], // ConventionReward[]
   battle: object, // Battle
-  current_goal_value: object,
+  current_goal_value: { [key: string]: currentGoalRaw },
   convention_character_data: object[],
   dating_lookup: object, // Dating
   dating_step: object[], // DatingStep[]
@@ -240,7 +243,7 @@ export default class Game extends DataObject<gameRaw> {
   public convention: object; // Convention
   public conventionReward: object[]; // ConventionReward[]
   public battle: object; // Battle
-  public currentGoalValue: object;
+  public currentGoalValue: { [key: string]: CurrentGoal };
   public conventionCharacterData: object[];
   public datingLookup: object; // Dating
   public datingStep: object[]; // DatingStep[]
@@ -301,7 +304,7 @@ export default class Game extends DataObject<gameRaw> {
   public expiredGuildBoosters: string[];
   public constantsOverride: object[]; // Constant[]
   public clientInfo: object; // ClientSessionInfo
-  public collectedGoals: object;
+  public collectedGoals: { [key: string]: CollectedGoal };
   public guildBattleGuilds: object[]; // Guild[]
   public requestedGuild: object; // Guild
   public requestedGuildMembers: object[]; // GuildMember[]
@@ -391,16 +394,20 @@ export default class Game extends DataObject<gameRaw> {
   public voucher: object; // Voucher
   public collectedWork: object; // CollectedWork
 
-  setCollectedGoals(collectedGoals: object[]) {
-    this.collectedGoals = collectedGoals.map((collectedGoal) => {
-      const [name] = Object.keys(collectedGoal);
+  setCollectedGoals(collectedGoals: { [key: string]: collectedGoalRaw}[]) {
+    this.collectedGoals = {};
 
-      return new CollectedGoal({ name, ...collectedGoal[name] });
+    collectedGoals.forEach((collectedGoalObj: { [key: string]: collectedGoalRaw }) => {
+      Object.keys(collectedGoalObj).forEach((collectedGoalName: string) => {
+        const collectedGoal: collectedGoalRaw = collectedGoalObj[collectedGoalName];
+
+        this.collectedGoals[collectedGoalName] = new CollectedGoal(collectedGoal);
+      });
     });
   }
 
-  setCurrentGoalValues(currentGoalValues: object) {
-    this.currentGoalValue = Object.keys(currentGoalValues).map(name => new CurrentGoal({ name, ...currentGoalValues[name] }));
+  setCurrentGoalValues(currentGoalValues: { [key: string]: currentGoalRaw }) {
+    this.currentGoalValue = mapValues(currentGoalValues, (currentGoalValue: currentGoalRaw) => new CurrentGoal(currentGoalValue));
   }
 
   setCharacter(character: characterRaw) {

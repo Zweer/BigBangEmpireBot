@@ -35,6 +35,7 @@ export default class Request {
   static ACTION_CLAIM_QUEST_REWARDS = 'claimQuestRewards';
   static ACTION_START_QUEST = 'startQuest';
   static ACTION_USE_RESOURCES = 'useResource';
+  static ACTION_USE_COLLEECTED_GOAL_REWARD = 'collectGoalReward';
 
   static STATUS_CHECK_FOR_QUEST_COMPLETE = ['errFinishInvalidStatus', 'errCheckForQuestCompleteNoActiveQuest', 'errFinishNotYetCompleted'];
 
@@ -191,5 +192,16 @@ export default class Request {
     });
 
     console.log(response);
+  }
+
+  async collectGoalReward(goalName, nextGoalValue) {
+    const { character, user /*, collected_goals */ } = await this.request(Request.ACTION_USE_COLLEECTED_GOAL_REWARD, {
+      value: nextGoalValue,
+      identifier: goalName,
+      discard_item: false,
+    });
+
+    this.game.character.update(character);
+    this.game.user.update(user);
   }
 }
