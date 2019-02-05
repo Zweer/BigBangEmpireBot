@@ -110,6 +110,7 @@ export default class BigBangEmpireBot {
     await this.handleStatPointAvailable();
 
     await this.handleDuel();
+    await this.handleMissedDuels();
 
     await this.handleCurrentQuest();
     await this.handleStartQuest();
@@ -254,6 +255,14 @@ export default class BigBangEmpireBot {
 
     await this.request.checkForDuelComplete();
     await this.request.claimDuelRewards();
+  }
+
+  async handleMissedDuels() {
+    if (this.game.missedDuels === 0) {
+      return;
+    }
+
+    await this.request.getMissedDuelsNew();
   }
 
   async handleCurrentQuest() {

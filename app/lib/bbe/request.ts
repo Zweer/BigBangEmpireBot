@@ -49,6 +49,7 @@ export default class Request {
   static ACTION_START_DUEL = 'startDuel';
   static ACTION_CHECK_FOR_DUEL_COMPLETE = 'checkForDuelComplete';
   static ACTION_CLAIM_DUEL_REWARDS = 'claimDuelRewards';
+  static ACTION_GET_MISSED_DUELS_NEW = 'getMissedDuelsNew';
 
   static STATUS_CHECK_FOR_QUEST_COMPLETE = ['errFinishInvalidStatus', 'errCheckForQuestCompleteNoActiveQuest', 'errFinishNotYetCompleted'];
 
@@ -295,5 +296,16 @@ export default class Request {
 
     this.game.character.update(character);
     this.game.user.update(user);
+  }
+
+  async getMissedDuelsNew(): Promise<void> {
+    const response = await this.request(Request.ACTION_GET_MISSED_DUELS_NEW, {
+      history: false,
+    });
+
+    // this.game.character.update(character);
+    // this.game.user.update(user);
+
+    console.log(response);
   }
 }
