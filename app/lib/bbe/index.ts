@@ -117,6 +117,7 @@ export default class BigBangEmpireBot {
 
     await this.handleCollectWork();
 
+
     await this.handleCompleteGoals();
   }
 
@@ -333,6 +334,22 @@ export default class BigBangEmpireBot {
     if (this.game.character.tsLastWorkCollection.isBefore(threeHoursAgo)) {
       await this.request.collectWork();
     }
+  }
+
+  async handleMessages() {
+    if (this.game.newMessages === 0) {
+      return;
+    }
+
+    this.log.info(`You have ${this.game.newMessages} new messages (${this.game.character.pendingResourceRequests} resource requests)`);
+
+    if (this.game.character.pendingResourceRequests > 0) {
+      this.log.debug('Accepting all resource requests');
+
+      await this.request.acceptAllResourceRequests();
+    }
+
+    console.log(this.game.messages);
   }
 
   async handleCompleteGoals() {

@@ -51,6 +51,7 @@ export default class Request {
   static ACTION_CLAIM_DUEL_REWARDS = 'claimDuelRewards';
   static ACTION_GET_MISSED_DUELS_NEW = 'getMissedDuelsNew';
   static ACTION_COLLECT_WORK = 'collectWork';
+  static ACTION_ACCEPT_ALL_RESOURCE_REQUESTS = 'acceptAllResourceRequests';
 
   static STATUS_CHECK_FOR_QUEST_COMPLETE = ['errFinishInvalidStatus', 'errCheckForQuestCompleteNoActiveQuest', 'errFinishNotYetCompleted'];
 
@@ -312,6 +313,15 @@ export default class Request {
 
   async collectWork() {
     const response = await this.request(Request.ACTION_COLLECT_WORK);
+
+    // this.game.character.update(character);
+    // this.game.user.update(user);
+
+    console.log(response);
+  }
+
+  async acceptAllResourceRequests() {
+    const response = await this.request(Request.ACTION_ACCEPT_ALL_RESOURCE_REQUESTS);
 
     // this.game.character.update(character);
     // this.game.user.update(user);
