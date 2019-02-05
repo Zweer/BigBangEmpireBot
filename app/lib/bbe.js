@@ -305,7 +305,7 @@ class BigBangEmpire {
         return Promise.all([])
         // .then(() => { BigBangEmpire.log('sync'); })
           .then(() => this.handleNewLevel())            // done
-          .then(() => this.handleStatPointAvailable())
+          .then(() => this.handleStatPointAvailable())  // done
           .then(() => this.handleInventoryBasic())      // done
           .then(() => this.handleInventoryAdvanced())   // done
           .then(() => this.handleCurrentQuest())        // done

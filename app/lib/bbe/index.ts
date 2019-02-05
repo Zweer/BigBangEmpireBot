@@ -203,6 +203,9 @@ export default class BigBangEmpireBot {
     }
 
     this.log.info(`You have stat points available: ${this.game.character.statPointsAvailable}`);
+
+    // TODO: telegram select
+    // TODO: auto
   }
 
   async handleCurrentQuest() {
