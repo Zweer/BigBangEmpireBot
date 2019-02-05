@@ -307,7 +307,7 @@ class BigBangEmpire {
           .then(() => this.handleNewLevel())            // done
           .then(() => this.handleStatPointAvailable())
           .then(() => this.handleInventoryBasic())      // done
-          .then(() => this.handleInventoryAdvanced())
+          .then(() => this.handleInventoryAdvanced())   // done
           .then(() => this.handleCurrentQuest())        // done
           .then(() => this.handleCurrentMovieQuest())
           .then(() => this.handleMovieVotes())
