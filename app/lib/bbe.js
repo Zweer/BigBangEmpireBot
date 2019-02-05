@@ -328,9 +328,9 @@ class BigBangEmpire {
           .then(() => this.handleGuildMessages())
           .then(() => this.handleItemPattern())
           .then(() => this.handleGuildBattle())
-          .then(() => this.handleCompletedGoals())
+          .then(() => this.handleCompletedGoals())      // done
 
-          .then(() => this.retrieveRanking())
+          .then(() => this.retrieveRanking())           // done
           // .then(() => { BigBangEmpire.log('completed'); })
 
           .catch((err) => {

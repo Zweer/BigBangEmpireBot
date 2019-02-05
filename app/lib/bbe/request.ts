@@ -55,6 +55,7 @@ export default class Request {
   static ACTION_ACCEPT_ALL_RESOURCE_REQUESTS = 'acceptAllResourceRequests';
   static ACTION_GET_AVAILABLE_RESOURCE_REQUEST_FRIENDS = 'getAvailableResourceRequestFriends';
   static ACTION_CREATE_RESOURCE_REQUEST = 'createResourceRequest';
+  static ACTION_RETRIEVE_LEADERBOARD = 'retrieveLeaderboard';
 
   static STATUS_CHECK_FOR_QUEST_COMPLETE = ['errFinishInvalidStatus', 'errCheckForQuestCompleteNoActiveQuest', 'errFinishNotYetCompleted'];
 
@@ -348,5 +349,14 @@ export default class Request {
     });
 
     console.log(response);
+  }
+
+  async retrieveLeaderboard(sortType): Promise<number> {
+    const { centered_rank: rank } = await this.request(Request.ACTION_RETRIEVE_LEADERBOARD, {
+      sort_type: sortType,
+      character_name: this.game.character.name,
+    });
+
+    return rank;
   }
 }

@@ -36,6 +36,18 @@ export default class BigBangEmpireBot {
   private level: number = 0;
   private canDuel: boolean = true;
   private alertMissiles: boolean = true;
+  private rank = {
+    character: {
+      honor: 0,
+      level: 0,
+      fans: 0,
+    },
+    guild: {
+      honor: 0,
+      level: 0,
+      fans: 0,
+    },
+  };
 
   private options: optionsConfig;
   private optionsWeb: optionsWeb;
@@ -121,6 +133,8 @@ export default class BigBangEmpireBot {
     await this.handleResourceRequests();
 
     await this.handleCompleteGoals();
+
+    await this.handleRankRetrieval();
   }
 
   async syncGame() {
@@ -396,6 +410,28 @@ export default class BigBangEmpireBot {
 
         await this.request.collectGoalReward(goalName, nextGoalValue);
       }), Promise.resolve());
+  }
+
+  async handleRankRetrieval() {
+    await Promise.all([1, 2, 3].map(async (sortType) => {
+      const rank = await this.request.retrieveLeaderboard(sortType);
+
+      switch (sortType) {
+        case 1:
+          this.rank.character.honor = rank;
+          break;
+
+        case 2:
+          this.rank.character.level = rank;
+          break;
+
+        case 3:
+          this.rank.character.fans = rank;
+          break;
+
+        default: // do nothing
+      }
+    }));
   }
 }
 
