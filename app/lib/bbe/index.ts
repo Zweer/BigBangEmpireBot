@@ -137,6 +137,8 @@ export default class BigBangEmpireBot {
     await this.handleCompleteGoals();
 
     await this.handleRankRetrieval();
+
+    setTimeout(() => this.playRound(), this.options.delaySyncTime);
   }
 
   async syncGame() {
