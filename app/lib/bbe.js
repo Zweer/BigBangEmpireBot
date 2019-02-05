@@ -317,7 +317,7 @@ class BigBangEmpire {
           // .then(() => this.handleDungeon())
           // .then(() => this.handleDungeonQuest())
           .then(() => this.handleResourceRequest())
-          .then(() => this.handleDuel())
+          .then(() => this.handleDuel())                // done
           .then(() => this.handleMissedDuels())
           .then(() => this.handleMovieRefresh())
           .then(() => this.handleMovieChoice())

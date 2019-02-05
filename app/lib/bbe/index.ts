@@ -13,13 +13,14 @@ Promise.serial = async function resolveSerial(promises: Promise<any>[]): Promise
   return results;
 };
 
-import { resource } from './game/types/common';
+import { itemQuality, resource } from './game/types/common';
 import { optionsConfig, optionsWeb } from './game/types/options';
 
 import Game from './game';
 import Constants from './game/constants';
 import ExtendedConfig from './game/extendedConfig';
 import Friend from './game/friend';
+import Opponent from './game/duel/opponent';
 import Quest, { questStatus } from './game/quest';
 
 import Request from './request';
@@ -107,6 +108,8 @@ export default class BigBangEmpireBot {
     this.handleInventoryBasic();
     await this.handleInventoryAdvanced();
     await this.handleStatPointAvailable();
+
+    await this.handleDuel();
 
     await this.handleCurrentQuest();
     await this.handleStartQuest();
@@ -266,6 +269,51 @@ export default class BigBangEmpireBot {
     if (this.game.character.unusedResources[resource.QUEST_REDUCTION] > 0 && this.game.character.usedResources[resource.QUEST_REDUCTION] < 4 && currentQuest.energyCost > 8) {
       await this.request.useResource(resource.QUEST_REDUCTION);
     }
+  }
+
+  async handleDuel() {
+    if (this.game.character.duelStamina < this.game.character.duelStaminaCost || !this.canDuel) {
+      return;
+    }
+
+    this.log.debug(`Duel stamina: ${this.game.character.duelStamina}`);
+
+    const opponents = await this.request.getDuelOpponents();
+
+    if (!opponents) {
+      this.log.error('No duel opponents');
+    }
+
+    const sortedOpponents = opponents
+      .filter(o => !!o)
+      .sort((a, b) => b.honor - a.honor);
+
+    const opponent = sortedOpponents.find(o => o.totalStats < this.game.character.statTotal) || sortedOpponents.pop();
+
+    if (opponent) {
+      await this.makeDuel(opponent);
+    }
+  }
+
+  async makeDuel(opponent: Opponent) {
+    this.log.info(`Starting duel with ${opponent.name}`);
+
+    const { battle, duel, item } = await this.request.startDuel(opponent.id);
+
+    const addendum = [''];
+
+    if (duel.characterARewards.premium) {
+      addendum.push(`- ${duel.characterARewards.premium} gems`);
+    }
+
+    if (duel.characterARewards.item) {
+      addendum.push(`- ${duel.characterARewards.item} item (quality: ${itemQuality[item.quality]})`);
+    }
+
+    this.log.info(`You ${battle.won ? 'won' : 'lost'} the duel!\n- ${duel.characterARewards.honor} honor${addendum.join('\n')}`);
+
+    await this.request.checkForDuelComplete();
+    await this.request.claimDuelRewards();
   }
 
   async handleCompleteGoals() {

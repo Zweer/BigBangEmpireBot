@@ -5,17 +5,24 @@ import * as request from 'request-promise';
 import BigBangEmpireError from './game/error';
 
 import { resource } from './game/types/common';
+import { itemType } from './game/types/item';
 import { optionsWeb } from './game/types/options';
 
+import Battle from './game/battle';
 import Constants from './game/constants';
+import Duel from './game/duel';
 import ExtendedConfig from './game/extendedConfig';
 import Friend from './game/friend';
 import Game from './game';
+import Item from './game/item';
+import Opponent from './game/duel/opponent';
 import Quest from './game/quest';
 
 export default class Request {
   readonly baseUrl: string;
   readonly clientId: string;
+
+  private semaphore = true;
 
   private userId: number = 0;
   private userSessionId: number = 0;
@@ -38,6 +45,10 @@ export default class Request {
   static ACTION_USE_COLLEECTED_GOAL_REWARD = 'collectGoalReward';
   static ACTION_MOVE_INVENTORY_ITEM = 'moveInventoryItem';
   static ACTION_SELL_INVENTORY_ITEM = 'sellInventoryItem';
+  static ACTION_GET_DUEL_OPPONENTS = 'getDuelOpponents';
+  static ACTION_START_DUEL = 'startDuel';
+  static ACTION_CHECK_FOR_DUEL_COMPLETE = 'checkForDuelComplete';
+  static ACTION_CLAIM_DUEL_REWARDS = 'claimDuelRewards';
 
   static STATUS_CHECK_FOR_QUEST_COMPLETE = ['errFinishInvalidStatus', 'errCheckForQuestCompleteNoActiveQuest', 'errFinishNotYetCompleted'];
 
@@ -47,6 +58,12 @@ export default class Request {
   }
 
   async request(action: string, parameters: object = {}): Promise<any> {
+    while (!this.semaphore) {
+      await new Promise(resolve => setTimeout(resolve, 2000));
+    }
+
+    this.semaphore = false;
+
     const url = `${this.baseUrl}${Request.ENDPOINT_REQUEST}`;
     const form = {
       action,
@@ -62,6 +79,8 @@ export default class Request {
     };
 
     const { data, error } = await request.post({ url, form, json: true });
+
+    this.semaphore = true;
 
     if (error) {
       throw new BigBangEmpireError(error, action, form);
@@ -188,7 +207,7 @@ export default class Request {
     return new Quest(quest);
   }
 
-  async useResource(resourceType: resource) {
+  async useResource(resourceType: resource): Promise<void> {
     const response = await this.request(Request.ACTION_USE_RESOURCES, {
       feature_type: resourceType,
     });
@@ -196,7 +215,7 @@ export default class Request {
     console.log(response);
   }
 
-  async collectGoalReward(goalName, nextGoalValue) {
+  async collectGoalReward(goalName: string, nextGoalValue: number): Promise<void> {
     const { character, user /*, collected_goals */ } = await this.request(Request.ACTION_USE_COLLEECTED_GOAL_REWARD, {
       value: nextGoalValue,
       identifier: goalName,
@@ -207,7 +226,7 @@ export default class Request {
     this.game.user.update(user);
   }
 
-  async moveInventoryItem(itemId, itemType) {
+  async moveInventoryItem(itemId: number, itemType: itemType): Promise<void> {
     const { character, inventory, user } = await this.request(Request.ACTION_MOVE_INVENTORY_ITEM, {
       item_id: itemId,
       target_slot: itemType,
@@ -218,7 +237,7 @@ export default class Request {
     this.game.inventory.update(inventory);
   }
 
-  async sellInventoryItem(itemId) {
+  async sellInventoryItem(itemId: number): Promise<void> {
     const { character, inventory, user } = await this.request(Request.ACTION_SELL_INVENTORY_ITEM, {
       item_id: itemId,
     });
@@ -226,5 +245,55 @@ export default class Request {
     this.game.character.update(character);
     this.game.user.update(user);
     this.game.inventory.update(inventory);
+  }
+
+  async getDuelOpponents(): Promise<Opponent[]> {
+    const { opponents } = await this.request(Request.ACTION_GET_DUEL_OPPONENTS);
+
+    return opponents.map(opponent => new Opponent(opponent));
+  }
+
+  async startDuel(opponentId: number): Promise<{ battle: Battle, duel: Duel, item: Item }> {
+    try {
+      const { battle, character, duel, item, user } = await this.request(Request.ACTION_START_DUEL, {
+        character_id: opponentId,
+        use_premium: false,
+      });
+
+      this.game.character.update(character);
+      this.game.user.update(user);
+
+      return {
+        battle: new Battle(battle),
+        duel: new Duel(duel),
+        item: new Item(item),
+      };
+    } catch (error) {
+      const bbeError = error as BigBangEmpireError;
+
+      if (bbeError.code === 'errStartDuelActiveDuelFound') {
+        await this.checkForDuelComplete();
+        await this.claimDuelRewards();
+
+        return this.startDuel(opponentId);
+      }
+
+      throw error;
+    }
+  }
+
+  async checkForDuelComplete() {
+    const { user } = await this.request(Request.ACTION_CHECK_FOR_DUEL_COMPLETE);
+
+    this.game.user.update(user);
+  }
+
+  async claimDuelRewards() {
+    const { character, user } = await this.request(Request.ACTION_CLAIM_DUEL_REWARDS, {
+      discard_item: false,
+    });
+
+    this.game.character.update(character);
+    this.game.user.update(user);
   }
 }
