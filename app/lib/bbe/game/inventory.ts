@@ -1,3 +1,7 @@
+import { camelCase } from 'lodash';
+
+import { itemType } from './types/item';
+
 import DataObject from './utils/dataObject';
 
 export type inventoryRaw = {
@@ -125,5 +129,11 @@ export default class Inventory extends DataObject<inventoryRaw> {
       this.shopItem8Id,
       this.shopItem9Id,
     ];
+  }
+
+  getItemBySlot(slot: string | number) {
+    const slotName = typeof slot === 'number' ? camelCase(itemType[slot]) : slot;
+
+    return this[`${slotName}ItemId`];
   }
 }

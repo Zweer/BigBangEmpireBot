@@ -9,7 +9,7 @@ import CollectedGoal, { collectedGoalRaw } from './goal/collected';
 import CurrentGoal, { currentGoalRaw } from './goal/current';
 
 import DataObject from './utils/dataObject';
-import { goalRaw } from './goal';
+import Item, { itemRaw } from './item';
 
 export type gameRaw = {
   saved_seconds: number,
@@ -23,7 +23,7 @@ export type gameRaw = {
   valid: boolean,
   inventory: inventoryRaw,
   quests: questRaw[],
-  items: object[], // Item[]
+  items: itemRaw[], // Item[]
   win_messages: string[],
   reward: string,
   item: object, // Item
@@ -37,7 +37,7 @@ export type gameRaw = {
   alternative: string,
   requested_character: characterRaw,
   requested_character_inventory: inventoryRaw,
-  requested_character_inventory_items: object[], // Item[]
+  requested_character_inventory_items: itemRaw[], // Item[]
   requested_character_guild: object, // Guild
   marriages: object[], // Marriage[]
   requested_character_optical_changes: object,
@@ -83,7 +83,7 @@ export type gameRaw = {
   missed_duel_opponents: object[], // DuelOpponent[]
   opponent: characterRaw,
   opponent_inventory: inventoryRaw,
-  opponent_inventory_items: object[], // Item[]
+  opponent_inventory_items: itemRaw[], // Item[]
   title: object, // Title
   new_fan_foto_id: number,
   friend_data: object[], // Friend[]
@@ -215,7 +215,7 @@ export default class Game extends DataObject<gameRaw> {
   public valid: boolean;
   public inventory: Inventory;
   public quests: Quest[];
-  public items: object[]; // Item[]
+  public items: Item[]; // Item[]
   public winMessages: string[];
   public reward: string;
   public item: object; // Item
@@ -229,7 +229,7 @@ export default class Game extends DataObject<gameRaw> {
   public alternative: string;
   public requestedCharacter: Character;
   public requestedCharacterInventory: Inventory;
-  public requestedCharacterInventoryItems: object[]; // Item[]
+  public requestedCharacterInventoryItems: Item[]; // Item[]
   public requestedCharacterGuild: object; // Guild
   public marriages: object[]; // Marriage[]
   public requestedCharacterOpticalChanges: object;
@@ -275,7 +275,7 @@ export default class Game extends DataObject<gameRaw> {
   public missedDuelOpponents: object[]; // DuelOpponent[]
   public opponent: Character;
   public opponentInventory: Inventory;
-  public opponentInventoryItems: object[]; // Item[]
+  public opponentInventoryItems: Item[]; // Item[]
   public title: object; // Title
   public newFanFotoId: number;
   public friendData: object[]; // Friend[]
@@ -450,5 +450,21 @@ export default class Game extends DataObject<gameRaw> {
 
   get currentQuest() {
     return this.quests.find(quest => quest.status !== questStatus.CREATED);
+  }
+
+  setItems(items: itemRaw[]) {
+    this.items = items.map(item => new Item(item));
+  }
+
+  setRequestedCharacterInventoryItems(requestedCharacterInventoryItems: itemRaw[]) {
+    this.requestedCharacterInventoryItems = requestedCharacterInventoryItems.map(requestedCharacterInventoryItem => new Item(requestedCharacterInventoryItem));
+  }
+
+  setOpponentInventoryItems(opponentInventoryItems: itemRaw[]) {
+    this.opponentInventoryItems = opponentInventoryItems.map(opponentInventoryItem => new Item(opponentInventoryItem));
+  }
+
+  getItem(itemId: number): Item {
+    return this.items.find(item => item.id === itemId);
   }
 }

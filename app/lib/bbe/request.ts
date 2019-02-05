@@ -36,6 +36,8 @@ export default class Request {
   static ACTION_START_QUEST = 'startQuest';
   static ACTION_USE_RESOURCES = 'useResource';
   static ACTION_USE_COLLEECTED_GOAL_REWARD = 'collectGoalReward';
+  static ACTION_MOVE_INVENTORY_ITEM = 'moveInventoryItem';
+  static ACTION_SELL_INVENTORY_ITEM = 'sellInventoryItem';
 
   static STATUS_CHECK_FOR_QUEST_COMPLETE = ['errFinishInvalidStatus', 'errCheckForQuestCompleteNoActiveQuest', 'errFinishNotYetCompleted'];
 
@@ -203,5 +205,26 @@ export default class Request {
 
     this.game.character.update(character);
     this.game.user.update(user);
+  }
+
+  async moveInventoryItem(itemId, itemType) {
+    const { character, inventory, user } = await this.request(Request.ACTION_MOVE_INVENTORY_ITEM, {
+      item_id: itemId,
+      target_slot: itemType,
+    });
+
+    this.game.character.update(character);
+    this.game.user.update(user);
+    this.game.inventory.update(inventory);
+  }
+
+  async sellInventoryItem(itemId) {
+    const { character, inventory, user } = await this.request(Request.ACTION_SELL_INVENTORY_ITEM, {
+      item_id: itemId,
+    });
+
+    this.game.character.update(character);
+    this.game.user.update(user);
+    this.game.inventory.update(inventory);
   }
 }

@@ -1,7 +1,17 @@
-import _ from 'lodash';
 import * as config from 'config';
 import * as moment from 'moment';
 import * as winston from 'winston';
+
+// @ts-ignore
+Promise.serial = async function resolveSerial(promises: Promise<any>[]): Promise<any[]> {
+  const results = [];
+
+  for (let i = 0, tot = promises.length; i < tot; i += 1) {
+    results.push(await promises[i]);
+  }
+
+  return results;
+};
 
 import { resource } from './game/types/common';
 import { optionsConfig, optionsWeb } from './game/types/options';
@@ -11,6 +21,7 @@ import Constants from './game/constants';
 import ExtendedConfig from './game/extendedConfig';
 import Friend from './game/friend';
 import Quest, { questStatus } from './game/quest';
+
 import Request from './request';
 import RequestWeb from './requestWeb';
 
@@ -94,6 +105,7 @@ export default class BigBangEmpireBot {
 
     this.handleNewLevel();
     this.handleInventoryBasic();
+    await this.handleInventoryAdvanced();
 
     await this.handleCurrentQuest();
     await this.handleStartQuest();
@@ -134,6 +146,54 @@ export default class BigBangEmpireBot {
 
       this.log.warn('Inventory is full!');
     }
+  }
+
+  async handleInventoryAdvanced() {
+    let modified;
+
+    do {
+      modified = false;
+
+      // @ts-ignore
+      await Promise.serial(this.game.inventory.bagItemsId.map((bagItemId) => {
+        if (modified) {
+          return;
+        }
+
+        const item = this.game.getItem(bagItemId);
+        if (!item) {
+          return;
+        }
+
+        const equippedItemId = this.game.inventory.getItemBySlot(item.type);
+
+        if (!equippedItemId) {
+          this.log.info(`Moving item: ${item.slot} (empty slot)`);
+
+          modified = true;
+
+          return this.request.moveInventoryItem(item.id, item.type);
+        }
+
+        const equippedItem = this.game.getItem(equippedItemId);
+
+        if (item.statTotal < equippedItem.statTotal) {
+          this.log.info(`Selling item: ${item.slot}\n- my: ${equippedItem.statTotal}\n- bag: ${item.statTotal}`);
+
+          return this.request.sellInventoryItem(item.id);
+        }
+
+        if (!item.battleSkill && !equippedItem.battleSkill) {
+          this.log.info(`Moving item: ${item.slot} (better item)`);
+
+          modified = true;
+
+          return this.request.moveInventoryItem(item.id, item.type);
+        }
+
+        this.log.info(`New item: ${item.slot}\n- my: ${equippedItem.statTotal}\n- bag: ${item.statTotal}`);
+      }));
+    } while (modified);
   }
 
   async handleCurrentQuest() {
