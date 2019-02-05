@@ -25,6 +25,7 @@ import Quest, { questStatus } from './game/quest';
 
 import Request from './request';
 import RequestWeb from './requestWeb';
+import TelegramBot from './telegram';
 
 export default class BigBangEmpireBot {
   readonly game: Game;
@@ -54,6 +55,7 @@ export default class BigBangEmpireBot {
 
   private request: Request;
   private requestWeb: RequestWeb;
+  private bot: TelegramBot;
   private log: winston.Logger;
 
   static BASE_URL: string = 'https://{SERVER}.bigbangempire.com';
@@ -64,6 +66,8 @@ export default class BigBangEmpireBot {
 
     this.request = new Request(BigBangEmpireBot.BASE_URL, this.options.auth.server, this.options.auth.email, this.options.auth.password, this.game);
     this.requestWeb = new RequestWeb(BigBangEmpireBot.BASE_URL, this.options.auth.server);
+
+    this.bot = new TelegramBot();
 
     this.log = winston.createLogger({
       level: 'silly',
@@ -271,7 +275,7 @@ export default class BigBangEmpireBot {
     }
 
     if (duel.characterARewards.item) {
-      addendum.push(`- ${duel.characterARewards.item} item (quality: ${itemQuality[item.quality]})`);
+      addendum.push(`- ${duel.characterARewards.item} item`);
     }
 
     this.log.info(`You ${battle.won ? 'won' : 'lost'} the duel!\n- ${duel.characterARewards.honor} honor${addendum.join('\n')}`);
