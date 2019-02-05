@@ -106,6 +106,7 @@ export default class BigBangEmpireBot {
     this.handleNewLevel();
     this.handleInventoryBasic();
     await this.handleInventoryAdvanced();
+    await this.handleStatPointAvailable();
 
     await this.handleCurrentQuest();
     await this.handleStartQuest();
@@ -194,6 +195,14 @@ export default class BigBangEmpireBot {
         this.log.info(`New item: ${item.slot}\n- my: ${equippedItem.statTotal}\n- bag: ${item.statTotal}`);
       }));
     } while (modified);
+  }
+
+  async handleStatPointAvailable() {
+    if (!this.game.character.statPointsAvailable) {
+      return;
+    }
+
+    this.log.info(`You have stat points available: ${this.game.character.statPointsAvailable}`);
   }
 
   async handleCurrentQuest() {
