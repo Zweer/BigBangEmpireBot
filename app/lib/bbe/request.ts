@@ -50,6 +50,7 @@ export default class Request {
   static ACTION_CHECK_FOR_DUEL_COMPLETE = 'checkForDuelComplete';
   static ACTION_CLAIM_DUEL_REWARDS = 'claimDuelRewards';
   static ACTION_GET_MISSED_DUELS_NEW = 'getMissedDuelsNew';
+  static ACTION_COLLECT_WORK = 'collectWork';
 
   static STATUS_CHECK_FOR_QUEST_COMPLETE = ['errFinishInvalidStatus', 'errCheckForQuestCompleteNoActiveQuest', 'errFinishNotYetCompleted'];
 
@@ -302,6 +303,15 @@ export default class Request {
     const response = await this.request(Request.ACTION_GET_MISSED_DUELS_NEW, {
       history: false,
     });
+
+    // this.game.character.update(character);
+    // this.game.user.update(user);
+
+    console.log(response);
+  }
+
+  async collectWork() {
+    const response = await this.request(Request.ACTION_COLLECT_WORK);
 
     // this.game.character.update(character);
     // this.game.user.update(user);

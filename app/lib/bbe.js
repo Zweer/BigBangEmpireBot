@@ -323,7 +323,7 @@ class BigBangEmpire {
           .then(() => this.handleMovieChoice())
           .then(() => this.handleMovie())
           .then(() => this.handleMovieStar())
-          .then(() => this.handleWork())
+          .then(() => this.handleWork())                // done
           .then(() => this.handleMessages())
           .then(() => this.handleGuildMessages())
           .then(() => this.handleItemPattern())

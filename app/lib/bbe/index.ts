@@ -115,6 +115,8 @@ export default class BigBangEmpireBot {
     await this.handleCurrentQuest();
     await this.handleStartQuest();
 
+    await this.handleCollectWork();
+
     await this.handleCompleteGoals();
   }
 
@@ -322,6 +324,14 @@ export default class BigBangEmpireBot {
 
     if (this.game.character.unusedResources[resource.QUEST_REDUCTION] > 0 && this.game.character.usedResources[resource.QUEST_REDUCTION] < 4 && currentQuest.energyCost > 8) {
       await this.request.useResource(resource.QUEST_REDUCTION);
+    }
+  }
+
+  async handleCollectWork() {
+    const threeHoursAgo = moment().subtract(3, 'hours');
+
+    if (this.game.character.tsLastWorkCollection.isBefore(threeHoursAgo)) {
+      await this.request.collectWork();
     }
   }
 

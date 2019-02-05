@@ -1,3 +1,5 @@
+import * as moment from 'moment';
+
 import { resource } from './types/common';
 
 import DataObject from './utils/dataObject';
@@ -227,7 +229,7 @@ export default class Character extends DataObject<characterRaw> {
   duelStaminaCost: number;
   tsLastDuelEnemiesRefresh: number;
   currentWorkOfferId: string;
-  tsLastWorkCollection: number;
+  tsLastWorkCollection: moment.Moment;
   activeConventionShowId: number;
   tsDungeonKeyFound: number;
   activeDungeonQuestId: number;
@@ -332,9 +334,14 @@ export default class Character extends DataObject<characterRaw> {
       this.unusedResources = JSON.parse(unusedResources);
     }
   }
+
   setUsedResources(usedResources: string) {
     if (usedResources && typeof usedResources === 'string') {
       this.usedResources = JSON.parse(usedResources);
     }
+  }
+
+  setTsLastWorkCollection(tsLastWorkCollection: number) {
+    this.tsLastWorkCollection = moment(tsLastWorkCollection, 'X');
   }
 }
