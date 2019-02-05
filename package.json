@@ -14,7 +14,7 @@
     "node": "10.13.0"
   },
   "author": "Niccolò Olivieri <niccolo@olivieriachille.com>",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "cheerio": "^0.22.0",
     "config": "^1.21.0",

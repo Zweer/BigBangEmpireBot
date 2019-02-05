@@ -312,7 +312,7 @@ class BigBangEmpire {
           .then(() => this.handleCurrentMovieQuest())
           .then(() => this.handleMovieVotes())
           .then(() => this.handleStoryDungeonAttack())
-          .then(() => this.handleBuyEnergy())
+          .then(() => this.handleBuyEnergy())           // done
           .then(() => this.handleQuest())               // done
           // .then(() => this.handleDungeon())
           // .then(() => this.handleDungeonQuest())

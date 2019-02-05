@@ -124,6 +124,8 @@ export default class BigBangEmpireBot {
     await this.handleDuel();
     await this.handleMissedDuels();
 
+    await this.handleBuyEnergy();
+
     await this.handleCurrentQuest();
     await this.handleStartQuest();
 
@@ -282,6 +284,12 @@ export default class BigBangEmpireBot {
     }
 
     await this.request.getMissedDuelsNew();
+  }
+
+  async handleBuyEnergy() {
+    if (this.game.character.questEnergyRefillAmountToday < 200 && this.game.character.questEnergy + 50 < this.game.character.maxQuestEnergy) {
+      await this.request.buyQuestEnergy();
+    }
   }
 
   async handleCurrentQuest() {

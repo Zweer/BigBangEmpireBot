@@ -56,6 +56,7 @@ export default class Request {
   static ACTION_GET_AVAILABLE_RESOURCE_REQUEST_FRIENDS = 'getAvailableResourceRequestFriends';
   static ACTION_CREATE_RESOURCE_REQUEST = 'createResourceRequest';
   static ACTION_RETRIEVE_LEADERBOARD = 'retrieveLeaderboard';
+  static ACTION_BUY_QUEST_ENERGY = 'buyQuestEnergy';
 
   static STATUS_CHECK_FOR_QUEST_COMPLETE = ['errFinishInvalidStatus', 'errCheckForQuestCompleteNoActiveQuest', 'errFinishNotYetCompleted'];
 
@@ -358,5 +359,14 @@ export default class Request {
     });
 
     return rank;
+  }
+
+  async buyQuestEnergy(): Promise<void> {
+    const { character, user } = await this.request(Request.ACTION_BUY_QUEST_ENERGY, {
+      use_premium: false,
+    });
+
+    this.game.character.update(character);
+    this.game.user.update(user);
   }
 }
