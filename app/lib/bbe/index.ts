@@ -117,6 +117,8 @@ export default class BigBangEmpireBot {
 
     await this.handleCollectWork();
 
+    await this.handleMessages();
+    await this.handleResourceRequests();
 
     await this.handleCompleteGoals();
   }
@@ -350,6 +352,14 @@ export default class BigBangEmpireBot {
     }
 
     console.log(this.game.messages);
+  }
+
+  async handleResourceRequests() {
+    const friends = await this.request.getAvailableResourceRequestFriends();
+
+    if (friends.length) {
+      await this.request.createResourceRequest(friends);
+    }
   }
 
   async handleCompleteGoals() {

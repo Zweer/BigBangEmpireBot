@@ -29,6 +29,7 @@ export default class Request {
 
   static CLIENT_VERSION: number = 82;
   static AUTH_SALT: string = 'bpHgj5214';
+  static PLATFORM = 'standalone';
 
   static ENDPOINT_REQUEST: string = '/request.php';
 
@@ -52,6 +53,8 @@ export default class Request {
   static ACTION_GET_MISSED_DUELS_NEW = 'getMissedDuelsNew';
   static ACTION_COLLECT_WORK = 'collectWork';
   static ACTION_ACCEPT_ALL_RESOURCE_REQUESTS = 'acceptAllResourceRequests';
+  static ACTION_GET_AVAILABLE_RESOURCE_REQUEST_FRIENDS = 'getAvailableResourceRequestFriends';
+  static ACTION_CREATE_RESOURCE_REQUEST = 'createResourceRequest';
 
   static STATUS_CHECK_FOR_QUEST_COMPLETE = ['errFinishInvalidStatus', 'errCheckForQuestCompleteNoActiveQuest', 'errFinishNotYetCompleted'];
 
@@ -143,7 +146,7 @@ export default class Request {
 
   async initFriends(): Promise<Friend[]> {
     const { friend_data: friendsRaw } = await this.request(Request.ACTION_LOGIN_FRIEND_BAR, {
-      platform: 'standalone',
+      platform: Request.PLATFORM,
       existing_session_id: this.userSessionId,
       existing_user_id: this.userId,
     });
@@ -325,6 +328,24 @@ export default class Request {
 
     // this.game.character.update(character);
     // this.game.user.update(user);
+
+    console.log(response);
+  }
+
+  async getAvailableResourceRequestFriends(featureType = 1): Promise<Friend[]> {
+    const { resource_request_friends: resourceRequestFriends } = await this.request(Request.ACTION_GET_AVAILABLE_RESOURCE_REQUEST_FRIENDS, {
+      platform: Request.PLATFORM,
+      feature_type: featureType,
+    });
+
+    return resourceRequestFriends.map(f => new Friend(f));
+  }
+
+  async createResourceRequest(friends: Friend[], featureType = 1) {
+    const response = await this.request(Request.ACTION_CREATE_RESOURCE_REQUEST, {
+      feature_type: featureType,
+      user_ids: friends.map(f => f.userId).join(';'),
+    });
 
     console.log(response);
   }
