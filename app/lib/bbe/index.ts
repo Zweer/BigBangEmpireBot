@@ -203,7 +203,7 @@ export default class BigBangEmpireBot {
 
         const equippedItem = this.game.getItem(equippedItemId);
 
-        if (item.statTotal < equippedItem.statTotal) {
+        if (item.statTotal <= equippedItem.statTotal) {
           this.log.info(`Selling item: ${item.slot}\n- my: ${equippedItem.statTotal}\n- bag: ${item.statTotal}`);
 
           return this.request.sellInventoryItem(item.id);
