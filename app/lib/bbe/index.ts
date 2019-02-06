@@ -13,7 +13,7 @@ Promise.serial = async function resolveSerial(promises: Promise<any>[]): Promise
   return results;
 };
 
-import { itemQuality, resource } from './game/types/common';
+import { resource } from './game/types/common';
 import { optionsConfig, optionsWeb } from './game/types/options';
 
 import Game from './game';
@@ -456,6 +456,36 @@ export default class BigBangEmpireBot {
         default: // do nothing
       }
     }));
+  }
+
+  get levelPerc() {
+    const lvl = this.game.character.level;
+    const nextLvl = lvl + 1;
+
+    const xp = this.game.character.xp;
+    const lvlXp = this.constants.levels[lvl].xp;
+    const nextLvlXp = this.constants.levels[nextLvl].xp;
+
+    const diff = xp - lvlXp;
+    const diffNext = nextLvlXp - lvlXp;
+
+    return diff / diffNext;
+  }
+
+  get questRemaining() {
+    const currentQuest = this.game.currentQuest;
+    const now = moment();
+
+    if (!currentQuest || currentQuest.tsComplete.isAfter(now)) {
+      return;
+    }
+
+    const diff = currentQuest.tsComplete.diff(now, 'seconds');
+
+    const minutes = Math.round(diff / 60);
+    const seconds = diff % 60;
+
+    return `${minutes} minute${minutes === 1 ? '' : 's'} ${seconds} second${seconds === 1 ? '' : 's'}`;
   }
 }
 

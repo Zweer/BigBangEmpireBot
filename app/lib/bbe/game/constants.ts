@@ -4,6 +4,10 @@ import Goal, { goalRaw } from './goal';
 
 import DataObject from './utils/dataObject';
 
+export type level = {
+  xp: number;
+};
+
 export type constantsRaw = {
   tolerance_small: number;
   tolerance_medium: number;
@@ -748,7 +752,7 @@ export type constantsRaw = {
   item_rewards: object;
   item_set_templates: object;
   item_templates: object;
-  levels: object;
+  levels: { [key: number]: level };
   messages: object;
   movie_cover_settings: object;
   movie_durations: object[];
@@ -1513,7 +1517,7 @@ export default class Constants extends DataObject<constantsRaw> {
   itemRewards: object;
   itemSetTemplates: object;
   itemTemplates: object;
-  levels: object;
+  levels: { [key: number]: level };
   messages: object;
   movieCoverSettings: object;
   movieDurations: object[];

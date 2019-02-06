@@ -344,13 +344,14 @@ export default class Request {
     return resourceRequestFriends.map(f => new Friend(f));
   }
 
-  async createResourceRequest(friends: Friend[], featureType = 1) {
-    const response = await this.request(Request.ACTION_CREATE_RESOURCE_REQUEST, {
+  async createResourceRequest(friends: Friend[], featureType = 1): Promise<void> {
+    const { character, user } = await this.request(Request.ACTION_CREATE_RESOURCE_REQUEST, {
       feature_type: featureType,
       user_ids: friends.map(f => f.userId).join(';'),
     });
 
-    console.log(response);
+    this.game.character.update(character);
+    this.game.user.update(user);
   }
 
   async retrieveLeaderboard(sortType): Promise<number> {
