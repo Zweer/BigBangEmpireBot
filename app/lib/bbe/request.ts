@@ -1,10 +1,11 @@
 import { createHash } from 'crypto';
+import { mapValues } from 'lodash';
 import * as moment from 'moment';
 import * as request from 'request-promise';
 
 import BigBangEmpireError from './game/error';
 
-import {resource, stat} from './game/types/common';
+import { resource, stat } from './game/types/common';
 import { itemType } from './game/types/item';
 import { optionsWeb } from './game/types/options';
 
@@ -21,8 +22,10 @@ import Movie from './game/movie';
 import MovieQuest from './game/movie/quest';
 import Opponent from './game/duel/opponent';
 import Quest from './game/quest';
-import Reward from "./game/reward";
-import VotableMovie from "./game/movie/votable";
+import Reward from './game/reward';
+import VotableMovie from './game/movie/votable';
+import MessageCharacter from "./game/mailbox/character";
+import Message from "./game/mailbox/message";
 
 export default class Request {
   readonly baseUrl: string;
@@ -74,6 +77,7 @@ export default class Request {
   static ACTION_VOTE_FOR_MOVIE = 'voteForMovie';
   static ACTION_EXTEND_MOVIE_TIME = 'extendMovieTime';
   static ACTION_IMPROVE_CHARACTER_STAT = 'improveCharacterStat';
+  static ACTION_GET_MESSAGE_LIST = 'getMessageList';
 
   static STATUS_CHECK_FOR_QUEST_COMPLETE = ['errFinishInvalidStatus', 'errCheckForQuestCompleteNoActiveQuest', 'errFinishNotYetCompleted'];
 
@@ -109,6 +113,14 @@ export default class Request {
 
     if (error) {
       throw new BigBangEmpireError(error, action, form);
+    }
+
+    if (data.character && this.game.character) {
+      this.game.character.update(data.character);
+    }
+
+    if (data.user && this.game.user) {
+      this.game.user.update(data.user);
     }
 
     return data;
@@ -208,9 +220,7 @@ export default class Request {
       create_new: true,
     });
 
-    this.game.character.update(character);
     this.game.inventory.update(inventory);
-    this.game.user.update(user);
 
     this.game.quests = quests.map(quest => new Quest(quest));
 
@@ -224,10 +234,7 @@ export default class Request {
   }
 
   async startQuest(questId: number): Promise<Quest> {
-    const { character, quest, user } = await this.request(Request.ACTION_START_QUEST, { quest_id: questId });
-
-    this.game.character.update(character);
-    this.game.user.update(user);
+    const { quest } = await this.request(Request.ACTION_START_QUEST, { quest_id: questId });
 
     return new Quest(quest);
   }
@@ -241,34 +248,27 @@ export default class Request {
   }
 
   async collectGoalReward(goalName: string, nextGoalValue: number): Promise<void> {
-    const { character, user /*, collected_goals */ } = await this.request(Request.ACTION_USE_COLLEECTED_GOAL_REWARD, {
+    const {} = await this.request(Request.ACTION_USE_COLLEECTED_GOAL_REWARD, {
       value: nextGoalValue,
       identifier: goalName,
       discard_item: false,
     });
-
-    this.game.character.update(character);
-    this.game.user.update(user);
   }
 
   async moveInventoryItem(itemId: number, itemType: itemType): Promise<void> {
-    const { character, inventory, user } = await this.request(Request.ACTION_MOVE_INVENTORY_ITEM, {
+    const { inventory } = await this.request(Request.ACTION_MOVE_INVENTORY_ITEM, {
       item_id: itemId,
       target_slot: itemType,
     });
 
-    this.game.character.update(character);
-    this.game.user.update(user);
     this.game.inventory.update(inventory);
   }
 
   async sellInventoryItem(itemId: number): Promise<void> {
-    const { character, inventory, user } = await this.request(Request.ACTION_SELL_INVENTORY_ITEM, {
+    const { inventory } = await this.request(Request.ACTION_SELL_INVENTORY_ITEM, {
       item_id: itemId,
     });
 
-    this.game.character.update(character);
-    this.game.user.update(user);
     this.game.inventory.update(inventory);
   }
 
@@ -280,13 +280,10 @@ export default class Request {
 
   async startDuel(opponentId: number): Promise<{ battle: Battle, duel: Duel, item: Item }> {
     try {
-      const { battle, character, duel, item, user } = await this.request(Request.ACTION_START_DUEL, {
+      const { battle, duel, item } = await this.request(Request.ACTION_START_DUEL, {
         character_id: opponentId,
         use_premium: false,
       });
-
-      this.game.character.update(character);
-      this.game.user.update(user);
 
       return {
         battle: new Battle(battle),
@@ -308,27 +305,19 @@ export default class Request {
   }
 
   async checkForDuelComplete() {
-    const { user } = await this.request(Request.ACTION_CHECK_FOR_DUEL_COMPLETE);
-
-    this.game.user.update(user);
+    await this.request(Request.ACTION_CHECK_FOR_DUEL_COMPLETE);
   }
 
   async claimDuelRewards() {
-    const { character, user } = await this.request(Request.ACTION_CLAIM_DUEL_REWARDS, {
+    await this.request(Request.ACTION_CLAIM_DUEL_REWARDS, {
       discard_item: false,
     });
-
-    this.game.character.update(character);
-    this.game.user.update(user);
   }
 
   async getMissedDuelsNew(): Promise<MissedDuel[]> {
-    const { character, missed_duel_data: missedDuels, missed_duel_opponents: missedDuelOpponents, user } = await this.request(Request.ACTION_GET_MISSED_DUELS_NEW, {
+    const { missed_duel_data: missedDuels, missed_duel_opponents: missedDuelOpponents, user } = await this.request(Request.ACTION_GET_MISSED_DUELS_NEW, {
       history: false,
     });
-
-    this.game.character.update(character);
-    this.game.user.update(user);
 
     const opponents = missedDuelOpponents.map(o => new Opponent(o));
     return missedDuels.map(d => new MissedDuel(d, opponents));
@@ -341,19 +330,13 @@ export default class Request {
   }
 
   async collectWork(): Promise<CollectedWork> {
-    const { character, collected_work: collectedWork, user } = await this.request(Request.ACTION_COLLECT_WORK);
-
-    this.game.character.update(character);
-    this.game.user.update(user);
+    const { collected_work: collectedWork } = await this.request(Request.ACTION_COLLECT_WORK);
 
     return new CollectedWork(collectedWork);
   }
 
   async acceptAllResourceRequests() {
     const response = await this.request(Request.ACTION_ACCEPT_ALL_RESOURCE_REQUESTS);
-
-    // this.game.character.update(character);
-    // this.game.user.update(user);
 
     console.log(response);
   }
@@ -368,13 +351,10 @@ export default class Request {
   }
 
   async createResourceRequest(friends: Friend[], featureType = 1): Promise<void> {
-    const { character, user } = await this.request(Request.ACTION_CREATE_RESOURCE_REQUEST, {
+    await this.request(Request.ACTION_CREATE_RESOURCE_REQUEST, {
       feature_type: featureType,
       user_ids: friends.map(f => f.userId).join(';'),
     });
-
-    this.game.character.update(character);
-    this.game.user.update(user);
   }
 
   async retrieveLeaderboard(sortType): Promise<number> {
@@ -387,78 +367,59 @@ export default class Request {
   }
 
   async buyQuestEnergy(): Promise<void> {
-    const { character, user } = await this.request(Request.ACTION_BUY_QUEST_ENERGY, {
+    await this.request(Request.ACTION_BUY_QUEST_ENERGY, {
       use_premium: false,
     });
-
-    this.game.character.update(character);
-    this.game.user.update(user);
   }
 
   async claimMovieQuestRewards() {
-    const { character, movie, movie_quests: movieQuests, user } = await this.request(Request.ACTION_CLAIM_MOVIE_QUEST_REWARDS);
+    const { movie, movie_quests: movieQuests } = await this.request(Request.ACTION_CLAIM_MOVIE_QUEST_REWARDS);
 
-    this.game.character.update(character);
     this.game.movie.update(movie);
     this.game.setMovieQuests(movieQuests);
-    this.game.user.update(user);
   }
 
   async refreshMoviePool(): Promise<void> {
-    const { character, movies, user } = await this.request(Request.ACTION_REFRESH_MOVIE_POOL, {
+    const { movies } = await this.request(Request.ACTION_REFRESH_MOVIE_POOL, {
       use_premium: false,
     });
 
-    this.game.character.update(character);
     this.game.setMovies(movies);
-    this.game.user.update(user);
   }
 
   async startMovie(movie: Movie): Promise<void> {
-    const { character, movie: movieAddendum, movie_quests: movieQuests, user } = await this.request(Request.ACTION_START_MOVIE, {
+    const { movie: movieAddendum, movie_quests: movieQuests } = await this.request(Request.ACTION_START_MOVIE, {
       movie_id: movie.id,
     });
 
-    this.game.character.update(character);
     this.game.movie = movie.update(movieAddendum);
     this.game.setMovieQuests(movieQuests);
-    this.game.user.update(user);
   }
 
   async startMovieQuest(movieQuest: MovieQuest): Promise<void> {
-    const { character, user } = await this.request(Request.ACTION_START_MOVIE_QUEST, {
+    await this.request(Request.ACTION_START_MOVIE_QUEST, {
       movie_quest_id: movieQuest.id,
     });
-
-    this.game.character.update(character);
-    this.game.user.update(user);
   }
 
   async claimMovieStar() {
-    const { character, movie, user } = await this.request(Request.ACTION_CLAIM_MOVIE_STAR, {
+    const { movie } = await this.request(Request.ACTION_CLAIM_MOVIE_STAR, {
       discard_item: false,
     });
 
-    this.game.character.update(character);
     this.game.movie.update(movie);
-    this.game.user.update(user);
   }
 
   async finishMovie() {
-    const { character, movie, user } = await this.request(Request.ACTION_FINISH_MOVIE);
+    const { movie } = await this.request(Request.ACTION_FINISH_MOVIE);
 
-    this.game.character.update(character);
-    this.game.movie.update(movie),
-    this.game.user.update(user);
+    this.game.movie.update(movie);
   }
 
   async getMoviesToVote(): Promise<{ movies: VotableMovie[], reward: Reward }> {
-    const { character, movies_to_vote: moviesToVote, movie_vote_reward: movieVoteReward, user } = await this.request(Request.ACTION_GET_MOVIES_TO_VOTE, {
+    const { movies_to_vote: moviesToVote, movie_vote_reward: movieVoteReward } = await this.request(Request.ACTION_GET_MOVIES_TO_VOTE, {
       refresh: false,
     });
-
-    this.game.character.update(character);
-    this.game.user.update(user);
 
     return {
       movies: moviesToVote.map(m => new VotableMovie(m)),
@@ -467,32 +428,38 @@ export default class Request {
   }
 
   async voteForMovie(movie: VotableMovie) {
-    const { character, user } = await this.request(Request.ACTION_VOTE_FOR_MOVIE, {
+    await this.request(Request.ACTION_VOTE_FOR_MOVIE, {
       discard_item: false,
       movie_id: movie.id,
     });
-
-    this.game.character.update(character);
-    this.game.user.update(user);
   }
 
   async extendMovieTime() {
-    const { character, movie, user } = await this.request(Request.ACTION_EXTEND_MOVIE_TIME, {
+    const { movie } = await this.request(Request.ACTION_EXTEND_MOVIE_TIME, {
       use_premium: false,
     });
 
-    this.game.character.update(character);
     this.game.movie.update(movie);
-    this.game.user.update(user);
   }
 
   async improveCharacterStat(statistic: stat, value: number = 1) {
-    const { character, user } = await this.request(Request.ACTION_IMPROVE_CHARACTER_STAT, {
+    await this.request(Request.ACTION_IMPROVE_CHARACTER_STAT, {
       stat_type: statistic,
       skill_value: value,
     });
+  }
 
-    this.game.character.update(character);
-    this.game.user.update(user);
+  async getMessageList(received = true): Promise<Message[]> {
+    const { messages, messages_character_info: messageCharactersInfo } = await this.request(Request.ACTION_GET_MESSAGE_LIST, {
+      load_received: received,
+      load_sent: !received,
+      load_ignored: true,
+      max_message_id: 0,
+      offset: 0,
+    });
+
+    const messageCharacters = mapValues(messageCharactersInfo, (m => new MessageCharacter(m)));
+
+    return messages.map(m => new Message(m, messageCharacters));
   }
 }

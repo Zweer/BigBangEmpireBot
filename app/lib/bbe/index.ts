@@ -188,7 +188,7 @@ export default class BigBangEmpireBot {
       this.canDuel = true;
       this.alertMissiles = true;
 
-      this.log.info('More missiles...');
+      this.log.verbose('More missiles...');
     }
 
     if (this.game.inventory.bagItemsId.every(bagItemId => bagItemId !== 0)) {
@@ -218,7 +218,7 @@ export default class BigBangEmpireBot {
         const equippedItemId = this.game.inventory.getItemBySlot(item.type);
 
         if (!equippedItemId) {
-          this.log.info(`Moving item: ${item.slot} (empty slot)`);
+          this.log.verbose(`Moving item: ${item.slot} (empty slot)`);
 
           modified = true;
 
@@ -228,20 +228,20 @@ export default class BigBangEmpireBot {
         const equippedItem = this.game.getItem(equippedItemId);
 
         if (item.statTotal <= equippedItem.statTotal) {
-          this.log.info(`Selling item: ${item.slot}\n- my: ${equippedItem.statTotal}\n- bag: ${item.statTotal}`);
+          this.log.verbose(`Selling item: ${item.slot}\n- my: ${equippedItem.statTotal}\n- bag: ${item.statTotal}`);
 
           return this.request.sellInventoryItem(item.id);
         }
 
         if (!item.battleSkill && !equippedItem.battleSkill) {
-          this.log.info(`Moving item: ${item.slot} (better item)`);
+          this.log.verbose(`Moving item: ${item.slot} (better item)`);
 
           modified = true;
 
           return this.request.moveInventoryItem(item.id, item.type);
         }
 
-        this.log.info(`New item: ${item.slot}\n- my: ${equippedItem.statTotal}\n- bag: ${item.statTotal}`);
+        this.log.verbose(`New item: ${item.slot}\n- my: ${equippedItem.statTotal}\n- bag: ${item.statTotal}`);
       }));
     } while (modified);
   }
@@ -252,7 +252,7 @@ export default class BigBangEmpireBot {
     }
 
     if (this.statPointAvailable !== this.game.character.statPointsAvailable) {
-      this.log.info(`You have stat points available: ${this.game.character.statPointsAvailable}`);
+      this.log.verbose(`You have stat points available: ${this.game.character.statPointsAvailable}`);
     }
 
     this.statPointAvailable = this.game.character.statPointsAvailable;
@@ -287,7 +287,7 @@ export default class BigBangEmpireBot {
   }
 
   async makeDuel(opponent: Opponent) {
-    this.log.info(`Starting duel with ${opponent.name}`);
+    this.log.verbose(`Starting duel with ${opponent.name}`);
 
     const { battle, duel, item } = await this.request.startDuel(opponent.id);
 
@@ -301,7 +301,7 @@ export default class BigBangEmpireBot {
       addendum.push(`- ${duel.characterARewards.item} item`);
     }
 
-    this.log.info(`You ${battle.won ? 'won' : 'lost'} the duel!\n- ${duel.characterARewards.honor} honor${addendum.join('\n')}`);
+    this.log.verbose(`You ${battle.won ? 'won' : 'lost'} the duel!\n- ${duel.characterARewards.honor} honor${addendum.join('\n')}`);
 
     await this.request.checkForDuelComplete();
     await this.request.claimDuelRewards();
@@ -314,7 +314,7 @@ export default class BigBangEmpireBot {
 
     const missedDuels = await this.request.getMissedDuelsNew();
 
-    missedDuels.forEach(missedDuel => this.log.info(`Missed duel: ${missedDuel.won ? 'won' : 'lost'}\n- ${missedDuel.opponent.name}\n- ${numeral(missedDuel.characterBRewards.honor).format('+0')} honor`));
+    missedDuels.forEach(missedDuel => this.log.verbose(`Missed duel: ${missedDuel.won ? 'won' : 'lost'}\n- ${missedDuel.opponent.name}\n- ${numeral(missedDuel.characterBRewards.honor).format('+0')} honor`));
 
     await this.request.claimMissedDuelsRewards();
   }
@@ -380,7 +380,7 @@ export default class BigBangEmpireBot {
     const quest = this.game.movieQuests.find(q => q.type === questType.STAT);
 
     if (quest && this.game.character.movieEnergy >= quest.energyCost) {
-      this.log.info(`Starting a movie quest: ${quest.rewards.movieProgress} reward`);
+      this.log.verbose(`Starting a movie quest: ${quest.rewards.movieProgress} reward`);
 
       await this.request.startMovieQuest(quest);
     }
@@ -435,7 +435,7 @@ export default class BigBangEmpireBot {
     }
 
     if (this.game.character.questEnergy < 2) {
-      this.log.info('Energy low');
+      this.log.verbose('Energy low');
       return;
     }
 
@@ -476,7 +476,7 @@ export default class BigBangEmpireBot {
     if (this.game.character.tsLastWorkCollection.isBefore(threeHoursAgo)) {
       const collectedWork = await this.request.collectWork();
 
-      this.log.info(`Collected work: ${collectedWork.gameCurrencyReward} coins (${collectedWork.offer})`);
+      this.log.verbose(`Collected work: ${collectedWork.gameCurrencyReward} coins (${collectedWork.offer})`);
     }
   }
 
@@ -492,8 +492,6 @@ export default class BigBangEmpireBot {
 
       await this.request.acceptAllResourceRequests();
     }
-
-    console.log(this.game.messages);
   }
 
   async handleResourceRequests() {
@@ -534,7 +532,7 @@ export default class BigBangEmpireBot {
       })
       .filter(goal => !!goal)
       .reduce((previousPromise, { goalName, nextGoalValue }) => previousPromise.then(async () => {
-        this.log.info(`Completing a goal: ${goalName} (${nextGoalValue})`);
+        this.log.verbose(`Completing a goal: ${goalName} (${nextGoalValue})`);
 
         await this.request.collectGoalReward(goalName, nextGoalValue);
       }), Promise.resolve());

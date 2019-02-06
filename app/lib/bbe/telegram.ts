@@ -16,7 +16,7 @@ export class TelegramBotLogger extends Transport {
   static LOG_LEVELS = {
     error: '☠️️',
     warn: '⚠️️',
-    info: '️️',
+    info: '️️ℹ️',
     verbose: '💬',
     debug: '🐞',
     silly: '👻',

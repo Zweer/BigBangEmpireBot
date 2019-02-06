@@ -2,14 +2,11 @@ import * as moment from 'moment';
 
 import { resource } from './types/common';
 
-import DataObject from './utils/dataObject';
+import AbstractCharacter, { abstractCharacterRaw } from './abstracts/character';
 
-export type characterRaw = {
-  id: number,
+export type characterRaw = abstractCharacterRaw & {
   user_id: number,
-  name: string,
   locale: string,
-  gender: string,
   sexuality: string,
   title: string,
   game_currency: number,
@@ -18,7 +15,6 @@ export type characterRaw = {
   description: string,
   note: string,
   ts_last_action: number,
-  online_status: number,
   score_honor: number,
   score_level: number,
   score_fans: number,
@@ -170,12 +166,9 @@ type resources = {
   [resource.SLOTMACHINE_JETON]: number,
 };
 
-export default class Character extends DataObject<characterRaw> {
-  id: number;
+export default class Character extends AbstractCharacter<characterRaw> {
   userId: number;
-  name: string;
   locale: string;
-  gender: string;
   sexuality: string;
   title: string;
   gameCurrency: number;
@@ -184,7 +177,6 @@ export default class Character extends DataObject<characterRaw> {
   description: string;
   note: string;
   tsLastAction: number;
-  onlineStatus: number;
   scoreHonor: number;
   scoreLevel: number;
   scoreFans: number;
