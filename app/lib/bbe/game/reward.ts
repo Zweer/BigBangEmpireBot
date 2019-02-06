@@ -66,7 +66,13 @@ export default class Reward extends DataObject<rewardRaw> {
   static STANDARD_ATTRIBUTES = ['coins', 'xp', 'honor', 'premium', 'statPoints'];
 
   constructor(rewardString: string) {
-    const rewardRaw: rewardRaw = JSON.parse(rewardString);
+    let rewardRaw: rewardRaw = {} as rewardRaw;
+
+    try {
+      rewardRaw = JSON.parse(rewardString);
+    } catch (err) {
+      console.log(err);
+    }
 
     super(rewardRaw);
 

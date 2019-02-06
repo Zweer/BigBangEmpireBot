@@ -253,6 +253,7 @@ export default class BigBangEmpireBot {
     }
 
     const sortedOpponents = opponents
+      .filter(o => !o.name.startsWith('deleted_'))
       .filter(o => !!o)
       .sort((a, b) => b.honor - a.honor);
 
@@ -426,6 +427,8 @@ export default class BigBangEmpireBot {
 
         await this.request.collectGoalReward(goalName, nextGoalValue);
       }), Promise.resolve());
+
+    this.game.currentGoalValue = {};
   }
 
   async handleRankRetrieval() {
