@@ -1,5 +1,6 @@
 import * as config from 'config';
 import * as moment from 'moment';
+import * as numeral from 'numeral';
 import * as winston from 'winston';
 
 // @ts-ignore
@@ -13,6 +14,8 @@ Promise.serial = async function resolveSerial(promises: Promise<any>[]): Promise
   return results;
 };
 
+import { questStatus } from './game/abstracts/quest';
+
 import { resource } from './game/types/common';
 import { optionsConfig, optionsWeb } from './game/types/options';
 
@@ -20,8 +23,9 @@ import Game from './game';
 import Constants from './game/constants';
 import ExtendedConfig from './game/extendedConfig';
 import Friend from './game/friend';
+import MovieQuest from './game/movie/quest';
 import Opponent from './game/duel/opponent';
-import Quest, { questStatus } from './game/quest';
+import Quest from './game/quest';
 
 import Request from './request';
 import RequestWeb from './requestWeb';
@@ -135,8 +139,11 @@ export default class BigBangEmpireBot {
     await this.handleDuel();
     await this.handleMissedDuels();
 
+    await this.handleCurrentMovieQuest();
     await this.handleMovieRefresh();
     await this.handleMovieChoice();
+    await this.handleMovie();
+    await this.handleMovieStar();
 
     await this.handleBuyEnergy();
 
@@ -304,7 +311,23 @@ export default class BigBangEmpireBot {
       return;
     }
 
-    await this.request.getMissedDuelsNew();
+    const missedDuels = await this.request.getMissedDuelsNew();
+
+    missedDuels.forEach(missedDuel => this.log.info(`Missed duel: ${missedDuel.won ? 'won' : 'lost'}\n- ${missedDuel.opponent.name}\n- ${numeral(missedDuel.characterBRewards.honor).format('+0')} honor`));
+
+    await this.request.claimMissedDuelsRewards();
+  }
+
+  async handleCurrentMovieQuest() {
+    if (!this.game.movie) {
+      return true;
+    }
+
+    try {
+      await this.request.claimMovieQuestRewards();
+    } catch (error) {
+      // do nothing
+    }
   }
 
   async handleMovieRefresh() {
@@ -327,6 +350,48 @@ export default class BigBangEmpireBot {
       .find(m => !!m);
 
     await this.request.startMovie(movie);
+  }
+
+  async handleMovie() {
+    if (!this.game.movie || !(this.game.movieQuests && this.game.movieQuests.length)) {
+      return;
+    }
+
+    let quest: MovieQuest;
+
+    this.game.movieQuests.every((tmpQuest) => {
+      if (tmpQuest.type === 3) {
+        quest = tmpQuest;
+
+        return false;
+      }
+
+      return true;
+    });
+
+    if (quest && this.game.character.movieEnergy >= quest.energyCost) {
+      this.log.info(`Starting a movie quest: ${quest.rewards.movieProgress} reward`);
+
+      await this.request.startMovieQuest(quest);
+    }
+  }
+
+  async handleMovieStar() {
+    if (!this.game.movie) {
+      return true;
+    }
+
+    if (this.game.movie.isWaitingForClaim) {
+      await this.request.claimMovieStar();
+
+      this.log.info(`🎥 ${numeral(this.game.movie.claimedStars + 1).format('0o')} star claimed`);
+    }
+
+    if (this.game.movie.isWaitingForFinish) {
+      await this.request.finishMovie();
+
+      this.log.info('🎥 Finished');
+    }
   }
 
   async handleBuyEnergy() {

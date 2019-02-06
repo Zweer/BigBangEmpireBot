@@ -1,17 +1,17 @@
 import { mapValues } from 'lodash';
 
 import Character, { characterRaw } from './character';
-import Inventory, { inventoryRaw } from './inventory';
-import Quest, { questRaw, questStatus } from './quest';
-import User, { userRaw } from './user';
-
 import CollectedGoal, { collectedGoalRaw } from './goal/collected';
 import CurrentGoal, { currentGoalRaw } from './goal/current';
-
-import DataObject from './utils/dataObject';
+import Inventory, { inventoryRaw } from './inventory';
 import Item, { itemRaw } from './item';
 import Movie, { movieRaw } from './movie';
 import MovieQuest, { movieQuestRaw } from './movie/quest';
+import Quest, { questRaw } from './quest';
+import User, { userRaw } from './user';
+
+import { questStatus } from './abstracts/quest';
+import DataObject from './utils/dataObject';
 
 export type gameRaw = {
   saved_seconds: number,

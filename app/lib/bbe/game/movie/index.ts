@@ -33,7 +33,7 @@ export type movieRaw = {
   rewards_star_3: string;
   votes: number;
   rank: number;
-}
+};
 
 export default class Movie extends DataObject<movieRaw> {
   id: number;
@@ -68,4 +68,24 @@ export default class Movie extends DataObject<movieRaw> {
   rewardsStar3: string;
   votes: number;
   rank: number;
+
+  get isWaitingForClaim() {
+    if (this.energy * 10 >= this.neededEnergy && this.claimedStars < 1) {
+      return true;
+    }
+
+    if (this.energy * 2.5 >= this.neededEnergy && this.claimedStars < 2) {
+      return true;
+    }
+
+    if (this.energy >= this.neededEnergy && this.claimedStars < 3) {
+      return true;
+    }
+
+    return false;
+  }
+
+  get isWaitingForFinish() {
+    return this.claimedStars >= 3;
+  }
 }

@@ -319,10 +319,10 @@ class BigBangEmpire {
           .then(() => this.handleResourceRequest())     // done
           .then(() => this.handleDuel())                // done
           .then(() => this.handleMissedDuels())         // WIP
-          .then(() => this.handleMovieRefresh())
-          .then(() => this.handleMovieChoice())
-          .then(() => this.handleMovie())
-          .then(() => this.handleMovieStar())
+          .then(() => this.handleMovieRefresh())        // done
+          .then(() => this.handleMovieChoice())         // done
+          .then(() => this.handleMovie())               // done
+          .then(() => this.handleMovieStar())           // done
           .then(() => this.handleWork())                // done
           .then(() => this.handleMessages())            // done
           .then(() => this.handleGuildMessages())

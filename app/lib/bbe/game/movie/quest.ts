@@ -1,35 +1,9 @@
-import DataObject from '../utils/dataObject';
+import AbstractQuest, { abstractQuestRaw } from '../abstracts/quest';
 
-export type movieQuestRaw = {
-  id: number;
-  character_id: number;
+export type movieQuestRaw = abstractQuestRaw & {
   movie_id: number;
-  identifier: string;
-  type: number;
-  stat: number;
-  status: number;
-  ts_complete: number;
-  energy_cost: number;
-  fight_difficulty: number;
-  fight_npc_identifier: string;
-  fight_battle_id: number;
-  won: boolean;
-  rewards: string;
 };
 
-export default class MovieQuest extends DataObject<movieQuestRaw> {
-  id: number;
-  characterId: number;
+export default class MovieQuest extends AbstractQuest<movieQuestRaw> {
   movieId: number;
-  identifier: string;
-  type: number;
-  stat: number;
-  status: number;
-  tsComplete: number;
-  energyCost: number;
-  fightDifficulty: number;
-  fightNpcIdentifier: string;
-  fightBattleId: number;
-  won: boolean;
-  rewards: string;
 }

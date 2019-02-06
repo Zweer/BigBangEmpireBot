@@ -16,6 +16,7 @@ import ExtendedConfig from './game/extendedConfig';
 import Friend from './game/friend';
 import Game from './game';
 import Item from './game/item';
+import MissedDuel from './game/duel/missed';
 import Movie from './game/movie';
 import MovieQuest from './game/movie/quest';
 import Opponent from './game/duel/opponent';
@@ -54,14 +55,19 @@ export default class Request {
   static ACTION_CHECK_FOR_DUEL_COMPLETE = 'checkForDuelComplete';
   static ACTION_CLAIM_DUEL_REWARDS = 'claimDuelRewards';
   static ACTION_GET_MISSED_DUELS_NEW = 'getMissedDuelsNew';
+  static ACTION_CLAIM_MISSED_DUELS_REWARDS = 'claimMissedDuelsRewards';
   static ACTION_COLLECT_WORK = 'collectWork';
   static ACTION_ACCEPT_ALL_RESOURCE_REQUESTS = 'acceptAllResourceRequests';
   static ACTION_GET_AVAILABLE_RESOURCE_REQUEST_FRIENDS = 'getAvailableResourceRequestFriends';
   static ACTION_CREATE_RESOURCE_REQUEST = 'createResourceRequest';
   static ACTION_RETRIEVE_LEADERBOARD = 'retrieveLeaderboard';
   static ACTION_BUY_QUEST_ENERGY = 'buyQuestEnergy';
+  static ACTION_CLAIM_MOVIE_QUEST_REWARDS = 'claimMovieQuestRewards';
   static ACTION_REFRESH_MOVIE_POOL = 'refreshMoviePool';
   static ACTION_START_MOVIE = 'startMovie';
+  static ACTION_START_MOVIE_QUEST = 'startMovieQuest';
+  static ACTION_CLAIM_MOVIE_STAR = 'claimMovieStar';
+  static ACTION_FINISH_MOVIE = 'finishMovie';
 
   static STATUS_CHECK_FOR_QUEST_COMPLETE = ['errFinishInvalidStatus', 'errCheckForQuestCompleteNoActiveQuest', 'errFinishNotYetCompleted'];
 
@@ -310,15 +316,22 @@ export default class Request {
     this.game.user.update(user);
   }
 
-  async getMissedDuelsNew(): Promise<void> {
-    const response = await this.request(Request.ACTION_GET_MISSED_DUELS_NEW, {
+  async getMissedDuelsNew(): Promise<MissedDuel[]> {
+    const { character, missed_duel_data: missedDuels, missed_duel_opponents: missedDuelOpponents, user } = await this.request(Request.ACTION_GET_MISSED_DUELS_NEW, {
       history: false,
     });
 
-    // this.game.character.update(character);
-    // this.game.user.update(user);
+    this.game.character.update(character);
+    this.game.user.update(user);
 
-    console.log(response);
+    const opponents = missedDuelOpponents.map(o => new Opponent(o));
+    return missedDuels.map(d => new MissedDuel(d, opponents));
+  }
+
+  async claimMissedDuelsRewards(): Promise<void> {
+    const { missed_duels: missedDuels } = await this.request(Request.ACTION_CLAIM_MISSED_DUELS_REWARDS);
+
+    this.game.missedDuels = missedDuels;
   }
 
   async collectWork(): Promise<CollectedWork> {
@@ -376,6 +389,15 @@ export default class Request {
     this.game.user.update(user);
   }
 
+  async claimMovieQuestRewards() {
+    const { character, movie, movie_quests: movieQuests, user } = await this.request(Request.ACTION_CLAIM_MOVIE_QUEST_REWARDS);
+
+    this.game.character.update(character);
+    this.game.movie.update(movie);
+    this.game.setMovieQuests(movieQuests);
+    this.game.user.update(user);
+  }
+
   async refreshMoviePool(): Promise<void> {
     const { character, movies, user } = await this.request(Request.ACTION_REFRESH_MOVIE_POOL, {
       use_premium: false,
@@ -395,5 +417,30 @@ export default class Request {
     this.game.movie = movie.update(movieAddendum);
     this.game.setMovieQuests(movieQuests);
     this.game.user.update(user);
+  }
+
+  async startMovieQuest(movieQuest: MovieQuest): Promise<void> {
+    const { character, user } = await this.request(Request.ACTION_START_MOVIE_QUEST, {
+      movie_quest_id: movieQuest.id,
+    });
+
+    this.game.character.update(character);
+    this.game.user.update(user);
+  }
+
+  async claimMovieStar() {
+    const { character, movie, user } = await this.request(Request.ACTION_CLAIM_MOVIE_STAR, {
+      discard_item: false,
+    });
+
+    this.game.character.update(character);
+    this.game.movie.update(movie);
+    this.game.user.update(user);
+  }
+
+  async finishMovie() {
+    const response = await this.request(Request.ACTION_FINISH_MOVIE);
+
+    console.log(response);
   }
 }
