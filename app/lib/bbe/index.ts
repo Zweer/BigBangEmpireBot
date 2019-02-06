@@ -2,22 +2,10 @@ import * as config from 'config';
 import * as moment from 'moment';
 import * as numeral from 'numeral';
 import * as winston from 'winston';
+import {questStatus, questType} from './game/abstracts/quest';
 
-// @ts-ignore
-Promise.serial = async function resolveSerial(promises: Promise<any>[]): Promise<any[]> {
-  const results = [];
-
-  for (let i = 0, tot = promises.length; i < tot; i += 1) {
-    results.push(await promises[i]);
-  }
-
-  return results;
-};
-
-import { questStatus } from './game/abstracts/quest';
-
-import { resource } from './game/types/common';
-import { optionsConfig, optionsWeb } from './game/types/options';
+import {resource} from './game/types/common';
+import {optionsConfig, optionsWeb} from './game/types/options';
 
 import Game from './game';
 import Constants from './game/constants';
@@ -29,7 +17,19 @@ import Quest from './game/quest';
 
 import Request from './request';
 import RequestWeb from './requestWeb';
-import TelegramBot, { TelegramBotLogger } from './telegram';
+import TelegramBot, {TelegramBotLogger} from './telegram';
+import {movieStatus} from "./game/movie";
+
+// @ts-ignore
+Promise.serial = async function resolveSerial(promises: Promise<any>[]): Promise<any[]> {
+  const results = [];
+
+  for (let i = 0, tot = promises.length; i < tot; i += 1) {
+    results.push(await promises[i]);
+  }
+
+  return results;
+};
 
 export default class BigBangEmpireBot {
   readonly game: Game;
@@ -336,23 +336,10 @@ export default class BigBangEmpireBot {
       return;
     }
 
-    await this.request.getMoviesToVote();
+    const { movies } = await this.request.getMoviesToVote();
+    const [movie] = movies;
 
-    // if (this.game.character.movieVotes !== 0) {
-    //   return this.request('getMoviesToVote', {
-    //     refresh: false,
-    //   })
-    //     .then((data) => {
-    //       const movies = data.data.movies_to_vote;
-
-    //       BigBangEmpire.log(`Voting movie ${movies[0].id}`);
-
-    //       return this.request('voteForMovie', {
-    //         discard_item: false,
-    //         movie_id: movies[0].id,
-    //       });
-    //     });
-    // }
+    await this.request.voteForMovie(movie);
   }
 
   async handleMovieRefresh() {
@@ -382,17 +369,11 @@ export default class BigBangEmpireBot {
       return;
     }
 
-    let quest: MovieQuest;
+    if (this.game.movie.status === movieStatus.TIMEUP) {
+      await this.request.extendMovieTime();
+    }
 
-    this.game.movieQuests.every((tmpQuest) => {
-      if (tmpQuest.type === 3) {
-        quest = tmpQuest;
-
-        return false;
-      }
-
-      return true;
-    });
+    const quest = this.game.movieQuests.find(q => q.type === questType.STAT);
 
     if (quest && this.game.character.movieEnergy >= quest.energyCost) {
       this.log.info(`Starting a movie quest: ${quest.rewards.movieProgress} reward`);
@@ -409,7 +390,7 @@ export default class BigBangEmpireBot {
     if (this.game.movie.isWaitingForClaim) {
       await this.request.claimMovieStar();
 
-      this.log.info(`🎥 ${numeral(this.game.movie.claimedStars + 1).format('0o')} star claimed`);
+      this.log.info(`🎥 ${numeral(this.game.movie.claimedStars).format('0o')} star claimed`);
     }
 
     if (this.game.movie.isWaitingForFinish) {

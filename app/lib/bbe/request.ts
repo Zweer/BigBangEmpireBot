@@ -21,6 +21,8 @@ import Movie from './game/movie';
 import MovieQuest from './game/movie/quest';
 import Opponent from './game/duel/opponent';
 import Quest from './game/quest';
+import Reward from "./game/reward";
+import VotableMovie from "./game/movie/votable";
 
 export default class Request {
   readonly baseUrl: string;
@@ -69,6 +71,8 @@ export default class Request {
   static ACTION_CLAIM_MOVIE_STAR = 'claimMovieStar';
   static ACTION_FINISH_MOVIE = 'finishMovie';
   static ACTION_GET_MOVIES_TO_VOTE = 'getMoviesToVote';
+  static ACTION_VOTE_FOR_MOVIE = 'voteForMovie';
+  static ACTION_EXTEND_MOVIE_TIME = 'extendMovieTime';
 
   static STATUS_CHECK_FOR_QUEST_COMPLETE = ['errFinishInvalidStatus', 'errCheckForQuestCompleteNoActiveQuest', 'errFinishNotYetCompleted'];
 
@@ -445,9 +449,33 @@ export default class Request {
     console.log(response);
   }
 
-  async getMoviesToVote() {
-    const response = await this.request(Request.ACTION_GET_MOVIES_TO_VOTE, {
+  async getMoviesToVote(): Promise<{ movies: VotableMovie[], reward: Reward }> {
+    const { character, movies_to_vote: moviesToVote, movie_vote_reward: movieVoteReward, user } = await this.request(Request.ACTION_GET_MOVIES_TO_VOTE, {
       refresh: false,
+    });
+
+    this.game.character.update(character);
+    this.game.user.update(user);
+
+    return {
+      movies: moviesToVote.map(m => new VotableMovie(m)),
+      reward: new Reward(movieVoteReward),
+    };
+  }
+
+  async voteForMovie(movie: VotableMovie) {
+    const { character, user } = await this.request(Request.ACTION_VOTE_FOR_MOVIE, {
+      discard_item: false,
+      movie_id: movie.id,
+    });
+
+    this.game.character.update(character);
+    this.game.user.update(user);
+  }
+
+  async extendMovieTime() {
+    const response = await this.request(Request.ACTION_EXTEND_MOVIE_TIME, {
+      use_premium: false,
     });
 
     console.log(response);

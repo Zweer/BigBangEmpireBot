@@ -1,12 +1,9 @@
-import DataObject from '../utils/dataObject';
+import AbstractMovie, { abstractMovieRaw } from '../abstracts/movie';
 
-export type movieRaw = {
-  id: number;
+export type movieRaw = abstractMovieRaw & {
   character_id: number;
   character_level: number;
   guild_id: number;
-  set: string;
-  title: string;
   custom_title: boolean;
   cover_rect_type: number;
   cover_background_type: number;
@@ -16,7 +13,6 @@ export type movieRaw = {
   cover_font_type: number;
   cover_actor_type: number;
   cover_filter_type: number;
-  cover: string;
   status: number;
   rating: number;
   fans: number;
@@ -35,13 +31,19 @@ export type movieRaw = {
   rank: number;
 };
 
-export default class Movie extends DataObject<movieRaw> {
-  id: number;
+export enum movieStatus {
+  UNKNOWN = 0,
+  CREATED = 1,
+  STARTED = 7,
+  FINISHED = 8,
+  TIMEUP = 12,
+  COMPLETED = 13,
+}
+
+export default class Movie extends AbstractMovie<movieRaw> {
   characterId: number;
   characterLevel: number;
   guildId: number;
-  set: string;
-  title: string;
   customTitle: boolean;
   coverRectType: number;
   coverBackgroundType: number;
@@ -51,8 +53,7 @@ export default class Movie extends DataObject<movieRaw> {
   coverFontType: number;
   coverActorType: number;
   coverFilterType: number;
-  cover: string;
-  status: number;
+  status: movieStatus;
   rating: number;
   fans: number;
   energy: number;
