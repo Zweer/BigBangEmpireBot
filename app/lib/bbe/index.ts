@@ -140,6 +140,7 @@ export default class BigBangEmpireBot {
     await this.handleMissedDuels();
 
     await this.handleCurrentMovieQuest();
+    await this.handleMovieVotes();
     await this.handleMovieRefresh();
     await this.handleMovieChoice();
     await this.handleMovie();
@@ -328,6 +329,30 @@ export default class BigBangEmpireBot {
     } catch (error) {
       // do nothing
     }
+  }
+
+  async handleMovieVotes() {
+    if (this.game.character.movieVotes === 0) {
+      return;
+    }
+
+    await this.request.getMoviesToVote();
+
+    // if (this.game.character.movieVotes !== 0) {
+    //   return this.request('getMoviesToVote', {
+    //     refresh: false,
+    //   })
+    //     .then((data) => {
+    //       const movies = data.data.movies_to_vote;
+
+    //       BigBangEmpire.log(`Voting movie ${movies[0].id}`);
+
+    //       return this.request('voteForMovie', {
+    //         discard_item: false,
+    //         movie_id: movies[0].id,
+    //       });
+    //     });
+    // }
   }
 
   async handleMovieRefresh() {

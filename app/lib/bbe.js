@@ -309,8 +309,8 @@ class BigBangEmpire {
           .then(() => this.handleInventoryBasic())      // done
           .then(() => this.handleInventoryAdvanced())   // done
           .then(() => this.handleCurrentQuest())        // done
-          .then(() => this.handleCurrentMovieQuest())
-          .then(() => this.handleMovieVotes())
+          .then(() => this.handleCurrentMovieQuest())   // done
+          .then(() => this.handleMovieVotes())          // done
           .then(() => this.handleStoryDungeonAttack())
           .then(() => this.handleBuyEnergy())           // done
           .then(() => this.handleQuest())               // done
@@ -318,7 +318,7 @@ class BigBangEmpire {
           // .then(() => this.handleDungeonQuest())
           .then(() => this.handleResourceRequest())     // done
           .then(() => this.handleDuel())                // done
-          .then(() => this.handleMissedDuels())         // WIP
+          .then(() => this.handleMissedDuels())         // done
           .then(() => this.handleMovieRefresh())        // done
           .then(() => this.handleMovieChoice())         // done
           .then(() => this.handleMovie())               // done

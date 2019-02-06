@@ -68,6 +68,7 @@ export default class Request {
   static ACTION_START_MOVIE_QUEST = 'startMovieQuest';
   static ACTION_CLAIM_MOVIE_STAR = 'claimMovieStar';
   static ACTION_FINISH_MOVIE = 'finishMovie';
+  static ACTION_GET_MOVIES_TO_VOTE = 'getMoviesToVote';
 
   static STATUS_CHECK_FOR_QUEST_COMPLETE = ['errFinishInvalidStatus', 'errCheckForQuestCompleteNoActiveQuest', 'errFinishNotYetCompleted'];
 
@@ -440,6 +441,14 @@ export default class Request {
 
   async finishMovie() {
     const response = await this.request(Request.ACTION_FINISH_MOVIE);
+
+    console.log(response);
+  }
+
+  async getMoviesToVote() {
+    const response = await this.request(Request.ACTION_GET_MOVIES_TO_VOTE, {
+      refresh: false,
+    });
 
     console.log(response);
   }
