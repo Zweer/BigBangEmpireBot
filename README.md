@@ -2,7 +2,7 @@
 
 ## TODO
 
-- [ ] new level -> adjust skills (auto button on telegram)
+- [x] new level -> adjust skills
 - [ ] duels -> don't attack guild members
 - [x] duels -> if no good challenger, loose less points
 - [x] duels -> add the battle skill check
