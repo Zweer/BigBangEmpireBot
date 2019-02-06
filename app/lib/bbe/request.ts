@@ -17,6 +17,7 @@ import Game from './game';
 import Item from './game/item';
 import Opponent from './game/duel/opponent';
 import Quest from './game/quest';
+import CollectedWork from "./game/work/collected";
 
 export default class Request {
   readonly baseUrl: string;
@@ -25,7 +26,7 @@ export default class Request {
   private semaphore = true;
 
   private userId: number = 0;
-  private userSessionId: number = 0;
+  private userSessionId: string = '0';
 
   static CLIENT_VERSION: number = 82;
   static AUTH_SALT: string = 'bpHgj5214';
@@ -316,13 +317,13 @@ export default class Request {
     console.log(response);
   }
 
-  async collectWork() {
-    const response = await this.request(Request.ACTION_COLLECT_WORK);
+  async collectWork(): Promise<CollectedWork> {
+    const { character, collected_work: collectedWork, user } = await this.request(Request.ACTION_COLLECT_WORK);
 
-    // this.game.character.update(character);
-    // this.game.user.update(user);
+    this.game.character.update(character);
+    this.game.user.update(user);
 
-    console.log(response);
+    return new CollectedWork(collectedWork);
   }
 
   async acceptAllResourceRequests() {

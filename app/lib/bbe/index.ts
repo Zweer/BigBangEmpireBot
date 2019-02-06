@@ -37,7 +37,7 @@ export default class BigBangEmpireBot {
   private level: number = 0;
   private canDuel: boolean = true;
   private alertMissiles: boolean = true;
-  private rank = {
+  public rank = {
     character: {
       honor: 0,
       level: 0,
@@ -67,7 +67,7 @@ export default class BigBangEmpireBot {
     this.request = new Request(BigBangEmpireBot.BASE_URL, this.options.auth.server, this.options.auth.email, this.options.auth.password, this.game);
     this.requestWeb = new RequestWeb(BigBangEmpireBot.BASE_URL, this.options.auth.server);
 
-    this.bot = new TelegramBot();
+    this.bot = new TelegramBot(this);
 
     this.log = winston.createLogger({
       level: 'silly',
@@ -362,7 +362,9 @@ export default class BigBangEmpireBot {
     const threeHoursAgo = moment().subtract(3, 'hours');
 
     if (this.game.character.tsLastWorkCollection.isBefore(threeHoursAgo)) {
-      await this.request.collectWork();
+      const collectedWork = await this.request.collectWork();
+
+      this.log.info(`Collected work: ${collectedWork.gameCurrencyReward} coins (${collectedWork.offer})`);
     }
   }
 
