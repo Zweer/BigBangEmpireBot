@@ -4,7 +4,7 @@ import * as request from 'request-promise';
 
 import BigBangEmpireError from './game/error';
 
-import { resource } from './game/types/common';
+import {resource, stat} from './game/types/common';
 import { itemType } from './game/types/item';
 import { optionsWeb } from './game/types/options';
 
@@ -73,6 +73,7 @@ export default class Request {
   static ACTION_GET_MOVIES_TO_VOTE = 'getMoviesToVote';
   static ACTION_VOTE_FOR_MOVIE = 'voteForMovie';
   static ACTION_EXTEND_MOVIE_TIME = 'extendMovieTime';
+  static ACTION_IMPROVE_CHARACTER_STAT = 'improveCharacterStat';
 
   static STATUS_CHECK_FOR_QUEST_COMPLETE = ['errFinishInvalidStatus', 'errCheckForQuestCompleteNoActiveQuest', 'errFinishNotYetCompleted'];
 
@@ -482,6 +483,16 @@ export default class Request {
 
     this.game.character.update(character);
     this.game.movie.update(movie);
+    this.game.user.update(user);
+  }
+
+  async improveCharacterStat(statistic: stat, value: number = 1) {
+    const { character, user } = await this.request(Request.ACTION_IMPROVE_CHARACTER_STAT, {
+      stat_type: statistic,
+      skill_value: value,
+    });
+
+    this.game.character.update(character);
     this.game.user.update(user);
   }
 }

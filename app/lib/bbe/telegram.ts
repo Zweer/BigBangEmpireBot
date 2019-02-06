@@ -1,10 +1,13 @@
+import { camelCase, upperFirst } from 'lodash';
 import * as config from 'config';
 import * as numeral from 'numeral';
-import Telegraf, { ContextMessageUpdate } from 'telegraf';
+import Telegraf, { ContextMessageUpdate, Markup } from 'telegraf';
+import * as Router from 'telegraf/router';
 import * as Transport from 'winston-transport';
 
 import BigBangEmpireBot from '.';
 
+import { stat } from './game/types/common';
 import { optionsTelegramBot } from './game/types/options';
 
 export class TelegramBotLogger extends Transport {
@@ -13,7 +16,7 @@ export class TelegramBotLogger extends Transport {
   static LOG_LEVELS = {
     error: '☠️️',
     warn: '⚠️️',
-    info: 'ℹ️️',
+    info: '️️',
     verbose: '💬',
     debug: '🐞',
     silly: '👻',
@@ -35,7 +38,8 @@ export class TelegramBotLogger extends Transport {
 }
 
 export default class TelegramBot {
-  private bot: Telegraf<ContextMessageUpdate>;
+  readonly bot: Telegraf<ContextMessageUpdate>;
+
   private users: number[] = [];
 
   constructor(private bbe: BigBangEmpireBot, private options: optionsTelegramBot = config.get('telegram')) {
@@ -63,6 +67,7 @@ export default class TelegramBot {
 
     this.initRouteStart();
     this.initRouteProfile();
+    this.initRouteStats();
   }
 
   initRouteStart() {
@@ -89,12 +94,72 @@ export default class TelegramBot {
 
       if (this.bbe.game.movie) {
         messageArr.push('--------------------');
-        // messageArr.push(`- movie: ${this.bbe.game.movie.energy / this.bbe.game.movie.neededEnergy}`);
+        messageArr.push(`- movie: ${this.bbe.game.movie.energy / this.bbe.game.movie.neededEnergy}`);
         messageArr.push(`- movie energy: ${this.bbe.game.character.movieEnergy}`);
       }
 
       await reply(messageArr.join('\n'));
     });
+  }
+
+  initRouteStats() {
+    const handleStats = async ({ reply }: ContextMessageUpdate) => {
+      const messsageArr = [];
+      messsageArr.push(`${this.bbe.game.character.name} (${this.bbe.game.character.statPointsAvailable} points):`);
+      messsageArr.push(`- Stamina: ${this.bbe.game.character.statBaseStamina} (${this.bbe.game.character.statTotalStamina})`);
+      messsageArr.push(`- Strength: ${this.bbe.game.character.statBaseStrength} (${this.bbe.game.character.statTotalStrength})`);
+      messsageArr.push(`- CriticalRating: ${this.bbe.game.character.statBaseCriticalRating} (${this.bbe.game.character.statTotalCriticalRating})`);
+      messsageArr.push(`- DodgeRating: ${this.bbe.game.character.statBaseDodgeRating} (${this.bbe.game.character.statTotalDodgeRating})`);
+      messsageArr.push(`- Weapon: ${this.bbe.game.character.statWeaponDamage}`);
+
+      const extra = Markup
+        .inlineKeyboard(Object.keys(stat)
+          .filter(s => parseInt(s, 10))
+          .map(s => Markup.callbackButton(`+ ${upperFirst(camelCase(stat[s]))}`, `addStat:${s}`)), { columns: 1 })
+        // @ts-ignore
+        .extra();
+
+      await reply(messsageArr.join('\n'), extra);
+    };
+
+    this.bot.command('stats', ctx => handleStats(ctx));
+
+    const statsRouter = new Router(({ callbackQuery }: ContextMessageUpdate) => {
+      if (!callbackQuery.data) {
+        return;
+      }
+
+      const [route, statName] = callbackQuery.data.split(':');
+
+      if (!stat[statName]) {
+        return { route: 'error' };
+      }
+
+      return {
+        route,
+        state: { statName: parseInt(statName, 10) },
+      };
+    });
+
+    type StatsRouterContextMessageUpdate = ContextMessageUpdate & {
+      state: {
+        statName: stat;
+      };
+    };
+
+    statsRouter.on('addStat', async (context: StatsRouterContextMessageUpdate) => {
+      if (this.bbe.game.character.statPointsAvailable <= 0) {
+        return context.reply('You can\'t add stats: no points available');
+      }
+
+      await this.bbe.request.improveCharacterStat(context.state.statName);
+
+      await handleStats(context);
+    });
+
+    statsRouter.on('error', async ({ reply }: ContextMessageUpdate) => reply('Invalid stat'));
+
+    this.bot.on('callback_query', statsRouter);
   }
 
   async broadcast(message) {
