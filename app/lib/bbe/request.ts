@@ -9,15 +9,17 @@ import { itemType } from './game/types/item';
 import { optionsWeb } from './game/types/options';
 
 import Battle from './game/battle';
+import CollectedWork from './game/work/collected';
 import Constants from './game/constants';
 import Duel from './game/duel';
 import ExtendedConfig from './game/extendedConfig';
 import Friend from './game/friend';
 import Game from './game';
 import Item from './game/item';
+import Movie from './game/movie';
+import MovieQuest from './game/movie/quest';
 import Opponent from './game/duel/opponent';
 import Quest from './game/quest';
-import CollectedWork from "./game/work/collected";
 
 export default class Request {
   readonly baseUrl: string;
@@ -58,6 +60,8 @@ export default class Request {
   static ACTION_CREATE_RESOURCE_REQUEST = 'createResourceRequest';
   static ACTION_RETRIEVE_LEADERBOARD = 'retrieveLeaderboard';
   static ACTION_BUY_QUEST_ENERGY = 'buyQuestEnergy';
+  static ACTION_REFRESH_MOVIE_POOL = 'refreshMoviePool';
+  static ACTION_START_MOVIE = 'startMovie';
 
   static STATUS_CHECK_FOR_QUEST_COMPLETE = ['errFinishInvalidStatus', 'errCheckForQuestCompleteNoActiveQuest', 'errFinishNotYetCompleted'];
 
@@ -369,6 +373,27 @@ export default class Request {
     });
 
     this.game.character.update(character);
+    this.game.user.update(user);
+  }
+
+  async refreshMoviePool(): Promise<void> {
+    const { character, movies, user } = await this.request(Request.ACTION_REFRESH_MOVIE_POOL, {
+      use_premium: false,
+    });
+
+    this.game.character.update(character);
+    this.game.setMovies(movies);
+    this.game.user.update(user);
+  }
+
+  async startMovie(movie: Movie): Promise<void> {
+    const { character, movie: movieAddendum, movie_quests: movieQuests, user } = await this.request(Request.ACTION_START_MOVIE, {
+      movie_id: movie.id,
+    });
+
+    this.game.character.update(character);
+    this.game.movie = movie.update(movieAddendum);
+    this.game.setMovieQuests(movieQuests);
     this.game.user.update(user);
   }
 }

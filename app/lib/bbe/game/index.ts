@@ -10,6 +10,8 @@ import CurrentGoal, { currentGoalRaw } from './goal/current';
 
 import DataObject from './utils/dataObject';
 import Item, { itemRaw } from './item';
+import Movie, { movieRaw } from './movie';
+import MovieQuest, { movieQuestRaw } from './movie/quest';
 
 export type gameRaw = {
   saved_seconds: number,
@@ -66,7 +68,7 @@ export type gameRaw = {
   herobook_objectives: object[], // HerobookObjective[]
   pending_guild_battle_attack: object, // GuildBattle
   pending_guild_battle_defense: object, // GuildBattle
-  movie: object, // Movie
+  movie: movieRaw,
   dungeon_level: object, // DungeonLevel
   dungeon_levels: object[], // DungeonLevel[]
   dungeon_quest: object, // DungeonQuest
@@ -138,11 +140,11 @@ export type gameRaw = {
   messages_ignored_character_info: object,
   messages_sent_count: number,
   messages_received_count: number,
-  movie_quests: object[], // MovieQuest[]
+  movie_quests: movieQuestRaw[], // MovieQuest[]
   movie_history: object[], // MovieHistory[]
   movies_count: number,
-  movies: object[], // Movie[]
-  movie_quest: object, // MovieQuest
+  movies: movieRaw[], // Movie[]
+  movie_quest: movieQuestRaw, // MovieQuest
   movie_battle: object, // Battle
   movies_to_select: object[], // Movie[]
   selected_movie: object, // Movie
@@ -258,7 +260,7 @@ export default class Game extends DataObject<gameRaw> {
   public herobookObjectives: object[]; // HerobookObjective[]
   public pendingGuildBattleAttack: object; // GuildBattle
   public pendingGuildBattleDefense: object; // GuildBattle
-  public movie: object; // Movie
+  public movie: Movie;
   public dungeonLevel: object; // DungeonLevel
   public dungeonLevels: object[]; // DungeonLevel[]
   public dungeonQuest: object; // DungeonQuest
@@ -330,11 +332,11 @@ export default class Game extends DataObject<gameRaw> {
   public messagesIgnoredCharacterInfo: object;
   public messagesSentCount: number;
   public messagesReceivedCount: number;
-  public movieQuests: object[]; // MovieQuest[]
+  public movieQuests: MovieQuest[];
   public movieHistory: object[]; // MovieHistory[]
   public moviesCount: number;
-  public movies: object[]; // Movie[]
-  public movieQuest: object; // MovieQuest
+  public movies: Movie[]; // Movie[]
+  public movieQuest: MovieQuest;
   public movieBattle: object; // Battle
   public moviesToSelect: object[]; // Movie[]
   public selectedMovie: object; // Movie
@@ -466,5 +468,21 @@ export default class Game extends DataObject<gameRaw> {
 
   getItem(itemId: number): Item {
     return this.items.find(item => item.id === itemId);
+  }
+
+  setMovie(movie: movieRaw) {
+    this.movie = new Movie(movie);
+  }
+
+  setMovies(movies: movieRaw[]) {
+    this.movies = movies.map(movie => new Movie(movie));
+  }
+
+  setMovieQuest(movieQuest: movieQuestRaw) {
+    this.movieQuest = new MovieQuest(movieQuest);
+  }
+
+  setMovieQuests(movieQuests: movieQuestRaw[]) {
+    this.movieQuests = movieQuests.map(movieQuest => new MovieQuest(movieQuest));
   }
 }

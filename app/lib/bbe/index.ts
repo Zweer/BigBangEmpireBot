@@ -135,6 +135,9 @@ export default class BigBangEmpireBot {
     await this.handleDuel();
     await this.handleMissedDuels();
 
+    await this.handleMovieRefresh();
+    await this.handleMovieChoice();
+
     await this.handleBuyEnergy();
 
     await this.handleCurrentQuest();
@@ -302,6 +305,28 @@ export default class BigBangEmpireBot {
     }
 
     await this.request.getMissedDuelsNew();
+  }
+
+  async handleMovieRefresh() {
+    if (this.game.movie) {
+      return;
+    }
+
+    await this.request.refreshMoviePool();
+  }
+
+  async handleMovieChoice() {
+    if (this.game.movie && !(this.game.movies && this.game.movies.length)) {
+      return;
+    }
+
+    this.log.debug('Choosing the next movie');
+
+    const movie = this.game.movies
+      .sort((a, b) => b.fans - a.fans)
+      .find(m => !!m);
+
+    await this.request.startMovie(movie);
   }
 
   async handleBuyEnergy() {

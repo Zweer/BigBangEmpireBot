@@ -5,7 +5,7 @@ export default abstract class DataObject<DataType> {
     this.update(data);
   }
 
-  update(data: DataType | DataObject<DataType>) {
+  update(data: DataType | DataObject<DataType>): this {
     if (!data) {
       return;
     }
@@ -17,5 +17,7 @@ export default abstract class DataObject<DataType> {
 
       this[setter] ? this[setter](value) : this[property] = value;
     });
+
+    return this;
   }
 }
