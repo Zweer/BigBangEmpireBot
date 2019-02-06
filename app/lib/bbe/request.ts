@@ -444,9 +444,11 @@ export default class Request {
   }
 
   async finishMovie() {
-    const response = await this.request(Request.ACTION_FINISH_MOVIE);
+    const { character, movie, user } = await this.request(Request.ACTION_FINISH_MOVIE);
 
-    console.log(response);
+    this.game.character.update(character);
+    this.game.movie.update(movie),
+    this.game.user.update(user);
   }
 
   async getMoviesToVote(): Promise<{ movies: VotableMovie[], reward: Reward }> {
@@ -474,10 +476,12 @@ export default class Request {
   }
 
   async extendMovieTime() {
-    const response = await this.request(Request.ACTION_EXTEND_MOVIE_TIME, {
+    const { character, movie, user } = await this.request(Request.ACTION_EXTEND_MOVIE_TIME, {
       use_premium: false,
     });
 
-    console.log(response);
+    this.game.character.update(character);
+    this.game.movie.update(movie);
+    this.game.user.update(user);
   }
 }

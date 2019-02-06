@@ -2,6 +2,7 @@ import * as config from 'config';
 import * as moment from 'moment';
 import * as numeral from 'numeral';
 import * as winston from 'winston';
+
 import {questStatus, questType} from './game/abstracts/quest';
 
 import {resource} from './game/types/common';
@@ -11,14 +12,13 @@ import Game from './game';
 import Constants from './game/constants';
 import ExtendedConfig from './game/extendedConfig';
 import Friend from './game/friend';
-import MovieQuest from './game/movie/quest';
+import {movieStatus} from './game/movie';
 import Opponent from './game/duel/opponent';
 import Quest from './game/quest';
 
 import Request from './request';
 import RequestWeb from './requestWeb';
 import TelegramBot, {TelegramBotLogger} from './telegram';
-import {movieStatus} from "./game/movie";
 
 // @ts-ignore
 Promise.serial = async function resolveSerial(promises: Promise<any>[]): Promise<any[]> {
@@ -343,7 +343,11 @@ export default class BigBangEmpireBot {
   }
 
   async handleMovieRefresh() {
-    if (this.game.movie) {
+    if (this.game.movie && (this.game.movie.status === movieStatus.FINISHED || this.game.movie.status === movieStatus.COMPLETED)) {
+      return;
+    }
+
+    if (this.game.character.tsLastMovieFinished.isAfter(moment().subtract(1, 'hour'))) {
       return;
     }
 
@@ -351,7 +355,7 @@ export default class BigBangEmpireBot {
   }
 
   async handleMovieChoice() {
-    if (this.game.movie && !(this.game.movies && this.game.movies.length)) {
+    if (this.game.movie || !(this.game.movies && this.game.movies.length)) {
       return;
     }
 

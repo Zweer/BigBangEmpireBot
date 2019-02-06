@@ -304,7 +304,7 @@ export default class Character extends DataObject<characterRaw> {
   movieId: number;
   movies: number;
   fans: number;
-  tsLastMovieFinished: number;
+  tsLastMovieFinished: moment.Moment;
   moviesStartedToday: number;
   movieVotes: number;
   selectedMovieId: number;
@@ -343,5 +343,9 @@ export default class Character extends DataObject<characterRaw> {
 
   setTsLastWorkCollection(tsLastWorkCollection: number) {
     this.tsLastWorkCollection = moment(tsLastWorkCollection, 'X');
+  }
+
+  setTsLastMovieFinished(tsLastMovieFinished: number) {
+    this.tsLastMovieFinished = moment(tsLastMovieFinished, 'X');
   }
 }
