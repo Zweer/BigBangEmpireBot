@@ -51,13 +51,13 @@ export default class BigBangEmpireBot {
     },
   };
 
-  private options: optionsConfig;
+  readonly options: optionsConfig;
   private optionsWeb: optionsWeb;
 
-  private request: Request;
-  private requestWeb: RequestWeb;
-  private bot: TelegramBot;
-  private log: winston.Logger;
+  readonly request: Request;
+  readonly requestWeb: RequestWeb;
+  readonly bot: TelegramBot;
+  readonly log: winston.Logger;
 
   static BASE_URL: string = 'https://{SERVER}.bigbangempire.com';
 
