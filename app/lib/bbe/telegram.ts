@@ -1,4 +1,4 @@
-import { camelCase, upperFirst } from 'lodash';
+import { camelCase, flatten, upperFirst } from 'lodash';
 import * as config from 'config';
 import * as numeral from 'numeral';
 import Telegraf, { ContextMessageUpdate, Markup } from 'telegraf';
@@ -113,9 +113,9 @@ export default class TelegramBot {
       messsageArr.push(`- Weapon: ${this.bbe.game.character.statWeaponDamage}`);
 
       const extra = Markup
-        .inlineKeyboard(Object.keys(stat)
+        .inlineKeyboard(flatten(Object.keys(stat)
           .filter(s => parseInt(s, 10))
-          .map(s => Markup.callbackButton(`+ ${upperFirst(camelCase(stat[s]))}`, `addStat:${s}`)), { columns: 1 })
+          .map(s => [1, 10].map(i => Markup.callbackButton(`+ ${upperFirst(camelCase(stat[s]))} (${i})`, `addStat:${s}:${i}`)))), { columns: 2 })
         // @ts-ignore
         .extra();
 
@@ -129,7 +129,7 @@ export default class TelegramBot {
         return;
       }
 
-      const [route, statName] = callbackQuery.data.split(':');
+      const [route, statName, value] = callbackQuery.data.split(':');
 
       if (!stat[statName]) {
         return { route: 'error' };
@@ -137,22 +137,26 @@ export default class TelegramBot {
 
       return {
         route,
-        state: { statName: parseInt(statName, 10) },
+        state: {
+          statName: parseInt(statName, 10),
+          value: parseInt(value, 10),
+        },
       };
     });
 
     type StatsRouterContextMessageUpdate = ContextMessageUpdate & {
       state: {
         statName: stat;
+        value: number;
       };
     };
 
     statsRouter.on('addStat', async (context: StatsRouterContextMessageUpdate) => {
-      if (this.bbe.game.character.statPointsAvailable <= 0) {
+      if (this.bbe.game.character.statPointsAvailable < context.state.value) {
         return context.reply('You can\'t add stats: no points available');
       }
 
-      await this.bbe.request.improveCharacterStat(context.state.statName);
+      await this.bbe.request.improveCharacterStat(context.state.statName, context.state.value);
 
       await handleStats(context);
     });
