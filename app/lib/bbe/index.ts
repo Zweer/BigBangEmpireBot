@@ -25,7 +25,7 @@ import Quest, { questStatus } from './game/quest';
 
 import Request from './request';
 import RequestWeb from './requestWeb';
-import TelegramBot from './telegram';
+import TelegramBot, { TelegramBotLogger } from './telegram';
 
 export default class BigBangEmpireBot {
   readonly game: Game;
@@ -76,7 +76,13 @@ export default class BigBangEmpireBot {
         winston.format.timestamp(),
         winston.format.printf(info => `${info.timestamp} [${info.level}] ${info.message}`),
       ),
-      transports: [new winston.transports.Console()],
+      transports: [
+        new winston.transports.Console(),
+        new TelegramBotLogger({
+          bot: this.bot,
+          level: 'info',
+        }),
+      ],
     });
   }
 

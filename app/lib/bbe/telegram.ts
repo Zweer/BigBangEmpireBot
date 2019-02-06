@@ -1,16 +1,49 @@
 import * as config from 'config';
 import * as numeral from 'numeral';
 import Telegraf, { ContextMessageUpdate } from 'telegraf';
+import * as Transport from 'winston-transport';
 
 import BigBangEmpireBot from '.';
 
 import { optionsTelegramBot } from './game/types/options';
+
+export class TelegramBotLogger extends Transport {
+  private bot: TelegramBot;
+
+  static LOG_LEVELS = {
+    error: '☠️️',
+    warn: '⚠️️',
+    info: 'ℹ️️',
+    verbose: '💬',
+    debug: '🐞',
+    silly: '👻',
+  };
+
+  constructor(options) {
+    super(options);
+
+    this.bot = options.bot;
+  }
+
+  async log(info, callback) {
+    setImmediate(() => this.emit('logged', info));
+
+    await this.bot.broadcast(`${TelegramBotLogger.LOG_LEVELS[info.level]} ${info.message}`);
+
+    callback();
+  }
+}
 
 export default class TelegramBot {
   private bot: Telegraf<ContextMessageUpdate>;
   private users: number[] = [];
 
   constructor(private bbe: BigBangEmpireBot, private options: optionsTelegramBot = config.get('telegram')) {
+    // @ts-ignore
+    if (this.options.has('self')) {
+      this.users.push(this.options.self);
+    }
+
     this.bot = new Telegraf(this.options.token);
     this.bot.startPolling();
 
@@ -62,5 +95,9 @@ export default class TelegramBot {
 
       await reply(messageArr.join('\n'));
     });
+  }
+
+  async broadcast(message) {
+    await Promise.all(this.users.map(async user => this.bot.telegram.sendMessage(user, message)));
   }
 }

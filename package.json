@@ -26,7 +26,8 @@
     "request": "^2.74.0",
     "request-promise": "^4.1.1",
     "telegraf": "^3.27.0",
-    "winston": "^3.1.0"
+    "winston": "^3.1.0",
+    "winston-transport": "^4.3.0"
   },
   "devDependencies": {
     "@types/node": "^10.12.18",
