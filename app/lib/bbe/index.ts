@@ -35,6 +35,7 @@ export default class BigBangEmpireBot {
   private friends: Friend[];
 
   private level: number = 0;
+  private statPointAvailable: number = 0;
   private canDuel: boolean = true;
   private alertMissiles: boolean = true;
   public rank = {
@@ -233,7 +234,11 @@ export default class BigBangEmpireBot {
       return;
     }
 
-    this.log.info(`You have stat points available: ${this.game.character.statPointsAvailable}`);
+    if (this.statPointAvailable !== this.game.character.statPointsAvailable) {
+      this.log.info(`You have stat points available: ${this.game.character.statPointsAvailable}`);
+    }
+
+    this.statPointAvailable = this.game.character.statPointsAvailable;
 
     // TODO: telegram select
     // TODO: auto
