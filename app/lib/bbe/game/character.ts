@@ -286,7 +286,7 @@ export default class Character extends AbstractCharacter<characterRaw> {
   tsLastDailyLoginBonus: number;
   dailyLoginBonusDay: number;
   pendingTournamentRewards: number;
-  tsLastShopRefresh: number;
+  tsLastShopRefresh: moment.Moment;
   maxFreeShopRefreshes: number;
   shopRefreshes: number;
   movieEnergy: number;
@@ -339,5 +339,13 @@ export default class Character extends AbstractCharacter<characterRaw> {
 
   setTsLastMovieFinished(tsLastMovieFinished: number) {
     this.tsLastMovieFinished = moment(tsLastMovieFinished, 'X');
+  }
+
+  setTsLastShopRefresh(tsLastShopRefresh: number) {
+    this.tsLastShopRefresh = moment(tsLastShopRefresh, 'X');
+  }
+
+  get hasRefreshedShopToday() {
+    return this.tsLastShopRefresh.isSame(moment(), 'day');
   }
 }

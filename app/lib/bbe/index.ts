@@ -19,6 +19,7 @@ import Quest from './game/quest';
 import Request from './request';
 import RequestWeb from './requestWeb';
 import TelegramBot, {TelegramBotLogger} from './telegram';
+import {itemType} from "./game/types/item";
 
 // @ts-ignore
 Promise.serial = async function resolveSerial(promises: Promise<any>[]): Promise<any[]> {
@@ -54,6 +55,7 @@ export default class BigBangEmpireBot {
       fans: 0,
     },
   };
+  private notifiedItems: number[] = [];
 
   readonly options: optionsConfig;
   private optionsWeb: optionsWeb;
@@ -129,36 +131,43 @@ export default class BigBangEmpireBot {
   }
 
   async playRound() {
-    await this.syncGame();
+    try {
+      await this.syncGame();
 
-    this.handleNewLevel();
-    this.handleInventoryBasic();
-    await this.handleInventoryAdvanced();
-    await this.handleStatPointAvailable();
+      this.handleNewLevel();
+      this.handleInventoryBasic();
+      await this.handleInventoryAdvanced();
+      await this.handleRefreshShop();
+      await this.handleInventoryShop();
+      await this.handleStatPointAvailable();
 
-    await this.handleDuel();
-    await this.handleMissedDuels();
+      await this.handleDuel();
+      await this.handleMissedDuels();
 
-    await this.handleCurrentMovieQuest();
-    await this.handleMovieVotes();
-    await this.handleMovieRefresh();
-    await this.handleMovieChoice();
-    await this.handleMovie();
-    await this.handleMovieStar();
+      await this.handleCurrentMovieQuest();
+      await this.handleMovieVotes();
+      await this.handleMovieRefresh();
+      await this.handleMovieChoice();
+      await this.handleMovie();
+      await this.handleMovieStar();
 
-    await this.handleBuyEnergy();
+      await this.handleBuyEnergy();
 
-    await this.handleCurrentQuest();
-    await this.handleStartQuest();
+      await this.handleCurrentQuest();
+      await this.handleStartQuest();
 
-    await this.handleCollectWork();
+      await this.handleCollectWork();
 
-    await this.handleMessages();
-    await this.handleResourceRequests();
+      await this.handleMessages();
+      await this.handleResourceRequests();
 
-    await this.handleCompleteGoals();
+      await this.handleCompleteGoals();
 
-    await this.handleRankRetrieval();
+      await this.handleRankRetrieval();
+    } catch (err) {
+      this.log.error(err);
+      this.log.debug(err.stack);
+    }
 
     setTimeout(() => this.playRound(), this.options.delaySyncTime);
   }
@@ -218,11 +227,17 @@ export default class BigBangEmpireBot {
         const equippedItemId = this.game.inventory.getItemBySlot(item.type);
 
         if (!equippedItemId) {
-          this.log.verbose(`Moving item: ${item.slot} (empty slot)`);
+          if (item.isOutfitItem) {
+            this.log.verbose(`Moving item: ${item.slot} (empty slot)`);
 
-          modified = true;
+            modified = true;
 
-          return this.request.moveInventoryItem(item.id, item.type);
+            return this.request.moveInventoryItem(item.id, item.type);
+          }
+
+          if (item.isUsable) {
+            return this.request.useInventoryItem(item);
+          }
         }
 
         const equippedItem = this.game.getItem(equippedItemId);
@@ -246,6 +261,60 @@ export default class BigBangEmpireBot {
     } while (modified);
   }
 
+  async handleRefreshShop() {
+    if (!this.game.character.hasRefreshedShopToday) {
+      await this.request.refreshShopItems();
+    }
+  }
+
+  async handleInventoryShop() {
+    await Promise.all(this.game.inventory.shopItemsId.map(async (shopItemId) => {
+      if (!shopItemId) {
+        return;
+      }
+
+      const item = this.game.getItem(shopItemId);
+      const equippedItemId = this.game.inventory.getItemBySlot(item.slot);
+      const equippedItem = equippedItemId && this.game.getItem(equippedItemId);
+
+      const isUnequipped = !equippedItem;
+      const isBetter = equippedItem && item.statTotal > equippedItem.statTotal;
+      const isMissiles = item.type === itemType.MISSILES;
+
+      if (isUnequipped || isBetter || isMissiles) {
+        const messages = [];
+        messages.push(`- ${item.slot}`);
+        messages.push(`- ${item.buyPrice} ${item.premiumItem ? 'diamonds' : 'coins'}`);
+
+        if (isUnequipped) {
+          messages.push('- You don\'t have this slot equipped');
+        }
+
+        if (isBetter) {
+          messages.push(`- It's ${item.statTotal - equippedItem.statTotal} points better`);
+        }
+
+        if (isMissiles) {
+          messages.push('- It\'s missiles');
+        }
+
+        if (item.premiumItem) {
+          if (this.notifiedItems.includes(item.id)) {
+            return;
+          }
+
+          this.notifiedItems.push(item.id);
+
+          return this.bot.askForItemPurchase(item, messages, this.game.inventory);
+        }
+
+        this.log.info(['You are buying an item:', ...messages].join('\n'));
+
+        return this.request.buyShopItem(item, this.game.inventory.firstAvailableSlot);
+      }
+    }));
+  }
+
   async handleStatPointAvailable() {
     if (!this.game.character.statPointsAvailable) {
       return;
@@ -256,9 +325,6 @@ export default class BigBangEmpireBot {
     }
 
     this.statPointAvailable = this.game.character.statPointsAvailable;
-
-    // TODO: telegram select
-    // TODO: auto
   }
 
   async handleDuel() {

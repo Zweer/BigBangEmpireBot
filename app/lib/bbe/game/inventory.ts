@@ -131,9 +131,15 @@ export default class Inventory extends DataObject<inventoryRaw> {
     ];
   }
 
-  getItemBySlot(slot: string | number) {
+  getItemBySlot(slot: string | number): number {
     const slotName = typeof slot === 'number' ? camelCase(itemType[slot]) : slot;
 
     return this[`${slotName}ItemId`];
+  }
+
+  get firstAvailableSlot(): number {
+    const firstEmptyIndex = this.bagItemsId.findIndex(bagItemId => !bagItemId);
+
+    return 20 + firstEmptyIndex;
   }
 }

@@ -1,5 +1,5 @@
 import { createHash } from 'crypto';
-import { mapValues } from 'lodash';
+import { mapValues, merge } from 'lodash';
 import * as moment from 'moment';
 import * as request from 'request-promise';
 
@@ -24,8 +24,8 @@ import Opponent from './game/duel/opponent';
 import Quest from './game/quest';
 import Reward from './game/reward';
 import VotableMovie from './game/movie/votable';
-import MessageCharacter from "./game/mailbox/character";
-import Message from "./game/mailbox/message";
+import MessageCharacter from './game/mailbox/character';
+import Message from './game/mailbox/message';
 
 export default class Request {
   readonly baseUrl: string;
@@ -503,6 +503,50 @@ export default class Request {
     const response = await this.request('startNewDatingStep', {
       dating_index: datingIndex,
       step_index: stepIndex,
+    });
+
+    console.log(response);
+  }
+
+  async getGuildLog() {
+    const response = await this.request('getGuildLog');
+
+    console.log(response);
+  }
+
+  async joinGuildBattle() {
+    const response = await this.request('joinGuildBattle', {
+      attack: true,
+    });
+
+    console.log(response);
+  }
+
+  async buyShopItem(item: Item | number, targetSlot: number): Promise<void> {
+    const itemId = item instanceof Item ? item.id : item;
+
+    const { inventory, current_item_pattern_values: currentItemPatternValues } = await this.request('buyShopItem', {
+      item_id: itemId,
+      target_slot: targetSlot,
+    });
+
+    this.game.inventory.update(inventory);
+    merge(this.game.currentItemPatternValues, currentItemPatternValues);
+  }
+
+  async refreshShopItems(usePremium = false) {
+    const response = await this.request('refreshShopItems', {
+      use_premium: usePremium,
+    });
+
+    console.log(response);
+  }
+
+  async useInventoryItem(item: Item | number) {
+    const itemId = item instanceof Item ? item.id : item;
+
+    const response = await this.request('useInventoryItem', {
+      item_id: itemId,
     });
 
     console.log(response);

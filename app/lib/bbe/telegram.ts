@@ -9,6 +9,8 @@ import BigBangEmpireBot from '.';
 import {stat} from './game/types/common';
 import {optionsTelegramBot} from './game/types/options';
 import {messageFlag} from "./game/mailbox/message";
+import Item from "./game/item";
+import Inventory from "./game/inventory";
 
 export class TelegramBotLogger extends Transport {
   private bot: TelegramBot;
@@ -31,7 +33,7 @@ export class TelegramBotLogger extends Transport {
   async log(info, callback) {
     setImmediate(() => this.emit('logged', info));
 
-    await this.bot.broadcast(`${TelegramBotLogger.LOG_LEVELS[info.level]} ${info.message}`);
+    await this.bot.broadcastMessage(`${TelegramBotLogger.LOG_LEVELS[info.level]} ${info.message}`);
 
     callback();
   }
@@ -69,6 +71,7 @@ export default class TelegramBot {
     this.initRouteProfile();
     this.initRouteStats();
     this.initRouteMailbox();
+    this.initRouteItems();
   }
 
   initRouteStart() {
@@ -213,7 +216,36 @@ export default class TelegramBot {
     });
   }
 
-  async broadcast(message) {
-    await Promise.all(this.users.map(async user => this.bot.telegram.sendMessage(user, message)));
+  initRouteItems() {
+    // @ts-ignore
+    this.bot.action(/items:buy:(?<itemId>\d+):(?<targetSlot>\d+)/, async (context: ContextMessageUpdate) => {
+      // @ts-ignore
+      const { groups: { itemId, targetSlot } } = context.match;
+
+      await this.bbe.request.buyShopItem(parseInt(itemId, 10), parseInt(targetSlot, 10));
+
+      await context.reply('Item bought!');
+    });
+  }
+
+  async broadcast(mapFunction) {
+    return Promise.all(this.users.map(user => mapFunction(user)));
+  }
+
+  async broadcastMessage(message: string, extra = {}) {
+    return this.broadcast(user => this.bot.telegram.sendMessage(user, message, extra));
+  }
+
+  async askForItemPurchase(item: Item, messages: string[], inventory: Inventory) {
+    const messageArr = [];
+    messageArr.push('There\'s an interesting item in the shop:');
+    messageArr.push(...messages);
+
+    const extra = Markup
+      .inlineKeyboard([Markup.callbackButton('Buy', `items:buy:${item.id}:${inventory.firstAvailableSlot}`)])
+      // @ts-ignore
+      .extra();
+
+    return this.broadcastMessage(messageArr.join('\n'), extra);
   }
 }
