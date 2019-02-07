@@ -68,6 +68,7 @@ export default class TelegramBot {
     this.initRouteStart();
     this.initRouteProfile();
     this.initRouteStats();
+    this.initRouteMailbox();
   }
 
   initRouteStart() {
@@ -115,7 +116,7 @@ export default class TelegramBot {
       const extra = Markup
         .inlineKeyboard(flatten(Object.keys(stat)
           .filter(s => parseInt(s, 10))
-          .map(s => [1, 10].map(i => Markup.callbackButton(`+ ${upperFirst(camelCase(stat[s]))} (${i})`, `addStat:${s}:${i}`)))), { columns: 2 })
+          .map(s => [1, 10].map(i => Markup.callbackButton(`+ ${upperFirst(camelCase(stat[s]))} (${i})`, `stats:add:${s}:${i}`)))), { columns: 2 })
         // @ts-ignore
         .extra();
 
@@ -124,46 +125,77 @@ export default class TelegramBot {
 
     this.bot.command('stats', ctx => handleStats(ctx));
 
-    const statsRouter = new Router(({ callbackQuery }: ContextMessageUpdate) => {
-      if (!callbackQuery.data) {
-        return;
+    // @ts-ignore
+    this.bot.action(/stats:add:(?<statNameStr>\w+):(?<valueStr>\d+)/, async (context: ContextMessageUpdate) => {
+      // @ts-ignore
+      const { groups: { statNameStr, valueStr } } = context.match;
+
+      if (!stat[statNameStr]) {
+        return context.reply('Invalid stat');
       }
 
-      const [route, statName, value] = callbackQuery.data.split(':');
+      const statName = parseInt(statNameStr, 10);
+      const value = parseInt(valueStr, 10);
 
-      if (!stat[statName]) {
-        return { route: 'error' };
-      }
-
-      return {
-        route,
-        state: {
-          statName: parseInt(statName, 10),
-          value: parseInt(value, 10),
-        },
-      };
-    });
-
-    type StatsRouterContextMessageUpdate = ContextMessageUpdate & {
-      state: {
-        statName: stat;
-        value: number;
-      };
-    };
-
-    statsRouter.on('addStat', async (context: StatsRouterContextMessageUpdate) => {
-      if (this.bbe.game.character.statPointsAvailable < context.state.value) {
+      if (this.bbe.game.character.statPointsAvailable < value) {
         return context.reply('You can\'t add stats: no points available');
       }
 
-      await this.bbe.request.improveCharacterStat(context.state.statName, context.state.value);
+      await this.bbe.request.improveCharacterStat(statName, value);
 
       await handleStats(context);
     });
+  }
 
-    statsRouter.on('error', async ({ reply }: ContextMessageUpdate) => reply('Invalid stat'));
+  initRouteMailbox() {
+    this.bot.command('messages', async ({ reply }: ContextMessageUpdate) => {
+      const messages = await this.bbe.request.getMessageList();
 
-    this.bot.on('callback_query', statsRouter);
+      const messageArr = [];
+      messageArr.push(`You have ${this.bbe.game.newMessages} new message[s]`);
+
+      const extra = Markup
+        .inlineKeyboard(messages.map(m => Markup.callbackButton(`${m.subject} (${m.sender})`, `messages:read:${m.id}`)))
+        // @ts-ignore
+        .extra();
+
+      await reply(messageArr.join('\n'), extra);
+    });
+
+    // @ts-ignore
+    this.bot.action(/messages:read:(?<messageId>\d+)/, async (context: ContextMessageUpdate) => {
+      // @ts-ignore
+      const { groups: { messageId } } = context.match;
+
+      const message = await this.bbe.request.getMessage(messageId as number);
+
+      const messageArr = [];
+      messageArr.push(`From: ${message.sender}`);
+      messageArr.push(`Subject: ${message.subject}`);
+      messageArr.push(`Date: ${message.tsCreation.format('YYYY-MM-DD HH:mm')}`);
+      messageArr.push();
+      messageArr.push(message.message);
+
+      const extra = Markup
+        .inlineKeyboard([
+          Markup.callbackButton('Delete', `messages:delete:${messageId}`),
+          Markup.callbackButton('Reply', `messages:reply:${messageId}`),
+        ], { columns: 2 })
+        // @ts-ignore
+        .extra();
+
+      await context.reply(messageArr.join('\n'), extra);
+    });
+
+    // @ts-ignore
+    this.bot.action(/messages:delete:(?<messageId>\d+)/, async (context: ContextMessageUpdate) => {
+      // @ts-ignore
+      const { groups: { messageId } } = context.match;
+
+      await this.bbe.request.deleteMessage(messageId);
+
+      await context.reply('Message deleted');
+    });
   }
 
   async broadcast(message) {

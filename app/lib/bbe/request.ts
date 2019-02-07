@@ -78,6 +78,8 @@ export default class Request {
   static ACTION_EXTEND_MOVIE_TIME = 'extendMovieTime';
   static ACTION_IMPROVE_CHARACTER_STAT = 'improveCharacterStat';
   static ACTION_GET_MESSAGE_LIST = 'getMessageList';
+  static ACTION_GET_MESSAGE = 'getMessage';
+  static ACTION_DELETE_MESSAGES = 'deleteMessages';
 
   static STATUS_CHECK_FOR_QUEST_COMPLETE = ['errFinishInvalidStatus', 'errCheckForQuestCompleteNoActiveQuest', 'errFinishNotYetCompleted'];
 
@@ -461,5 +463,29 @@ export default class Request {
     const messageCharacters = mapValues(messageCharactersInfo, (m => new MessageCharacter(m)));
 
     return messages.map(m => new Message(m, messageCharacters));
+  }
+
+  async getMessage(message: number | Message): Promise<Message> {
+    const messageId = message instanceof Message ? message.id : message;
+
+    const { message: completeMessage, messages_character_info: messageCharactersInfo } = await this.request(Request.ACTION_GET_MESSAGE, {
+      message_id: messageId,
+    });
+
+    const messageCharacters = mapValues(messageCharactersInfo, (m => new MessageCharacter(m)));
+
+    return new Message(completeMessage, messageCharacters);
+  }
+
+  async deleteMessage(message: number | Message): Promise<void> {
+    return this.deleteMessages([message]);
+  }
+
+  async deleteMessages(messages: (number | Message)[]): Promise<void> {
+    const messagesId = messages.map(message => message instanceof Message ? message.id : message);
+
+    await this.request(Request.ACTION_DELETE_MESSAGES, {
+      message_ids: messagesId.join(','),
+    });
   }
 }

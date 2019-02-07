@@ -343,7 +343,7 @@ export default class BigBangEmpireBot {
   }
 
   async handleMovieRefresh() {
-    if (this.game.movie && !(this.game.movie.status === movieStatus.FINISHED || this.game.movie.status === movieStatus.COMPLETED)) {
+    if (this.game.movie && this.game.movie.status !== movieStatus.FINISHED) {
       return;
     }
 
