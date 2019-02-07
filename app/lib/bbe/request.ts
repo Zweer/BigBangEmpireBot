@@ -488,4 +488,23 @@ export default class Request {
       message_ids: messagesId.join(','),
     });
   }
+
+  async claimDatingStepReward(datingIndex: number, stepIndex: number) {
+    const response = await this.request('claimDatingStepReward', {
+      dating_index: datingIndex,
+      step_index: stepIndex,
+      discard_item: false,
+    });
+
+    console.log(response);
+  }
+
+  async startNewDatingStep(datingIndex: number, stepIndex: number) {
+    const response = await this.request('startNewDatingStep', {
+      dating_index: datingIndex,
+      step_index: stepIndex,
+    });
+
+    console.log(response);
+  }
 }

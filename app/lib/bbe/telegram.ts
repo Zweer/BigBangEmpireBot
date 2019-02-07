@@ -1,14 +1,14 @@
-import { camelCase, flatten, upperFirst } from 'lodash';
+import {camelCase, flatten, upperFirst} from 'lodash';
 import * as config from 'config';
 import * as numeral from 'numeral';
-import Telegraf, { ContextMessageUpdate, Markup } from 'telegraf';
-import * as Router from 'telegraf/router';
+import Telegraf, {ContextMessageUpdate, Markup} from 'telegraf';
 import * as Transport from 'winston-transport';
 
 import BigBangEmpireBot from '.';
 
-import { stat } from './game/types/common';
-import { optionsTelegramBot } from './game/types/options';
+import {stat} from './game/types/common';
+import {optionsTelegramBot} from './game/types/options';
+import {messageFlag} from "./game/mailbox/message";
 
 export class TelegramBotLogger extends Transport {
   private bot: TelegramBot;
@@ -176,11 +176,26 @@ export default class TelegramBot {
       messageArr.push();
       messageArr.push(message.message);
 
+      const buttons = [];
+
+      switch (message.flag) {
+        case messageFlag.NOTHING:
+          buttons.push(Markup.callbackButton('Delete', `messages:delete:${messageId}`));
+          buttons.push(Markup.callbackButton('Reply', `messages:reply:${messageId}`));
+          break;
+
+        case messageFlag.GUILD_INVITATION:
+          buttons.push(Markup.callbackButton('Join', `guilds:join:${message.flagValue}`));
+          buttons.push(Markup.callbackButton('Decline', `guilds:decline:${message.flagValue}`));
+          break;
+
+        default:
+          this.bbe.log.error(`Unhandled message flag: ${message.flag} - ${message.flagValue}`);
+          break;
+      }
+
       const extra = Markup
-        .inlineKeyboard([
-          Markup.callbackButton('Delete', `messages:delete:${messageId}`),
-          Markup.callbackButton('Reply', `messages:reply:${messageId}`),
-        ], { columns: 2 })
+        .inlineKeyboard(buttons, { columns: 2 })
         // @ts-ignore
         .extra();
 

@@ -16,6 +16,7 @@ export type messageRaw = {
 };
 
 export enum messageFlag {
+  NOTHING = '',
   TEAM_MAIL = 'team_mail',
   GUILD_INVITATION = 'guild_invitation',
   GUILD_APPLICATION = 'guild_application',
