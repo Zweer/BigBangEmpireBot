@@ -58,7 +58,7 @@ export default class TelegramBot {
 
   initRoutes() {
     this.bot.use(async ({ reply }: ContextMessageUpdate, next) => {
-      if (typeof this.bbe.game === 'undefined') {
+      if (typeof this.bbe.game.character === 'undefined') {
         await reply('BBE not yet initialized. Please retry in seconds');
 
         return;
@@ -98,7 +98,7 @@ export default class TelegramBot {
 
       if (this.bbe.game.movie) {
         messageArr.push('--------------------');
-        messageArr.push(`- movie: ${this.bbe.game.movie.energy / this.bbe.game.movie.neededEnergy}`);
+        messageArr.push(`- movie: ${numeral(this.bbe.game.movie.energy / this.bbe.game.movie.neededEnergy).format('0%')}`);
         messageArr.push(`- movie energy: ${this.bbe.game.character.movieEnergy}`);
       }
 

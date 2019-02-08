@@ -241,12 +241,14 @@ export default class Request {
     return new Quest(quest);
   }
 
-  async useResource(resourceType: resource): Promise<void> {
-    const response = await this.request(Request.ACTION_USE_RESOURCES, {
+  async useResource(resourceType: resource): Promise<number> {
+    const { quest, saved_seconds: savedSeconds } = await this.request(Request.ACTION_USE_RESOURCES, {
       feature_type: resourceType,
     });
 
-    console.log(response);
+    this.game.currentQuest.update(quest);
+
+    return savedSeconds;
   }
 
   async collectGoalReward(goalName: string, nextGoalValue: number): Promise<void> {

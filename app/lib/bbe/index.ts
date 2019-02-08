@@ -541,7 +541,9 @@ export default class BigBangEmpireBot {
     currentQuest.update(quest);
 
     if (this.game.character.unusedResources[resource.QUEST_REDUCTION] > 0 && (!this.game.character.usedResources || this.game.character.usedResources[resource.QUEST_REDUCTION] < 4) && currentQuest.energyCost > 8) {
-      await this.request.useResource(resource.QUEST_REDUCTION);
+      const savedSeconds = await this.request.useResource(resource.QUEST_REDUCTION);
+
+      this.log.info(`Quest reduction resource used: ${savedSeconds} seconds saved`);
     }
   }
 
@@ -655,8 +657,8 @@ export default class BigBangEmpireBot {
     const currentQuest = this.game.currentQuest;
     const now = moment();
 
-    if (!currentQuest || currentQuest.tsComplete.isAfter(now)) {
-      return;
+    if (!currentQuest || currentQuest.tsComplete.isBefore(now)) {
+      return 'no quest in progress';
     }
 
     const diff = currentQuest.tsComplete.diff(now, 'seconds');
