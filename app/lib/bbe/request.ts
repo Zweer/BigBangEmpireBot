@@ -534,12 +534,13 @@ export default class Request {
     merge(this.game.currentItemPatternValues, currentItemPatternValues);
   }
 
-  async refreshShopItems(usePremium = false) {
-    const response = await this.request('refreshShopItems', {
+  async refreshShopItems(usePremium = false): Promise<void> {
+    const { inventory, items } = await this.request('refreshShopItems', {
       use_premium: usePremium,
     });
 
-    console.log(response);
+    this.game.inventory.update(inventory);
+    this.game.items.push(...items.map(i => new Item(i)));
   }
 
   async useInventoryItem(item: Item | number) {

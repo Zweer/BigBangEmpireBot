@@ -87,6 +87,6 @@ export default class Movie extends AbstractMovie<movieRaw> {
   }
 
   get isWaitingForFinish() {
-    return this.claimedStars >= 3;
+    return this.claimedStars >= 3 && this.status !== movieStatus.FINISHED;
   }
 }

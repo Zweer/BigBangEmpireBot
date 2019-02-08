@@ -6,6 +6,7 @@ import * as winston from 'winston';
 import {questStatus, questType} from './game/abstracts/quest';
 
 import {resource} from './game/types/common';
+import {itemType} from './game/types/item';
 import {optionsConfig, optionsWeb} from './game/types/options';
 
 import Game from './game';
@@ -19,7 +20,6 @@ import Quest from './game/quest';
 import Request from './request';
 import RequestWeb from './requestWeb';
 import TelegramBot, {TelegramBotLogger} from './telegram';
-import {itemType} from "./game/types/item";
 
 // @ts-ignore
 Promise.serial = async function resolveSerial(promises: Promise<any>[]): Promise<any[]> {
@@ -56,6 +56,7 @@ export default class BigBangEmpireBot {
     },
   };
   private notifiedItems: number[] = [];
+  private refreshShop: boolean = false;
 
   readonly options: optionsConfig;
   private optionsWeb: optionsWeb;
@@ -243,6 +244,10 @@ export default class BigBangEmpireBot {
         const equippedItem = this.game.getItem(equippedItemId);
 
         if (item.statTotal <= equippedItem.statTotal) {
+          if (item.type === itemType.MISSILES) {
+            return;
+          }
+
           this.log.verbose(`Selling item: ${item.slot}\n- my: ${equippedItem.statTotal}\n- bag: ${item.statTotal}`);
 
           return this.request.sellInventoryItem(item.id);
@@ -262,7 +267,9 @@ export default class BigBangEmpireBot {
   }
 
   async handleRefreshShop() {
-    if (!this.game.character.hasRefreshedShopToday) {
+    if (!this.game.character.hasRefreshedShopToday && this.refreshShop) {
+      this.log.info('Refreshing shop');
+
       await this.request.refreshShopItems();
     }
   }
@@ -313,6 +320,8 @@ export default class BigBangEmpireBot {
         return this.request.buyShopItem(item, this.game.inventory.firstAvailableSlot);
       }
     }));
+
+    this.refreshShop = true;
   }
 
   async handleStatPointAvailable() {
@@ -531,7 +540,7 @@ export default class BigBangEmpireBot {
 
     currentQuest.update(quest);
 
-    if (this.game.character.unusedResources[resource.QUEST_REDUCTION] > 0 && this.game.character.usedResources[resource.QUEST_REDUCTION] < 4 && currentQuest.energyCost > 8) {
+    if (this.game.character.unusedResources[resource.QUEST_REDUCTION] > 0 && (!this.game.character.usedResources || this.game.character.usedResources[resource.QUEST_REDUCTION] < 4) && currentQuest.energyCost > 8) {
       await this.request.useResource(resource.QUEST_REDUCTION);
     }
   }

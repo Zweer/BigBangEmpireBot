@@ -31,6 +31,7 @@
   },
   "devDependencies": {
     "@types/node": "^10.12.18",
+    "source-map-support": "^0.5.10",
     "tslint": "^5.12.1",
     "tslint-config-airbnb": "^5.11.1",
     "typescript": "^3.2.4"
