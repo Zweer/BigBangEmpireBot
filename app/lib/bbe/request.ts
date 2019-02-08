@@ -340,9 +340,7 @@ export default class Request {
   }
 
   async acceptAllResourceRequests() {
-    const response = await this.request(Request.ACTION_ACCEPT_ALL_RESOURCE_REQUESTS);
-
-    console.log(response);
+    await this.request(Request.ACTION_ACCEPT_ALL_RESOURCE_REQUESTS);
   }
 
   async getAvailableResourceRequestFriends(featureType = 1): Promise<Friend[]> {

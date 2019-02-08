@@ -3,23 +3,23 @@ import * as moment from 'moment';
 import * as numeral from 'numeral';
 import * as winston from 'winston';
 
-import {questStatus, questType} from './game/abstracts/quest';
+import { questStatus, questType } from './game/abstracts/quest';
 
-import {resource} from './game/types/common';
-import {itemType} from './game/types/item';
-import {optionsConfig, optionsWeb} from './game/types/options';
+import { resource } from './game/types/common';
+import { itemType } from './game/types/item';
+import { optionsConfig, optionsWeb } from './game/types/options';
 
 import Game from './game';
 import Constants from './game/constants';
 import ExtendedConfig from './game/extendedConfig';
 import Friend from './game/friend';
-import {movieStatus} from './game/movie';
+import { movieStatus } from './game/movie';
 import Opponent from './game/duel/opponent';
 import Quest from './game/quest';
 
 import Request from './request';
 import RequestWeb from './requestWeb';
-import TelegramBot, {TelegramBotLogger} from './telegram';
+import TelegramBot, { TelegramBotLogger } from './telegram';
 
 // @ts-ignore
 Promise.serial = async function resolveSerial(promises: Promise<any>[]): Promise<any[]> {
@@ -364,7 +364,7 @@ export default class BigBangEmpireBot {
   async makeDuel(opponent: Opponent) {
     this.log.verbose(`Starting duel with ${opponent.name}`);
 
-    const { battle, duel, item } = await this.request.startDuel(opponent.id);
+    const { battle, duel } = await this.request.startDuel(opponent.id);
 
     const addendum = [''];
 
