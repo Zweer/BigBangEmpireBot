@@ -1,6 +1,5 @@
 import * as config from 'config';
 import * as moment from 'moment';
-import * as numeral from 'numeral';
 import * as winston from 'winston';
 
 import { optionsConfig, optionsWeb } from './game/types/options';
@@ -9,13 +8,13 @@ import Game from './game';
 import Constants from './game/constants';
 import ExtendedConfig from './game/extendedConfig';
 // import Friend from './game/friend';
-import Opponent from './game/duel/opponent';
 
 import Request from './request';
 import RequestWeb from './requestWeb';
 import TelegramBot, { TelegramBotLogger } from './telegram';
 
 import DatingModule from './modules/dating';
+import DuelModule from './modules/duel';
 import InventoryModule from './modules/inventory';
 import MovieModule from './modules/movie';
 import QuestModule from './modules/quest';
@@ -39,8 +38,6 @@ export default class BigBangEmpireBot {
   // private friends: Friend[];
 
   private level: number = 0;
-  private canDuel: boolean = true;
-  private alertMissiles: boolean = true;
   public rank = {
     character: {
       honor: 0,
@@ -61,6 +58,7 @@ export default class BigBangEmpireBot {
   readonly requestWeb: RequestWeb;
 
   readonly dating: DatingModule;
+  readonly duel: DuelModule;
   readonly inventory: InventoryModule;
   readonly movie: MovieModule;
   readonly quest: QuestModule;
@@ -95,6 +93,7 @@ export default class BigBangEmpireBot {
     });
 
     this.dating = new DatingModule(this.game, this.request, this.log, this.bot);
+    this.duel = new DuelModule(this.game, this.request, this.log, this.bot);
     this.inventory = new InventoryModule(this.game, this.request, this.log, this.bot);
     this.movie = new MovieModule(this.game, this.request, this.log, this.bot);
     this.quest = new QuestModule(this.game, this.request, this.log, this.bot);
@@ -145,10 +144,6 @@ export default class BigBangEmpireBot {
       await this.handleVoucher();
 
       this.handleNewLevel();
-      this.handleInventoryFlags();
-
-      await this.handleDuel();
-      await this.handleMissedDuels();
 
       await this.dating.handle();
       await this.inventory.handle();
@@ -188,87 +183,6 @@ export default class BigBangEmpireBot {
     }
 
     this.level = this.game.character.level;
-  }
-
-  handleInventoryFlags() {
-    if (this.game.inventory.missilesItemId === 0) {
-      this.canDuel = false;
-
-      if (this.alertMissiles) {
-        this.alertMissiles = false;
-
-        this.log.warn('No more missiles!');
-      }
-    } else if (!this.canDuel) {
-      this.canDuel = true;
-      this.alertMissiles = true;
-
-      this.log.verbose('More missiles...');
-    }
-
-    if (this.game.inventory.bagItemsId.every(bagItemId => bagItemId !== 0)) {
-      this.canDuel = false;
-
-      this.log.warn('Inventory is full!');
-    }
-  }
-
-  async handleDuel() {
-    if (this.game.character.duelStamina < this.game.character.duelStaminaCost || !this.canDuel) {
-      return;
-    }
-
-    this.log.debug(`Duel stamina: ${this.game.character.duelStamina}`);
-
-    const opponents = await this.request.getDuelOpponents();
-
-    if (!opponents) {
-      this.log.error('No duel opponents');
-    }
-
-    const sortedOpponents = opponents
-      .filter(o => !o.name.startsWith('deleted_'))
-      .filter(o => !!o)
-      .sort((a, b) => b.honor - a.honor);
-
-    const opponent = sortedOpponents.find(o => o.totalStats < this.game.character.statTotal) || sortedOpponents.pop();
-
-    if (opponent) {
-      await this.makeDuel(opponent);
-    }
-  }
-
-  async makeDuel(opponent: Opponent) {
-    this.log.verbose(`Starting duel with ${opponent.name}`);
-
-    const { battle, duel } = await this.request.startDuel(opponent.id);
-
-    const addendum = [''];
-
-    if (duel.characterARewards.premium) {
-      addendum.push(`- ${duel.characterARewards.premium} gems`);
-    }
-
-    if (duel.characterARewards.item) {
-      addendum.push(`- ${duel.characterARewards.item} item`);
-    }
-
-    this.log.verbose(`You ${battle.won ? 'won' : 'lost'} the duel!\n- ${numeral(duel.characterARewards.honor).format('+0')} honor${addendum.join('\n')}`);
-
-    await this.request.checkForDuelComplete();
-    await this.request.claimDuelRewards();
-  }
-
-  async handleMissedDuels() {
-    if (this.game.missedDuels === 0) {
-      return;
-    }
-
-    const missedDuels = await this.request.getMissedDuelsNew();
-
-    missedDuels.forEach(missedDuel => this.log.verbose(`Missed duel: ${missedDuel.won ? 'won' : 'lost'}\n- ${missedDuel.opponent.name}\n- ${numeral(missedDuel.characterBRewards.honor).format('+0')} honor`));
-
-    await this.request.claimMissedDuelsRewards();
   }
 
   async handleCollectWork() {
