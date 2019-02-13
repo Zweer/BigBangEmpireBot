@@ -28,6 +28,7 @@ import DatingModule from './modules/dating';
 import DuelModule from './modules/duel';
 import InventoryModule from './modules/inventory';
 import MovieModule from './modules/movie';
+import ProfileModule from './modules/profile';
 import QuestModule from './modules/quest';
 
 export default class BigBangEmpireBot {
@@ -61,6 +62,7 @@ export default class BigBangEmpireBot {
   readonly duel: DuelModule;
   readonly inventory: InventoryModule;
   readonly movie: MovieModule;
+  readonly profile: ProfileModule;
   readonly quest: QuestModule;
 
   readonly bot: TelegramBot;
@@ -96,6 +98,7 @@ export default class BigBangEmpireBot {
     this.duel = new DuelModule(this.game, this.request, this.log, this.bot);
     this.inventory = new InventoryModule(this.game, this.request, this.log, this.bot);
     this.movie = new MovieModule(this.game, this.request, this.log, this.bot);
+    this.profile = new ProfileModule(this.game, this.request, this.log, this.bot, this.constants);
     this.quest = new QuestModule(this.game, this.request, this.log, this.bot);
   }
 
@@ -149,15 +152,12 @@ export default class BigBangEmpireBot {
       await this.duel.handle();
       await this.inventory.handle();
       await this.movie.handle();
+      await this.profile.handle();
       await this.quest.handle();
-
-      await this.handleCollectWork();
 
       await this.handleMessages();
       await this.handleResourceRequests();
       await this.handleGuildMessages();
-
-      await this.handleCompleteGoals();
 
       await this.handleRankRetrieval();
     } catch (err) {
@@ -184,16 +184,6 @@ export default class BigBangEmpireBot {
     }
 
     this.level = this.game.character.level;
-  }
-
-  async handleCollectWork() {
-    const threeHoursAgo = moment().subtract(3, 'hours');
-
-    if (this.game.character.tsLastWorkCollection.isBefore(threeHoursAgo)) {
-      const collectedWork = await this.request.collectWork();
-
-      this.log.verbose(`Collected work: ${collectedWork.gameCurrencyReward} coins (${collectedWork.offer})`);
-    }
   }
 
   async handleMessages() {
@@ -224,44 +214,6 @@ export default class BigBangEmpireBot {
 
       guildMessages.forEach(guildMessage => this.log.info(`👥 ${guildMessage}`));
     }
-  }
-
-  async handleCompleteGoals() {
-    await Object.keys(this.game.currentGoalValue)
-      .map((goalName) => {
-        const currentGoalValue = this.game.currentGoalValue[goalName];
-        const collectedGoal = this.game.collectedGoals[goalName] || { value: 0 };
-        const goal = this.constants.goals[goalName];
-
-        if (currentGoalValue.currentValue <= collectedGoal.value) {
-          return;
-        }
-
-        let nextGoalValue;
-        Object.keys(goal.values)
-          .sort((a, b) => parseInt(a, 10) < parseInt(b, 10) ? -1 : 1)
-          .every((goalValue) => {
-            if (parseInt(goalValue, 10) > collectedGoal.value) {
-              nextGoalValue = goalValue;
-
-              return false;
-            }
-
-            return true;
-          });
-
-        if (nextGoalValue && currentGoalValue.value >= nextGoalValue) {
-          return { goalName, nextGoalValue };
-        }
-      })
-      .filter(goal => !!goal)
-      .reduce((previousPromise, { goalName, nextGoalValue }) => previousPromise.then(async () => {
-        this.log.verbose(`Completing a goal: ${goalName} (${nextGoalValue})`);
-
-        await this.request.collectGoalReward(goalName, nextGoalValue);
-      }), Promise.resolve());
-
-    this.game.currentGoalValue = {};
   }
 
   async handleRankRetrieval() {
