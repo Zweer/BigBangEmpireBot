@@ -135,6 +135,8 @@ export default class BigBangEmpireBot {
     try {
       await this.syncGame();
 
+      await this.handleVoucher();
+
       this.handleNewLevel();
       this.handleInventoryBasic();
       await this.handleInventoryAdvanced();
@@ -157,10 +159,13 @@ export default class BigBangEmpireBot {
       await this.handleCurrentQuest();
       await this.handleStartQuest();
 
+      await this.handleDating();
+
       await this.handleCollectWork();
 
       await this.handleMessages();
       await this.handleResourceRequests();
+      await this.handleGuildMessages();
 
       await this.handleCompleteGoals();
 
@@ -175,6 +180,12 @@ export default class BigBangEmpireBot {
 
   async syncGame() {
     await this.request.syncGame();
+  }
+
+  async handleVoucher() {
+    if (this.game.character.newUserVoucherIds.length) {
+
+    }
   }
 
   handleNewLevel() {
@@ -228,22 +239,20 @@ export default class BigBangEmpireBot {
         const equippedItemId = this.game.inventory.getItemBySlot(item.type);
 
         if (!equippedItemId) {
-          if (item.isOutfitItem) {
-            this.log.verbose(`Moving item: ${item.slot} (empty slot)`);
-
-            modified = true;
-
-            return this.request.moveInventoryItem(item.id, item.type);
-          }
-
           if (item.isUsable) {
             return this.request.useInventoryItem(item);
           }
+
+          this.log.verbose(`Moving item: ${item.slot} (empty slot)`);
+
+          modified = true;
+
+          return this.request.moveInventoryItem(item.id, item.type);
         }
 
         const equippedItem = this.game.getItem(equippedItemId);
 
-        if (item.statTotal <= equippedItem.statTotal) {
+        if (equippedItem && item.statTotal <= equippedItem.statTotal) {
           if (item.type === itemType.MISSILES) {
             return;
           }
@@ -547,6 +556,10 @@ export default class BigBangEmpireBot {
     }
   }
 
+  async handleDating() {
+    console.log('ooo');
+  }
+
   async handleCollectWork() {
     const threeHoursAgo = moment().subtract(3, 'hours');
 
@@ -576,6 +589,14 @@ export default class BigBangEmpireBot {
 
     if (friends.length) {
       await this.request.createResourceRequest(friends);
+    }
+  }
+
+  async handleGuildMessages() {
+    if (this.game.newGuildLogEntries || true) {
+      const guildMessages = await this.request.getGuildLog();
+
+      console.log('ooo');
     }
   }
 

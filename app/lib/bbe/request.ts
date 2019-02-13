@@ -26,6 +26,7 @@ import Reward from './game/reward';
 import VotableMovie from './game/movie/votable';
 import MessageCharacter from './game/mailbox/character';
 import Message from './game/mailbox/message';
+import GuildMessage from "./game/guild/message";
 
 export default class Request {
   readonly baseUrl: string;
@@ -35,6 +36,7 @@ export default class Request {
 
   private userId: number = 0;
   private userSessionId: string = '0';
+  private guildLogSyncState: number;
 
   static CLIENT_VERSION: number = 82;
   static AUTH_SALT: string = 'bpHgj5214';
@@ -508,10 +510,25 @@ export default class Request {
     console.log(response);
   }
 
-  async getGuildLog() {
-    const response = await this.request('getGuildLog');
+  async getGuildLog(init = true): Promise<GuildMessage[]> {
+    const parameters = {
+      init_request: init,
+    };
 
-    console.log(response);
+    if (this.game.guild && this.guildLogSyncState) {
+      parameters[`sync_guild${this.game.guild.id}`] = this.guildLogSyncState;
+    }
+
+    const response = await this.request('getGuildLog', parameters);
+
+    const { guild_log: guildLogs, sync_states: syncStates, synced } = response;
+    if (synced) {
+      return [];
+    }
+
+    this.guildLogSyncState = syncStates[`getguildlog_guild${this.game.guild.id}`];
+
+    return Object.keys(guildLogs).map(guildLogId => new GuildMessage(guildLogs[guildLogId], guildLogId));
   }
 
   async joinGuildBattle() {
@@ -549,6 +566,12 @@ export default class Request {
     const response = await this.request('useInventoryItem', {
       item_id: itemId,
     });
+
+    console.log(response);
+  }
+
+  async getUserVoucher() {
+    const response = await this.request('getUserVoucher');
 
     console.log(response);
   }

@@ -12,6 +12,7 @@ import User, { userRaw } from './user';
 
 import { questStatus } from './abstracts/quest';
 import DataObject from './utils/dataObject';
+import Guild, { guildRaw } from './guild';
 
 export type gameRaw = {
   saved_seconds: number,
@@ -59,7 +60,7 @@ export type gameRaw = {
   dating_step: object[], // DatingStep[]
   completed_dating_steps: string[],
   event_quest: object, // EventQuest
-  guild: object, // Guild
+  guild: guildRaw, // Guild
   guild_competition_data: object, // GuildCompetition
   story_dungeons: object[], // StoryDungeon[]
   fan_foto: object, // FanPhoto
@@ -251,7 +252,7 @@ export default class Game extends DataObject<gameRaw> {
   public datingStep: object[]; // DatingStep[]
   public completedDatingSteps: string[];
   public eventQuest: object; // EventQuest
-  public guild: object; // Guild
+  public guild: Guild;
   public guildCompetitionData: object; // GuildCompetition
   public storyDungeons: object[]; // StoryDungeon[]
   public fanFoto: object; // FanPhoto
@@ -484,5 +485,9 @@ export default class Game extends DataObject<gameRaw> {
 
   setMovieQuests(movieQuests: movieQuestRaw[]) {
     this.movieQuests = movieQuests.map(movieQuest => new MovieQuest(movieQuest));
+  }
+
+  setGuild(guild: guildRaw) {
+    this.guild = new Guild(guild);
   }
 }

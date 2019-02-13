@@ -318,7 +318,7 @@ export default class Character extends AbstractCharacter<characterRaw> {
   currentSlotmachineSpin: number;
   slotmachineSpinCount: number;
   tsLastSlotmachineRefill: number;
-  newUserVoucherIds: string;
+  newUserVoucherIds: number[];
   herobookObjectivesRenewedToday: number;
 
   setUnusedResources(unusedResources: string) {
@@ -347,5 +347,15 @@ export default class Character extends AbstractCharacter<characterRaw> {
 
   get hasRefreshedShopToday() {
     return this.tsLastShopRefresh.isSame(moment(), 'day');
+  }
+
+  setNewUserVoucherIds(newUserVoucherIds: string) {
+    try {
+      this.newUserVoucherIds = JSON.parse(newUserVoucherIds);
+    } catch (error) {
+      if (newUserVoucherIds) {
+        throw error;
+      }
+    }
   }
 }
