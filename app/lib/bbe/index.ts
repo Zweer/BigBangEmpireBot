@@ -12,7 +12,7 @@ import { optionsConfig, optionsWeb } from './game/types/options';
 import Game from './game';
 import Constants from './game/constants';
 import ExtendedConfig from './game/extendedConfig';
-import Friend from './game/friend';
+// import Friend from './game/friend';
 import { movieStatus } from './game/movie';
 import Opponent from './game/duel/opponent';
 import Quest from './game/quest';
@@ -37,7 +37,7 @@ export default class BigBangEmpireBot {
   private extendedConfig: ExtendedConfig;
   private constants: Constants;
   private offers: { consumable; normal; special; text };
-  private friends: Friend[];
+  // private friends: Friend[];
 
   private level: number = 0;
   private statPointAvailable: number = 0;
@@ -128,7 +128,7 @@ export default class BigBangEmpireBot {
   }
 
   async initFriends() {
-    this.friends = await this.request.initFriends();
+    /* this.friends = */ await this.request.initFriends();
   }
 
   async playRound() {
