@@ -189,7 +189,7 @@ export default class BigBangEmpireBot {
 
   async handleVoucher() {
     if (this.game.character.newUserVoucherIds.length) {
-
+      console.log('ooo');
     }
   }
 
