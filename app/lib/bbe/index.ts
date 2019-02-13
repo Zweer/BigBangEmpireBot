@@ -27,9 +27,20 @@ import TelegramBot, { TelegramBotLogger } from './telegram';
 import DatingModule from './modules/dating';
 import DuelModule from './modules/duel';
 import InventoryModule from './modules/inventory';
+import MailboxModule from './modules/mailbox';
 import MovieModule from './modules/movie';
 import ProfileModule from './modules/profile';
 import QuestModule from './modules/quest';
+
+type rank = {
+  honor: number;
+  level: number;
+  fans: number;
+};
+type ranks = {
+  character: rank;
+  guild: rank;
+};
 
 export default class BigBangEmpireBot {
   readonly game: Game;
@@ -39,18 +50,7 @@ export default class BigBangEmpireBot {
   // private friends: Friend[];
 
   private level: number = 0;
-  public rank = {
-    character: {
-      honor: 0,
-      level: 0,
-      fans: 0,
-    },
-    guild: {
-      honor: 0,
-      level: 0,
-      fans: 0,
-    },
-  };
+  public rank: ranks;
 
   readonly options: optionsConfig;
   private optionsWeb: optionsWeb;
@@ -61,6 +61,7 @@ export default class BigBangEmpireBot {
   readonly dating: DatingModule;
   readonly duel: DuelModule;
   readonly inventory: InventoryModule;
+  readonly mailbox: MailboxModule;
   readonly movie: MovieModule;
   readonly profile: ProfileModule;
   readonly quest: QuestModule;
@@ -97,6 +98,7 @@ export default class BigBangEmpireBot {
     this.dating = new DatingModule(this.game, this.request, this.log, this.bot);
     this.duel = new DuelModule(this.game, this.request, this.log, this.bot);
     this.inventory = new InventoryModule(this.game, this.request, this.log, this.bot);
+    this.mailbox = new MailboxModule(this.game, this.request, this.log, this.bot);
     this.movie = new MovieModule(this.game, this.request, this.log, this.bot);
     this.profile = new ProfileModule(this.game, this.request, this.log, this.bot, this.constants);
     this.quest = new QuestModule(this.game, this.request, this.log, this.bot);
@@ -151,12 +153,11 @@ export default class BigBangEmpireBot {
       await this.dating.handle();
       await this.duel.handle();
       await this.inventory.handle();
+      await this.mailbox.handle();
       await this.movie.handle();
       await this.profile.handle();
       await this.quest.handle();
 
-      await this.handleMessages();
-      await this.handleResourceRequests();
       await this.handleGuildMessages();
 
       await this.handleRankRetrieval();
@@ -184,28 +185,6 @@ export default class BigBangEmpireBot {
     }
 
     this.level = this.game.character.level;
-  }
-
-  async handleMessages() {
-    if (this.game.newMessages === 0) {
-      return;
-    }
-
-    this.log.info(`You have ${this.game.newMessages} new messages (${this.game.character.pendingResourceRequests} resource requests)`);
-
-    if (this.game.character.pendingResourceRequests > 0) {
-      this.log.debug('Accepting all resource requests');
-
-      await this.request.acceptAllResourceRequests();
-    }
-  }
-
-  async handleResourceRequests() {
-    const friends = await this.request.getAvailableResourceRequestFriends();
-
-    if (friends.length) {
-      await this.request.createResourceRequest(friends);
-    }
   }
 
   async handleGuildMessages() {
