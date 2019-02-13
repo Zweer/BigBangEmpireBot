@@ -13,6 +13,7 @@ import User, { userRaw } from './user';
 import { questStatus } from './abstracts/quest';
 import DataObject from './utils/dataObject';
 import Guild, { guildRaw } from './guild';
+import DatingStep, {datingStepRaw} from "./dating/step";
 
 export type gameRaw = {
   saved_seconds: number,
@@ -57,8 +58,8 @@ export type gameRaw = {
   current_goal_value: { [key: string]: currentGoalRaw },
   convention_character_data: object[],
   dating_lookup: object, // Dating
-  dating_step: object[], // DatingStep[]
-  completed_dating_steps: string[],
+  dating_step: datingStepRaw[],
+  completed_dating_steps: datingStepRaw[],
   event_quest: object, // EventQuest
   guild: guildRaw, // Guild
   guild_competition_data: object, // GuildCompetition
@@ -249,8 +250,8 @@ export default class Game extends DataObject<gameRaw> {
   public currentGoalValue: { [key: string]: CurrentGoal };
   public conventionCharacterData: object[];
   public datingLookup: object; // Dating
-  public datingStep: object[]; // DatingStep[]
-  public completedDatingSteps: string[];
+  public datingStep: DatingStep[];
+  public completedDatingSteps: DatingStep[];
   public eventQuest: object; // EventQuest
   public guild: Guild;
   public guildCompetitionData: object; // GuildCompetition
@@ -489,5 +490,13 @@ export default class Game extends DataObject<gameRaw> {
 
   setGuild(guild: guildRaw) {
     this.guild = new Guild(guild);
+  }
+
+  setDatingStep(datingStep: datingStepRaw[]) {
+    this.datingStep = datingStep.map(d => new DatingStep(d));
+  }
+
+  setCompletedDatingSteps(datingStep: datingStepRaw[]) {
+    this.completedDatingSteps = datingStep.map(d => new DatingStep(d));
   }
 }

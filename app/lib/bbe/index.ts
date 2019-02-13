@@ -20,6 +20,7 @@ import Quest from './game/quest';
 import Request from './request';
 import RequestWeb from './requestWeb';
 import TelegramBot, { TelegramBotLogger } from './telegram';
+import Dating from "./game/dating";
 
 // @ts-ignore
 Promise.serial = async function resolveSerial(promises: Promise<any>[]): Promise<any[]> {
@@ -63,6 +64,8 @@ export default class BigBangEmpireBot {
 
   readonly request: Request;
   readonly requestWeb: RequestWeb;
+  readonly dating: Dating;
+
   readonly bot: TelegramBot;
   readonly log: winston.Logger;
 
@@ -74,6 +77,8 @@ export default class BigBangEmpireBot {
 
     this.request = new Request(BigBangEmpireBot.BASE_URL, this.options.auth.server, this.options.auth.email, this.options.auth.password, this.game);
     this.requestWeb = new RequestWeb(BigBangEmpireBot.BASE_URL, this.options.auth.server);
+
+    this.dating = new Dating(this.game, this.request);
 
     this.bot = new TelegramBot(this);
 
@@ -159,7 +164,7 @@ export default class BigBangEmpireBot {
       await this.handleCurrentQuest();
       await this.handleStartQuest();
 
-      await this.handleDating();
+      await this.dating.handle();
 
       await this.handleCollectWork();
 
@@ -554,10 +559,6 @@ export default class BigBangEmpireBot {
 
       this.log.info(`Quest reduction resource used: ${savedSeconds} seconds saved`);
     }
-  }
-
-  async handleDating() {
-    console.log('dating');
   }
 
   async handleCollectWork() {

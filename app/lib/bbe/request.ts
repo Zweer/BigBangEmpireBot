@@ -492,22 +492,21 @@ export default class Request {
   }
 
   async claimDatingStepReward(datingIndex: number, stepIndex: number) {
-    const response = await this.request('claimDatingStepReward', {
+    await this.request('claimDatingStepReward', {
       dating_index: datingIndex,
       step_index: stepIndex,
       discard_item: false,
     });
-
-    console.log(response);
   }
 
   async startNewDatingStep(datingIndex: number, stepIndex: number) {
-    const response = await this.request('startNewDatingStep', {
+    await this.request('startNewDatingStep', {
       dating_index: datingIndex,
       step_index: stepIndex,
     });
 
-    console.log(response);
+    // updating things is too difficult, better allow it to recreate everything
+    await this.syncGame();
   }
 
   async getGuildLog(init = true): Promise<GuildMessage[]> {
