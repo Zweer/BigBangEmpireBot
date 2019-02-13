@@ -146,6 +146,7 @@ export default class BigBangEmpireBot {
       this.handleNewLevel();
 
       await this.dating.handle();
+      await this.duel.handle();
       await this.inventory.handle();
       await this.movie.handle();
       await this.quest.handle();

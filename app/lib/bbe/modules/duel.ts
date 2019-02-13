@@ -35,7 +35,7 @@ export default class DuelModule extends AbstractModule {
     await this.handleMissedDuels();
   }
 
-  handleInventoryFlags() {
+  private handleInventoryFlags() {
     if (this.missilesItemId === 0) {
       this.canDuel = false;
 
@@ -83,7 +83,7 @@ export default class DuelModule extends AbstractModule {
     }
   }
 
-  async makeDuel(opponent: Opponent) {
+  private async makeDuel(opponent: Opponent) {
     this.log.verbose(`Starting duel with ${opponent.name}`);
 
     const { battle, duel } = await this.request.startDuel(opponent.id);
