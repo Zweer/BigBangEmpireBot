@@ -390,7 +390,7 @@ export default class BigBangEmpireBot {
       addendum.push(`- ${duel.characterARewards.item} item`);
     }
 
-    this.log.verbose(`You ${battle.won ? 'won' : 'lost'} the duel!\n- ${duel.characterARewards.honor} honor${addendum.join('\n')}`);
+    this.log.verbose(`You ${battle.won ? 'won' : 'lost'} the duel!\n- ${numeral(duel.characterARewards.honor).format('+0')} honor${addendum.join('\n')}`);
 
     await this.request.checkForDuelComplete();
     await this.request.claimDuelRewards();
@@ -538,17 +538,18 @@ export default class BigBangEmpireBot {
   }
 
   async doQuest(currentQuest: Quest) {
-    let startingQuestString = 'Starting a new quest:\n';
-    startingQuestString += `- ${currentQuest.xpPerEnergy} xp/energy\n`;
-    startingQuestString += `- ${currentQuest.energyCost} energy\n`;
+    const messageArr = [];
+    messageArr.push('Starting a new quest:');
+    messageArr.push(`- ${currentQuest.xpPerEnergy} xp/energy`);
+    messageArr.push(`- ${currentQuest.energyCost} energy`);
 
-    startingQuestString += currentQuest.rewards.nonStandardAttributes.map(nonStandardAttribute => `- with a ${nonStandardAttribute}\n`).join('');
+    messageArr.push(...currentQuest.rewards.nonStandardAttributes.map(nonStandardAttribute => `- with a ${nonStandardAttribute}`));
 
     if (currentQuest.rewards.dungeonKey) {
       this.log.warn(`Got a new dungeonKey in ${currentQuest.energyCost} minutes`);
     }
 
-    this.log.debug(startingQuestString);
+    this.log.debug(messageArr.join('\n'));
 
     const quest = await this.request.startQuest(currentQuest.id);
 
