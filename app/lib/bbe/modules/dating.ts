@@ -1,9 +1,6 @@
-import Game from '..';
-import Request from '../../request';
+import AbstractModule from '.';
 
-export default class Dating {
-  constructor(private game: Game, private request: Request) {}
-
+export default class DatingModule extends AbstractModule {
   get currentStep() {
     return this.game.datingStep[this.game.datingStep.length - 1];
   }

@@ -11,7 +11,7 @@ import { optionsConfig, optionsWeb } from './game/types/options';
 
 import Game from './game';
 import Constants from './game/constants';
-import Dating from './game/dating';
+import Dating from './modules/dating';
 import ExtendedConfig from './game/extendedConfig';
 // import Friend from './game/friend';
 import { movieStatus } from './game/movie';
@@ -21,6 +21,7 @@ import Quest from './game/quest';
 import Request from './request';
 import RequestWeb from './requestWeb';
 import TelegramBot, { TelegramBotLogger } from './telegram';
+import MovieModule from "./modules/movie";
 
 // @ts-ignore
 Promise.serial = async function resolveSerial(promises: Promise<any>[]): Promise<any[]> {
@@ -65,6 +66,7 @@ export default class BigBangEmpireBot {
   readonly request: Request;
   readonly requestWeb: RequestWeb;
   readonly dating: Dating;
+  readonly movie: MovieModule;
 
   readonly bot: TelegramBot;
   readonly log: winston.Logger;
@@ -77,8 +79,6 @@ export default class BigBangEmpireBot {
 
     this.request = new Request(BigBangEmpireBot.BASE_URL, this.options.auth.server, this.options.auth.email, this.options.auth.password, this.game);
     this.requestWeb = new RequestWeb(BigBangEmpireBot.BASE_URL, this.options.auth.server);
-
-    this.dating = new Dating(this.game, this.request);
 
     this.bot = new TelegramBot(this);
 
@@ -96,6 +96,9 @@ export default class BigBangEmpireBot {
         }),
       ],
     });
+
+    this.dating = new Dating(this.game, this.request, this.log);
+    this.movie = new MovieModule(this.game, this.request, this.log);
   }
 
   async run() {
@@ -152,12 +155,7 @@ export default class BigBangEmpireBot {
       await this.handleDuel();
       await this.handleMissedDuels();
 
-      await this.handleCurrentMovieQuest();
-      await this.handleMovieVotes();
-      await this.handleMovieRefresh();
-      await this.handleMovieChoice();
-      await this.handleMovie();
-      await this.handleMovieStar();
+      await this.movie.handle();
 
       await this.handleBuyEnergy();
 
