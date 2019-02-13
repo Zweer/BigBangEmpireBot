@@ -557,7 +557,7 @@ export default class BigBangEmpireBot {
   }
 
   async handleDating() {
-    console.log('ooo');
+    console.log('dating');
   }
 
   async handleCollectWork() {
@@ -593,10 +593,10 @@ export default class BigBangEmpireBot {
   }
 
   async handleGuildMessages() {
-    if (this.game.newGuildLogEntries || true) {
+    if (this.game.newGuildLogEntries) {
       const guildMessages = await this.request.getGuildLog();
 
-      console.log('ooo');
+      guildMessages.forEach(guildMessage => this.log.info(`👥 ${guildMessage}`));
     }
   }
 
