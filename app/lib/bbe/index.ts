@@ -11,6 +11,7 @@ import { optionsConfig, optionsWeb } from './game/types/options';
 
 import Game from './game';
 import Constants from './game/constants';
+import Dating from './game/dating';
 import ExtendedConfig from './game/extendedConfig';
 // import Friend from './game/friend';
 import { movieStatus } from './game/movie';
@@ -20,7 +21,6 @@ import Quest from './game/quest';
 import Request from './request';
 import RequestWeb from './requestWeb';
 import TelegramBot, { TelegramBotLogger } from './telegram';
-import Dating from "./game/dating";
 
 // @ts-ignore
 Promise.serial = async function resolveSerial(promises: Promise<any>[]): Promise<any[]> {
