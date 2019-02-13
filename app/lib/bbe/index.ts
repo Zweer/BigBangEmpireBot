@@ -3,25 +3,22 @@ import * as moment from 'moment';
 import * as numeral from 'numeral';
 import * as winston from 'winston';
 
-import { questStatus, questType } from './game/abstracts/quest';
-
-import { resource } from './game/types/common';
 import { itemType } from './game/types/item';
 import { optionsConfig, optionsWeb } from './game/types/options';
 
 import Game from './game';
 import Constants from './game/constants';
-import Dating from './modules/dating';
 import ExtendedConfig from './game/extendedConfig';
 // import Friend from './game/friend';
-import { movieStatus } from './game/movie';
 import Opponent from './game/duel/opponent';
-import Quest from './game/quest';
 
 import Request from './request';
 import RequestWeb from './requestWeb';
 import TelegramBot, { TelegramBotLogger } from './telegram';
-import MovieModule from "./modules/movie";
+
+import DatingModule from './modules/dating';
+import MovieModule from './modules/movie';
+import QuestModule from './modules/quest';
 
 // @ts-ignore
 Promise.serial = async function resolveSerial(promises: Promise<any>[]): Promise<any[]> {
@@ -65,8 +62,10 @@ export default class BigBangEmpireBot {
 
   readonly request: Request;
   readonly requestWeb: RequestWeb;
-  readonly dating: Dating;
+
+  readonly dating: DatingModule;
   readonly movie: MovieModule;
+  readonly quest: QuestModule;
 
   readonly bot: TelegramBot;
   readonly log: winston.Logger;
@@ -97,8 +96,9 @@ export default class BigBangEmpireBot {
       ],
     });
 
-    this.dating = new Dating(this.game, this.request, this.log);
+    this.dating = new DatingModule(this.game, this.request, this.log);
     this.movie = new MovieModule(this.game, this.request, this.log);
+    this.quest = new QuestModule(this.game, this.request, this.log);
   }
 
   async run() {
@@ -156,12 +156,7 @@ export default class BigBangEmpireBot {
       await this.handleMissedDuels();
 
       await this.movie.handle();
-
-      await this.handleBuyEnergy();
-
-      await this.handleCurrentQuest();
-      await this.handleStartQuest();
-
+      await this.quest.handle();
       await this.dating.handle();
 
       await this.handleCollectWork();
@@ -404,160 +399,6 @@ export default class BigBangEmpireBot {
     missedDuels.forEach(missedDuel => this.log.verbose(`Missed duel: ${missedDuel.won ? 'won' : 'lost'}\n- ${missedDuel.opponent.name}\n- ${numeral(missedDuel.characterBRewards.honor).format('+0')} honor`));
 
     await this.request.claimMissedDuelsRewards();
-  }
-
-  async handleCurrentMovieQuest() {
-    if (!this.game.movie) {
-      return true;
-    }
-
-    try {
-      await this.request.claimMovieQuestRewards();
-    } catch (error) {
-      // do nothing
-    }
-  }
-
-  async handleMovieVotes() {
-    if (this.game.character.movieVotes === 0) {
-      return;
-    }
-
-    const { movies } = await this.request.getMoviesToVote();
-    const [movie] = movies;
-
-    await this.request.voteForMovie(movie);
-  }
-
-  async handleMovieRefresh() {
-    if (this.game.movie && this.game.movie.status !== movieStatus.FINISHED) {
-      return;
-    }
-
-    if (this.game.character.tsLastMovieFinished.isAfter(moment().subtract(1, 'hour'))) {
-      return;
-    }
-
-    await this.request.refreshMoviePool();
-  }
-
-  async handleMovieChoice() {
-    if (this.game.movie || !(this.game.movies && this.game.movies.length)) {
-      return;
-    }
-
-    this.log.debug('Choosing the next movie');
-
-    const movie = this.game.movies
-      .sort((a, b) => b.fans - a.fans)
-      .find(m => !!m);
-
-    await this.request.startMovie(movie);
-  }
-
-  async handleMovie() {
-    if (!this.game.movie || !(this.game.movieQuests && this.game.movieQuests.length)) {
-      return;
-    }
-
-    if (this.game.movie.status === movieStatus.TIMEUP) {
-      await this.request.extendMovieTime();
-    }
-
-    const quest = this.game.movieQuests.find(q => q.type === questType.STAT);
-
-    if (quest && this.game.character.movieEnergy >= quest.energyCost) {
-      this.log.verbose(`Starting a movie quest: ${quest.rewards.movieProgress} reward`);
-
-      await this.request.startMovieQuest(quest);
-    }
-  }
-
-  async handleMovieStar() {
-    if (!this.game.movie) {
-      return true;
-    }
-
-    if (this.game.movie.isWaitingForClaim) {
-      await this.request.claimMovieStar();
-
-      this.log.info(`🎥 ${numeral(this.game.movie.claimedStars).format('0o')} star claimed`);
-    }
-
-    if (this.game.movie.isWaitingForFinish) {
-      await this.request.finishMovie();
-
-      this.log.info('🎥 Finished');
-    }
-  }
-
-  async handleBuyEnergy() {
-    if (this.game.character.questEnergyRefillAmountToday < 200 && this.game.character.questEnergy + 50 < this.game.character.maxQuestEnergy) {
-      await this.request.buyQuestEnergy();
-    }
-  }
-
-  async handleCurrentQuest() {
-    const currentQuest = this.game.currentQuest;
-
-    if (!currentQuest || currentQuest.tsComplete.isAfter(moment())) {
-      return;
-    }
-
-    const currentQuestUpdate = await this.request.checkForQuestComplete();
-    if (currentQuestUpdate) {
-      currentQuest.update(currentQuestUpdate);
-    }
-
-    if (!currentQuest || currentQuest.status !== questStatus.FINISHED) {
-      return;
-    }
-
-    await this.request.claimQuestRewards();
-  }
-
-  async handleStartQuest() {
-    if (this.game.currentQuest) {
-      return;
-    }
-
-    if (this.game.character.questEnergy < 2) {
-      this.log.verbose('Energy low');
-      return;
-    }
-
-    this.log.debug(`Current energy: ${this.game.character.questEnergy}`);
-
-    const quest = this.game.quests.find((quest: Quest) => quest.energyCost < this.game.character.questEnergy);
-
-    if (quest) {
-      await this.doQuest(quest);
-    }
-  }
-
-  async doQuest(currentQuest: Quest) {
-    const messageArr = [];
-    messageArr.push('Starting a new quest:');
-    messageArr.push(`- ${currentQuest.xpPerEnergy} xp/energy`);
-    messageArr.push(`- ${currentQuest.energyCost} energy`);
-
-    messageArr.push(...currentQuest.rewards.nonStandardAttributes.map(nonStandardAttribute => `- with a ${nonStandardAttribute}`));
-
-    if (currentQuest.rewards.dungeonKey) {
-      this.log.warn(`Got a new dungeonKey in ${currentQuest.energyCost} minutes`);
-    }
-
-    this.log.debug(messageArr.join('\n'));
-
-    const quest = await this.request.startQuest(currentQuest.id);
-
-    currentQuest.update(quest);
-
-    if (this.game.character.unusedResources[resource.QUEST_REDUCTION] > 0 && (!this.game.character.usedResources || this.game.character.usedResources[resource.QUEST_REDUCTION] < 4) && currentQuest.energyCost > 8) {
-      const savedSeconds = await this.request.useResource(resource.QUEST_REDUCTION);
-
-      this.log.info(`Quest reduction resource used: ${savedSeconds} seconds saved`);
-    }
   }
 
   async handleCollectWork() {
