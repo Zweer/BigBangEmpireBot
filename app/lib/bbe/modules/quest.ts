@@ -45,13 +45,13 @@ export default class QuestModule extends AbstractModule {
     await this.handleStartQuest();
   }
 
-  async handleBuyEnergy(): Promise<void> {
+  private async handleBuyEnergy(): Promise<void> {
     if (this.questEnergyRefillAmountToday < QuestModule.MAX_DAILY_REFILL && this.questEnergy + QuestModule.REFILL_AMOUNT < this.maxQuestEnergy) {
       await this.request.buyQuestEnergy();
     }
   }
 
-  async handleCurrentQuest(): Promise<void> {
+  private async handleCurrentQuest(): Promise<void> {
     if (!this.currentQuest || this.currentQuest.tsComplete.isAfter(moment())) {
       return;
     }
@@ -68,7 +68,7 @@ export default class QuestModule extends AbstractModule {
     await this.request.claimQuestRewards();
   }
 
-  async handleStartQuest(): Promise<void> {
+  private async handleStartQuest(): Promise<void> {
     if (this.currentQuest) {
       return;
     }
@@ -88,7 +88,7 @@ export default class QuestModule extends AbstractModule {
     }
   }
 
-  async doQuest(currentQuest: Quest) {
+  private async doQuest(currentQuest: Quest) {
     const messageArr = [];
     messageArr.push('Starting a new quest:');
     messageArr.push(`- ${currentQuest.xpPerEnergy} xp/energy`);
@@ -107,7 +107,7 @@ export default class QuestModule extends AbstractModule {
     currentQuest.update(quest);
   }
 
-  async doUseResources(currentQuest: Quest) {
+  private async doUseResources(currentQuest: Quest) {
     if (this.unusedResources[resource.QUEST_REDUCTION] > 0 && (!this.usedResources || this.usedResources[resource.QUEST_REDUCTION] < 4) && currentQuest.energyCost > 8) {
       const savedSeconds = await this.request.useResource(resource.QUEST_REDUCTION);
 

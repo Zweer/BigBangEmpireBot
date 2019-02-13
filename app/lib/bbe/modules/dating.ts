@@ -5,11 +5,11 @@ export default class DatingModule extends AbstractModule {
     return this.game.datingStep[this.game.datingStep.length - 1];
   }
 
-  async claimReward() {
+  private async claimReward() {
     await this.request.claimDatingStepReward(this.currentStep.datingIndex, this.currentStep.stepIndex);
   }
 
-  async startNewStep() {
+  private async startNewStep() {
     await this.request.startNewDatingStep(this.currentStep.datingIndex, this.currentStep.stepIndex + 1);
   }
 

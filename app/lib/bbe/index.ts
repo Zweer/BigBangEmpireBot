@@ -3,7 +3,6 @@ import * as moment from 'moment';
 import * as numeral from 'numeral';
 import * as winston from 'winston';
 
-import { itemType } from './game/types/item';
 import { optionsConfig, optionsWeb } from './game/types/options';
 
 import Game from './game';
@@ -17,6 +16,7 @@ import RequestWeb from './requestWeb';
 import TelegramBot, { TelegramBotLogger } from './telegram';
 
 import DatingModule from './modules/dating';
+import InventoryModule from './modules/inventory';
 import MovieModule from './modules/movie';
 import QuestModule from './modules/quest';
 
@@ -39,7 +39,6 @@ export default class BigBangEmpireBot {
   // private friends: Friend[];
 
   private level: number = 0;
-  private statPointAvailable: number = 0;
   private canDuel: boolean = true;
   private alertMissiles: boolean = true;
   public rank = {
@@ -54,8 +53,6 @@ export default class BigBangEmpireBot {
       fans: 0,
     },
   };
-  private notifiedItems: number[] = [];
-  private refreshShop: boolean = false;
 
   readonly options: optionsConfig;
   private optionsWeb: optionsWeb;
@@ -64,6 +61,7 @@ export default class BigBangEmpireBot {
   readonly requestWeb: RequestWeb;
 
   readonly dating: DatingModule;
+  readonly inventory: InventoryModule;
   readonly movie: MovieModule;
   readonly quest: QuestModule;
 
@@ -96,9 +94,10 @@ export default class BigBangEmpireBot {
       ],
     });
 
-    this.dating = new DatingModule(this.game, this.request, this.log);
-    this.movie = new MovieModule(this.game, this.request, this.log);
-    this.quest = new QuestModule(this.game, this.request, this.log);
+    this.dating = new DatingModule(this.game, this.request, this.log, this.bot);
+    this.inventory = new InventoryModule(this.game, this.request, this.log, this.bot);
+    this.movie = new MovieModule(this.game, this.request, this.log, this.bot);
+    this.quest = new QuestModule(this.game, this.request, this.log, this.bot);
   }
 
   async run() {
@@ -146,18 +145,15 @@ export default class BigBangEmpireBot {
       await this.handleVoucher();
 
       this.handleNewLevel();
-      this.handleInventoryBasic();
-      await this.handleInventoryAdvanced();
-      await this.handleRefreshShop();
-      await this.handleInventoryShop();
-      await this.handleStatPointAvailable();
+      this.handleInventoryFlags();
 
       await this.handleDuel();
       await this.handleMissedDuels();
 
+      await this.dating.handle();
+      await this.inventory.handle();
       await this.movie.handle();
       await this.quest.handle();
-      await this.dating.handle();
 
       await this.handleCollectWork();
 
@@ -194,7 +190,7 @@ export default class BigBangEmpireBot {
     this.level = this.game.character.level;
   }
 
-  handleInventoryBasic() {
+  handleInventoryFlags() {
     if (this.game.inventory.missilesItemId === 0) {
       this.canDuel = false;
 
@@ -215,132 +211,6 @@ export default class BigBangEmpireBot {
 
       this.log.warn('Inventory is full!');
     }
-  }
-
-  async handleInventoryAdvanced() {
-    let modified;
-
-    do {
-      modified = false;
-
-      // @ts-ignore
-      await Promise.serial(this.game.inventory.bagItemsId.map((bagItemId) => {
-        if (modified) {
-          return;
-        }
-
-        const item = this.game.getItem(bagItemId);
-        if (!item) {
-          return;
-        }
-
-        const equippedItemId = this.game.inventory.getItemBySlot(item.type);
-
-        if (!equippedItemId) {
-          if (item.isUsable) {
-            return this.request.useInventoryItem(item);
-          }
-
-          this.log.verbose(`Moving item: ${item.slot} (empty slot)`);
-
-          modified = true;
-
-          return this.request.moveInventoryItem(item.id, item.type);
-        }
-
-        const equippedItem = this.game.getItem(equippedItemId);
-
-        if (equippedItem && item.statTotal <= equippedItem.statTotal) {
-          if (item.type === itemType.MISSILES) {
-            return;
-          }
-
-          this.log.verbose(`Selling item: ${item.slot}\n- my: ${equippedItem.statTotal}\n- bag: ${item.statTotal}`);
-
-          return this.request.sellInventoryItem(item.id);
-        }
-
-        if (!item.battleSkill && !equippedItem.battleSkill) {
-          this.log.verbose(`Moving item: ${item.slot} (better item)`);
-
-          modified = true;
-
-          return this.request.moveInventoryItem(item.id, item.type);
-        }
-
-        this.log.verbose(`New item: ${item.slot}\n- my: ${equippedItem.statTotal}\n- bag: ${item.statTotal}`);
-      }));
-    } while (modified);
-  }
-
-  async handleRefreshShop() {
-    if (!this.game.character.hasRefreshedShopToday && this.refreshShop) {
-      this.log.info('Refreshing shop');
-
-      await this.request.refreshShopItems();
-    }
-  }
-
-  async handleInventoryShop() {
-    await Promise.all(this.game.inventory.shopItemsId.map(async (shopItemId) => {
-      if (!shopItemId) {
-        return;
-      }
-
-      const item = this.game.getItem(shopItemId);
-      const equippedItemId = this.game.inventory.getItemBySlot(item.slot);
-      const equippedItem = equippedItemId && this.game.getItem(equippedItemId);
-
-      const isUnequipped = !equippedItem;
-      const isBetter = equippedItem && item.statTotal > equippedItem.statTotal;
-      const isMissiles = item.type === itemType.MISSILES;
-
-      if (isUnequipped || isBetter || isMissiles) {
-        const messages = [];
-        messages.push(`- ${item.slot}`);
-        messages.push(`- ${item.buyPrice} ${item.premiumItem ? 'diamonds' : 'coins'}`);
-
-        if (isUnequipped) {
-          messages.push('- You don\'t have this slot equipped');
-        }
-
-        if (isBetter) {
-          messages.push(`- It's ${item.statTotal - equippedItem.statTotal} points better`);
-        }
-
-        if (isMissiles) {
-          messages.push('- It\'s missiles');
-        }
-
-        if (item.premiumItem) {
-          if (this.notifiedItems.includes(item.id)) {
-            return;
-          }
-
-          this.notifiedItems.push(item.id);
-
-          return this.bot.askForItemPurchase(item, messages, this.game.inventory);
-        }
-
-        this.log.info(['You are buying an item:', ...messages].join('\n'));
-
-        return this.request.buyShopItem(item, this.game.inventory.firstAvailableSlot);
-      }
-    }));
-
-    this.refreshShop = true;
-  }
-
-  async handleStatPointAvailable() {
-    if (!this.game.character.statPointsAvailable) {
-      return;
-    }
-
-    if (this.statPointAvailable !== this.game.character.statPointsAvailable) {
-      this.log.verbose(`You have stat points available: ${this.game.character.statPointsAvailable}`);
-    }
-
-    this.statPointAvailable = this.game.character.statPointsAvailable;
   }
 
   async handleDuel() {

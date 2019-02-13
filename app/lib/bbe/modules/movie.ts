@@ -37,7 +37,7 @@ export default class MovieModule extends AbstractModule {
     return this.game.character.movieVotes;
   }
 
-  async handleVotes(): Promise<void> {
+  private async handleVotes(): Promise<void> {
     if (this.movieVotes === 0) {
       return;
     }
@@ -48,7 +48,7 @@ export default class MovieModule extends AbstractModule {
     await this.request.voteForMovie(movie);
   }
 
-  async handleCurrentQuest(): Promise<void> {
+  private async handleCurrentQuest(): Promise<void> {
     if (!this.game.movie) {
       return;
     }
@@ -60,7 +60,7 @@ export default class MovieModule extends AbstractModule {
     }
   }
 
-  async handleMovieStar(): Promise<void> {
+  private async handleMovieStar(): Promise<void> {
     if (!this.game.movie) {
       return;
     }
@@ -78,7 +78,7 @@ export default class MovieModule extends AbstractModule {
     }
   }
 
-  async handleMovieRefresh(): Promise<void> {
+  private async handleMovieRefresh(): Promise<void> {
     if (this.movie && this.movie.status !== movieStatus.FINISHED) {
       return;
     }
@@ -90,7 +90,7 @@ export default class MovieModule extends AbstractModule {
     await this.request.refreshMoviePool();
   }
 
-  async handleMovieChoice(): Promise<void> {
+  private async handleMovieChoice(): Promise<void> {
     if (this.movie || !(this.movies && this.movies.length)) {
       return;
     }
@@ -104,7 +104,7 @@ export default class MovieModule extends AbstractModule {
     await this.request.startMovie(movie);
   }
 
-  async handleMovie(): Promise<void> {
+  private async handleMovie(): Promise<void> {
     if (!this.movie || !(this.movieQuests && this.movieQuests.length)) {
       return;
     }
