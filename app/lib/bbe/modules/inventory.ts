@@ -26,7 +26,7 @@ export default class InventoryModule extends AbstractModule {
     return this.game.character.statPointsAvailable;
   }
 
-  private handleInventoryAdvanced() {
+  private async handleInventoryAdvanced() {
     let modified;
 
     do {

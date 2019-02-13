@@ -2,6 +2,17 @@ import * as config from 'config';
 import * as moment from 'moment';
 import * as winston from 'winston';
 
+// @ts-ignore
+Promise.serial = async function resolveSerial(promises: Promise<any>[]): Promise<any[]> {
+  const results = [];
+
+  for (let i = 0, tot = promises.length; i < tot; i += 1) {
+    results.push(await promises[i]);
+  }
+
+  return results;
+};
+
 import { optionsConfig, optionsWeb } from './game/types/options';
 
 import Game from './game';
@@ -18,17 +29,6 @@ import DuelModule from './modules/duel';
 import InventoryModule from './modules/inventory';
 import MovieModule from './modules/movie';
 import QuestModule from './modules/quest';
-
-// @ts-ignore
-Promise.serial = async function resolveSerial(promises: Promise<any>[]): Promise<any[]> {
-  const results = [];
-
-  for (let i = 0, tot = promises.length; i < tot; i += 1) {
-    results.push(await promises[i]);
-  }
-
-  return results;
-};
 
 export default class BigBangEmpireBot {
   readonly game: Game;
