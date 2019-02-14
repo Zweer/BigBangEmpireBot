@@ -13,12 +13,12 @@ Promise.serial = async function resolveSerial(promises: Promise<any>[]): Promise
   return results;
 };
 
-import { optionsConfig, optionsWeb } from './game/types/options';
+import { optionsConfig, optionsWeb } from './models/types/options';
 
-import Game from './game';
-import Constants from './game/constants';
-import ExtendedConfig from './game/extendedConfig';
-// import Friend from './game/friend';
+import Game from './models/game';
+import Constants from './models/constants';
+import ExtendedConfig from './models/extendedConfig';
+// import Friend from './models/friend';
 
 import Request from './request';
 import RequestWeb from './requestWeb';

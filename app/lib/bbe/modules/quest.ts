@@ -2,9 +2,9 @@ import * as moment from 'moment';
 
 import AbstractModule from '.';
 
-import { questStatus } from '../game/abstracts/quest';
-import Quest from '../game/quest';
-import { resource } from '../game/types/common';
+import { questStatus } from '../models/abstracts/quest';
+import Quest from '../models/quest';
+import { resource } from '../models/types/common';
 
 export default class QuestModule extends AbstractModule {
   static MAX_DAILY_REFILL = 200;

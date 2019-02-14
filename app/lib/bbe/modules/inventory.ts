@@ -1,6 +1,6 @@
 import AbstractModule from '.';
 
-import { itemType } from '../game/types/item';
+import { itemType } from '../models/types/item';
 
 export default class InventoryModule extends AbstractModule {
   private refreshShop: boolean = true;

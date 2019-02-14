@@ -6,11 +6,11 @@ import * as Transport from 'winston-transport';
 
 import BigBangEmpireBot from '.';
 
-import {stat} from './game/types/common';
-import {optionsTelegramBot} from './game/types/options';
-import {messageFlag} from "./game/mailbox/message";
-import Item from "./game/item";
-import Inventory from "./game/inventory";
+import {stat} from './models/types/common';
+import {optionsTelegramBot} from './models/types/options';
+import {messageFlag} from "./models/mailbox/message";
+import Item from "./models/item";
+import Inventory from "./models/inventory";
 
 export class TelegramBotLogger extends Transport {
   private bot: TelegramBot;

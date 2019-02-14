@@ -3,8 +3,8 @@ import * as numeral from 'numeral';
 
 import AbstractModule from '.';
 
-import { movieStatus } from '../game/movie';
-import { questType } from '../game/abstracts/quest';
+import { movieStatus } from '../models/movie';
+import { questType } from '../models/abstracts/quest';
 
 export default class MovieModule extends AbstractModule {
   async handle(): Promise<void> {

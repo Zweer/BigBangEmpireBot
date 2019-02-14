@@ -1,7 +1,7 @@
 import * as cheerio from 'cheerio';
 import * as request from 'request-promise';
 
-import { optionsWeb } from './game/types/options';
+import { optionsWeb } from './models/types/options';
 
 export default class RequestWeb {
   readonly baseUrl: string;

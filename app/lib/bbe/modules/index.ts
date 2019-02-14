@@ -1,6 +1,6 @@
 import * as winston from 'winston';
 
-import Game from '../game';
+import Game from '../models/game';
 import Request from '../request';
 import TelegramBot from '../telegram';
 

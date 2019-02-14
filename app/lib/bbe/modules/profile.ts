@@ -2,7 +2,7 @@ import * as moment from 'moment';
 
 import AbstractModule from '.';
 
-import Constants from '../game/constants';
+import Constants from '../models/constants';
 
 export default class ProfileModule extends AbstractModule {
   constants: Constants;

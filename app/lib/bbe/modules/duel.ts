@@ -2,7 +2,7 @@ import * as numeral from 'numeral';
 
 import AbstractModule from '.';
 
-import Opponent from '../game/duel/opponent';
+import Opponent from '../models/duel/opponent';
 
 export default class DuelModule extends AbstractModule {
   private alertMissiles: boolean;
