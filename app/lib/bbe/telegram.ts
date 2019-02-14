@@ -92,6 +92,11 @@ export default class TelegramBot {
       messageArr.push(`- ${numeral(this.bbe.game.user.premiumCurrency).format('0,0')} gems`);
       messageArr.push(`- ${numeral(this.bbe.game.character.honor).format('0a')} honor (${numeral(this.bbe.rank.character.honor).format('0o')})`);
       messageArr.push(`- ${numeral(this.bbe.game.character.fans).format('0a')} fans (${numeral(this.bbe.rank.character.fans).format('0o')})`);
+
+      if (this.bbe.rank.movieTournament) {
+        messageArr.push(`- movie tournament: ${numeral(this.bbe.rank.movieTournament).format('0o')}`);
+      }
+
       messageArr.push('--------------------');
       messageArr.push(`- energy: ${this.bbe.game.character.questEnergy} + ${200 - this.bbe.game.character.questEnergyRefillAmountToday} (${this.bbe.questRemaining})`);
       messageArr.push(`- stamina: ${this.bbe.game.character.duelStamina} / ${this.bbe.game.character.maxDuelStamina} (${this.bbe.game.character.duelStaminaCost})`);
@@ -100,6 +105,17 @@ export default class TelegramBot {
         messageArr.push('--------------------');
         messageArr.push(`- movie: ${numeral(this.bbe.game.movie.energy / this.bbe.game.movie.neededEnergy).format('0%')}`);
         messageArr.push(`- movie energy: ${this.bbe.game.character.movieEnergy}`);
+      }
+
+      if (this.bbe.game.guild) {
+        messageArr.push('--------------------');
+        messageArr.push(`- ${numeral(this.bbe.game.guild.honor).format('0a')} glory (${numeral(this.bbe.rank.guild.glory).format('0o')})`);
+        messageArr.push(`- ${numeral(this.bbe.game.guild.statTotal / this.bbe.constants.guildPercentageTotalBase).format('0%')} expansion (${numeral(this.bbe.rank.guild.expansion).format('0o')})`);
+        messageArr.push(`- ${numeral(this.bbe.game.guild.fans).format('0a')} fans (${numeral(this.bbe.rank.guild.fans).format('0o')})`);
+
+        if (this.bbe.rank.temple) {
+          messageArr.push(`- temple: ${numeral(this.bbe.rank.movieTournament).format('0o')}`);
+        }
       }
 
       await reply(messageArr.join('\n'));

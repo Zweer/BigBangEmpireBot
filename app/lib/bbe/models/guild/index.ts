@@ -136,4 +136,8 @@ export default class Guild extends DataObject<guildRaw> {
   tsActiveQuestBoostExpires: number;
   activeDuelBoosterId: string;
   tsActiveDuelBoostExpires: number;
+
+  get statTotal() {
+    return this.statGuildCapacity + this.statCharacterBaseStatsBoost + this.statQuestXpRewardBoost + this.statQuestGameCurrencyRewardBoost;
+  }
 }

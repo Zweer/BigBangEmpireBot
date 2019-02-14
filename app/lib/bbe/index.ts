@@ -32,27 +32,27 @@ import MovieModule from './modules/movie';
 import ProfileModule from './modules/profile';
 import QuestModule from './modules/quest';
 
-type rank = {
-  honor: number;
-  level: number;
-  fans: number;
-};
-type ranks = {
-  character: rank;
-  guild: rank;
-};
-
 export default class BigBangEmpireBot {
   readonly game: Game;
   private extendedConfig: ExtendedConfig;
-  private constants: Constants;
+  public constants: Constants;
   private offers: { consumable; normal; special; text };
   // private friends: Friend[];
 
   private level: number = 0;
-  public rank: ranks = {
-    character: {} as rank,
-    guild: {} as rank,
+  public rank = {
+    character: {
+      honor: 0,
+      level: 0,
+      fans: 0,
+    },
+    guild: {
+      glory: 0,
+      expansion: 0,
+      fans: 0,
+    },
+    movieTournament: 0,
+    temple: 0,
   };
 
   readonly options: optionsConfig;
@@ -200,24 +200,31 @@ export default class BigBangEmpireBot {
 
   async handleRankRetrieval() {
     await Promise.all([1, 2, 3].map(async (sortType) => {
-      const rank = await this.request.retrieveLeaderboard(sortType);
+      const characterRank = await this.request.retrieveLeaderboard(sortType);
+      const guildRank = await this.request.retrieveGuildLeaderboard(sortType);
 
       switch (sortType) {
         case 1:
-          this.rank.character.honor = rank;
+          this.rank.character.honor = characterRank;
+          this.rank.guild.glory = guildRank;
           break;
 
         case 2:
-          this.rank.character.level = rank;
+          this.rank.character.level = characterRank;
+          this.rank.guild.expansion = guildRank;
           break;
 
         case 3:
-          this.rank.character.fans = rank;
+          this.rank.character.fans = characterRank;
+          this.rank.guild.fans = guildRank;
           break;
 
         default: // do nothing
       }
     }));
+
+    this.rank.movieTournament = await this.request.retrieveMovieTournamentLeaderboard();
+    this.rank.temple = await this.request.retrieveSoloGuildCompetitionTournamentLeaderboard();
   }
 
   get levelPerc() {

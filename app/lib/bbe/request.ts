@@ -370,6 +370,27 @@ export default class Request {
     return rank;
   }
 
+  async retrieveGuildLeaderboard(sortType): Promise<number> {
+    const { centered_rank: rank } = await this.request('retrieveGuildLeaderboard', {
+      sort_type: sortType,
+      same_locale: false,
+    });
+
+    return rank;
+  }
+
+  async retrieveMovieTournamentLeaderboard(): Promise<number> {
+    const { centered_rank: rank } = await this.request('retrieveMovieTournamentLeaderboard');
+
+    return rank;
+  }
+
+  async retrieveSoloGuildCompetitionTournamentLeaderboard(): Promise<number> {
+    const { centered_rank: rank } = await this.request('retrieveSoloGuildCompetitionTournamentLeaderboard');
+
+    return rank;
+  }
+
   async buyQuestEnergy(): Promise<void> {
     await this.request(Request.ACTION_BUY_QUEST_ENERGY, {
       use_premium: false,
