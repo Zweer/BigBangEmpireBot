@@ -50,7 +50,10 @@ export default class BigBangEmpireBot {
   // private friends: Friend[];
 
   private level: number = 0;
-  public rank: ranks;
+  public rank: ranks = {
+    character: {} as rank,
+    guild: {} as rank,
+  };
 
   readonly options: optionsConfig;
   private optionsWeb: optionsWeb;
@@ -100,7 +103,7 @@ export default class BigBangEmpireBot {
     this.inventory = new InventoryModule(this.game, this.request, this.log, this.bot);
     this.mailbox = new MailboxModule(this.game, this.request, this.log, this.bot);
     this.movie = new MovieModule(this.game, this.request, this.log, this.bot);
-    this.profile = new ProfileModule(this.game, this.request, this.log, this.bot, this.constants);
+    this.profile = new ProfileModule(this.game, this.request, this.log, this.bot);
     this.quest = new QuestModule(this.game, this.request, this.log, this.bot);
   }
 
@@ -126,7 +129,7 @@ export default class BigBangEmpireBot {
   async initGame() {
     const { constants, extendedConfig } = await this.request.initGame(this.optionsWeb);
 
-    this.constants = constants;
+    this.constants = this.profile.constants = constants;
     this.extendedConfig.update(extendedConfig);
   }
 

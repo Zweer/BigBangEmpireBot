@@ -2,18 +2,12 @@ import * as moment from 'moment';
 
 import AbstractModule from '.';
 
-import Game from '../game';
-import Request from '../request';
-import TelegramBot from '../telegram';
-
 import Constants from '../game/constants';
 
 export default class ProfileModule extends AbstractModule {
-  static WORK_DELAY = [3, 'hours'];
+  constants: Constants;
 
-  constructor(readonly game: Game, readonly request: Request, readonly log, readonly bot: TelegramBot, readonly constants: Constants) {
-    super(game, request, log, bot);
-  }
+  static WORK_DELAY = [3, 'hours'];
 
   get tsLastWorkCollection() {
     return this.game.character.tsLastWorkCollection;
