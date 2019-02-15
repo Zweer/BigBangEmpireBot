@@ -633,7 +633,7 @@ export default class Request {
   async getGuildCompetitionTournamentReward() {
     const response = await this.request('getGuildCompetitionTournamentReward');
 
-    console.log('getGuildCompetitionTournamentReward');
+    return response;
   }
 
   async claimGuildCompetitionTournamentReward() {
