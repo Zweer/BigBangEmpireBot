@@ -157,7 +157,7 @@ export default class BigBangEmpireBot {
       await this.dating.handle();
       await this.duel.handle();
       await this.inventory.handle();
-      await this.guild.handle(),
+      await this.guild.handle();
       await this.mailbox.handle();
       await this.movie.handle();
       await this.profile.handle();

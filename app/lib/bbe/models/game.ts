@@ -14,6 +14,7 @@ import { questStatus } from './abstracts/quest';
 import DataObject from './utils/dataObject';
 import Guild, { guildRaw } from './guild';
 import DatingStep, {datingStepRaw} from "./dating/step";
+import StoryDungeon, {storyDungeonRaw} from "./storyDungeon";
 
 export type gameRaw = {
   saved_seconds: number,
@@ -63,7 +64,7 @@ export type gameRaw = {
   event_quest: object, // EventQuest
   guild: guildRaw, // Guild
   guild_competition_data: object, // GuildCompetition
-  story_dungeons: object[], // StoryDungeon[]
+  story_dungeons: storyDungeonRaw[],
   fan_foto: object, // FanPhoto
   current_item_pattern_values: object,
   dungeon: object, // Dungeon
@@ -162,7 +163,7 @@ export type gameRaw = {
   normal_offers: object[],
   payment_id: number,
   payment_link: string,
-  story_dungeon: object, // StoryDungeon
+  story_dungeon: storyDungeonRaw,
   resource_requests: object[], // ResourceRequest[]
   friend_user_ids: number,
   resource_request: object, // ResourceRequest
@@ -255,7 +256,7 @@ export default class Game extends DataObject<gameRaw> {
   public eventQuest: object; // EventQuest
   public guild: Guild;
   public guildCompetitionData: object; // GuildCompetition
-  public storyDungeons: object[]; // StoryDungeon[]
+  public storyDungeons: StoryDungeon[];
   public fanFoto: object; // FanPhoto
   public currentItemPatternValues: object;
   public dungeon: object; // Dungeon
@@ -354,7 +355,7 @@ export default class Game extends DataObject<gameRaw> {
   public normalOffers: object[];
   public paymentId: number;
   public paymentLink: string;
-  public storyDungeon: object; // StoryDungeon
+  public storyDungeon: StoryDungeon;
   public resourceRequests: object[]; // ResourceRequest[]
   public friendUserIds: number;
   public resourceRequest: object; // ResourceRequest
@@ -498,5 +499,13 @@ export default class Game extends DataObject<gameRaw> {
 
   setCompletedDatingSteps(datingStep: datingStepRaw[]) {
     this.completedDatingSteps = datingStep.map(d => new DatingStep(d));
+  }
+
+  setStoryDungeon(storyDungeon: storyDungeonRaw) {
+    this.storyDungeon = new StoryDungeon(storyDungeon);
+  }
+
+  setStoryDungeons(storyDungeons: storyDungeonRaw[]) {
+    this.storyDungeons = storyDungeons.map(s => new StoryDungeon(s));
   }
 }

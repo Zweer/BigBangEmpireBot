@@ -42,6 +42,9 @@ export default class QuestModule extends AbstractModule {
     await this.handleBuyEnergy();
 
     await this.handleCurrentQuest();
+
+    await this.handleStoryDungeon();
+
     await this.handleStartQuest();
   }
 
@@ -112,6 +115,24 @@ export default class QuestModule extends AbstractModule {
       const savedSeconds = await this.request.useResource(resource.QUEST_REDUCTION);
 
       this.log.info(`Quest reduction resource used: ${savedSeconds} seconds saved`);
+    }
+  }
+
+  private async handleStoryDungeon() {
+    if (this.game.currentQuest || this.questEnergy === 0) {
+      return;
+    }
+
+    if (!this.game.storyDungeon) {
+      return;
+    }
+
+    // TODO: isFinished???
+    if (this.game.storyDungeon.isFinished && this.game.storyDungeon.tsLastAttack.isBefore(moment().subtract(1, 'hour'))) {
+      this.log.info('Starting a story dungeon attack');
+
+      await this.request.startStoryDungeonBattle(this.game.storyDungeon.storyDungeonIndex);
+      await this.request.claimStoryDungeonReward(this.game.storyDungeon.storyDungeonIndex);
     }
   }
 }

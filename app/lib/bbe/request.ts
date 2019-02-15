@@ -643,4 +643,20 @@ export default class Request {
 
     console.log(response);
   }
+
+  async startStoryDungeonBattle(storyDungeonIndex: number) {
+    const response = await this.request('startStoryDungeonBattle', {
+      story_dungeon_index: storyDungeonIndex,
+      finish_cooldown: false,
+    });
+
+    console.log(response);
+  }
+
+  async claimStoryDungeonReward(storyDungeonIndex: number) {
+    await this.request('claimStoryDungeonReward', {
+      story_dungeon_index: storyDungeonIndex,
+      discard_item: false,
+    });
+  }
 }

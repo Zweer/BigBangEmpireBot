@@ -100,6 +100,7 @@ export default class TelegramBot {
       messageArr.push('--------------------');
       messageArr.push(`- energy: ${this.bbe.game.character.questEnergy} + ${200 - this.bbe.game.character.questEnergyRefillAmountToday} (${this.bbe.questRemainingTime})`);
       messageArr.push(`- stamina: ${this.bbe.game.character.duelStamina} / ${this.bbe.game.character.maxDuelStamina} (${this.bbe.game.character.duelStaminaCost})`);
+      messageArr.push(`- dating: `);
 
       if (this.bbe.game.movie) {
         messageArr.push('--------------------');
