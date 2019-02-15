@@ -23,12 +23,13 @@ export default class GuildModule extends AbstractModule {
   }
 
   private async handleCurrentBattle() {
+    // TODO: add if the battle was won or lost
     if (this.game.character.finishedGuildBattleAttackId) {
-      console.log('ooo');
+      await this.request.claimGuildBattleReward(this.game.character.finishedGuildBattleAttackId);
     }
 
     if (this.game.character.finishedGuildBattleDefenseId) {
-      console.log('ooo');
+      await this.request.claimGuildBattleReward(this.game.character.finishedGuildBattleDefenseId);
     }
   }
 
