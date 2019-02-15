@@ -227,7 +227,7 @@ export default class BigBangEmpireBot {
     this.rank.temple = await this.request.retrieveSoloGuildCompetitionTournamentLeaderboard();
   }
 
-  get levelPerc() {
+  get characterLevelPercentage() {
     const lvl = this.game.character.level;
     const nextLvl = lvl + 1;
 
@@ -241,7 +241,7 @@ export default class BigBangEmpireBot {
     return diff / diffNext;
   }
 
-  get questRemaining() {
+  get questRemainingTime() {
     const currentQuest = this.game.currentQuest;
     const now = moment();
 

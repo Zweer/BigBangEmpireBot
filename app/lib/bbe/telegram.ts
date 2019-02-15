@@ -87,7 +87,7 @@ export default class TelegramBot {
   initRouteProfile() {
     this.bot.command('profile', async ({ reply }: ContextMessageUpdate) => {
       const messageArr = [this.bbe.game.character.name];
-      messageArr.push(`- lvl ${this.bbe.game.character.level} (${numeral(this.bbe.levelPerc).format('0%')}) (${numeral(this.bbe.rank.character.level).format('0o')})`);
+      messageArr.push(`- lvl ${this.bbe.game.character.level} (${numeral(this.bbe.characterLevelPercentage).format('0%')}) (${numeral(this.bbe.rank.character.level).format('0o')})`);
       messageArr.push(`- ${numeral(this.bbe.game.character.gameCurrency).format('0a')} coins`);
       messageArr.push(`- ${numeral(this.bbe.game.user.premiumCurrency).format('0,0')} gems`);
       messageArr.push(`- ${numeral(this.bbe.game.character.honor).format('0a')} honor (${numeral(this.bbe.rank.character.honor).format('0o')})`);
@@ -98,7 +98,7 @@ export default class TelegramBot {
       }
 
       messageArr.push('--------------------');
-      messageArr.push(`- energy: ${this.bbe.game.character.questEnergy} + ${200 - this.bbe.game.character.questEnergyRefillAmountToday} (${this.bbe.questRemaining})`);
+      messageArr.push(`- energy: ${this.bbe.game.character.questEnergy} + ${200 - this.bbe.game.character.questEnergyRefillAmountToday} (${this.bbe.questRemainingTime})`);
       messageArr.push(`- stamina: ${this.bbe.game.character.duelStamina} / ${this.bbe.game.character.maxDuelStamina} (${this.bbe.game.character.duelStaminaCost})`);
 
       if (this.bbe.game.movie) {
