@@ -1,3 +1,4 @@
+import { findKey } from 'lodash';
 import * as moment from 'moment';
 
 import AbstractModule from '.';
@@ -13,9 +14,44 @@ export default class ProfileModule extends AbstractModule {
     return this.game.character.tsLastWorkCollection;
   }
 
+  get activeQuestBoosterId() {
+    return this.game.character.activeQuestBoosterId;
+  }
+
+  get activeStatsBoosterId() {
+    return this.game.character.activeStatsBoosterId;
+  }
+
+  get activeWorkBoosterId() {
+    return this.game.character.activeWorkBoosterId;
+  }
+
   async handle(): Promise<void> {
+    await this.handleBoosters();
     await this.handleCollectWork();
     await this.handleCompleteGoals();
+  }
+
+  private async handleBoosters() {
+    if (!this.activeQuestBoosterId) {
+      await this.buyBestBooster(1);
+    }
+
+    if (!this.activeStatsBoosterId) {
+      await this.buyBestBooster(2);
+    }
+
+    if (!this.activeWorkBoosterId) {
+      await this.buyBestBooster(3);
+    }
+  }
+
+  private async buyBestBooster(type: number, premium: boolean = false) {
+    const boosterId = findKey(this.constants.boosters, b => b.type === type && b.premium_item === premium);
+
+    this.log.info(`Buying booster ${boosterId}`);
+
+    await this.request.buyBooster(boosterId);
   }
 
   private async handleCollectWork() {

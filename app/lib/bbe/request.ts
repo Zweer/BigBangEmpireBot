@@ -605,4 +605,12 @@ export default class Request {
 
     console.log(response);
   }
+
+  async buyBooster(booster: string): Promise<void> {
+    await this.request('buyBooster', {
+      id: booster,
+    });
+
+    await this.syncGame(true);
+  }
 }
