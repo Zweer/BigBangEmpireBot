@@ -27,6 +27,7 @@ import VotableMovie from './models/movie/votable';
 import MessageCharacter from './models/mailbox/character';
 import Message from './models/mailbox/message';
 import GuildMessage from "./models/guild/message";
+import Voucher from "./models/voucher";
 
 export default class Request {
   readonly baseUrl: string;
@@ -598,10 +599,20 @@ export default class Request {
     console.log(response);
   }
 
-  async getUserVoucher() {
-    const response = await this.request('getUserVoucher');
+  async getUserVoucher(voucherId: number) {
+    const { voucher } = await this.request('getUserVoucher', {
+      id: voucherId,
+    });
 
-    console.log(response);
+    return new Voucher(voucher);
+  }
+
+  async redeemVoucher(voucher: Voucher) {
+    await this.request('redeemVoucher', {
+      code: voucher.code,
+    });
+
+    await this.syncGame(true);
   }
 
   async buyBooster(booster: string): Promise<void> {

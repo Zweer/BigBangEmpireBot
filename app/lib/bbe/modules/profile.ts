@@ -10,6 +10,10 @@ export default class ProfileModule extends AbstractModule {
 
   static WORK_DELAY = [3, 'hours'];
 
+  get newUserVoucherIds() {
+    return this.game.character.newUserVoucherIds;
+  }
+
   get tsLastWorkCollection() {
     return this.game.character.tsLastWorkCollection;
   }
@@ -27,10 +31,23 @@ export default class ProfileModule extends AbstractModule {
   }
 
   async handle(): Promise<void> {
+    await this.handleVoucher();
     await this.handleBoosters();
     await this.handleCollectWork();
     await this.handleCompleteGoals();
   }
+
+  private async handleVoucher() {
+    if (this.newUserVoucherIds.length) {
+      await Promise.all(this.newUserVoucherIds.map(async (voucherId) => {
+        const voucher = await this.request.getUserVoucher(voucherId);
+
+        this.log.info(`Voucher:\n${voucher.rewards}`);
+        await this.request.redeemVoucher(voucher);
+      }));
+    }
+  }
+
 
   private async handleBoosters() {
     if (!this.activeQuestBoosterId) {

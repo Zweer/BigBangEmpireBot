@@ -1,5 +1,6 @@
 import { mapValues } from 'lodash';
 
+import Booster, { boosterRaw } from './booster';
 import Goal, { goalRaw } from './goal';
 
 import DataObject from './utils/dataObject';
@@ -713,7 +714,7 @@ export type constantsRaw = {
   optical_change_chest_special_item_plus_level_rare: number;
   optical_change_chest_special_item_plus_level_epic: number;
   battle_skills: object;
-  boosters: object;
+  boosters: { [key: string]: boosterRaw };
   character_appearances: object;
   convention_rewards: object;
   custom_stages: object;
@@ -1478,7 +1479,7 @@ export default class Constants extends DataObject<constantsRaw> {
   opticalChangeChestSpecialItemPlusLevelRare: number;
   opticalChangeChestSpecialItemPlusLevelEpic: number;
   battleSkills: object;
-  boosters: object;
+  boosters: { [key: string]: Booster };
   characterAppearances: object;
   conventionRewards: object;
   customStages: object;
@@ -1539,5 +1540,9 @@ export default class Constants extends DataObject<constantsRaw> {
 
   setGoals(goals: { [key: string]: goalRaw }) {
     this.goals = mapValues(goals, (goal: goalRaw) => new Goal(goal));
+  }
+
+  setBoosters(boosters: { [key: string]: boosterRaw }) {
+    this.boosters = mapValues(boosters, (booster: boosterRaw) => new Booster(booster));
   }
 }

@@ -152,8 +152,6 @@ export default class BigBangEmpireBot {
     try {
       await this.syncGame();
 
-      await this.handleVoucher();
-
       this.handleNewLevel();
 
       await this.dating.handle();
@@ -176,12 +174,6 @@ export default class BigBangEmpireBot {
 
   async syncGame() {
     await this.request.syncGame();
-  }
-
-  async handleVoucher() {
-    if (this.game.character.newUserVoucherIds.length) {
-      console.log('ooo');
-    }
   }
 
   handleNewLevel() {
