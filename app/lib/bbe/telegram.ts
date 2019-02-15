@@ -114,7 +114,7 @@ export default class TelegramBot {
         messageArr.push(`- ${numeral(this.bbe.game.guild.fans).format('0a')} fans (${numeral(this.bbe.rank.guild.fans).format('0o')})`);
 
         if (this.bbe.rank.temple) {
-          messageArr.push(`- temple: ${numeral(this.bbe.rank.movieTournament).format('0o')}`);
+          messageArr.push(`- temple: ${numeral(this.bbe.rank.temple).format('0o')}`);
         }
       }
 
