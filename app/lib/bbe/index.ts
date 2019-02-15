@@ -228,7 +228,9 @@ export default class BigBangEmpireBot {
   }
 
   get datingStepPercentage() {
-    return this.dating.currentStep.pointsCollected / (this.dating.currentStep.repeat ? this.dating.currentConstantStep.rewardStatPointsRepeat : this.dating.currentConstantStep.rewardStatPoints);
+    const unlockPointsNeeded = this.dating.currentStep.repeat ? this.dating.currentConstantStep.unlockPointsNeededRepeat : this.dating.currentConstantStep.unlockPointsNeeded;
+
+    return this.dating.currentStep.pointsCollected / unlockPointsNeeded;
   }
 
   get questRemainingTime() {
