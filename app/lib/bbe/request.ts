@@ -189,8 +189,8 @@ export default class Request {
     return friendsRaw.map(friendRaw => new Friend(friendRaw));
   }
 
-  async syncGame(): Promise<void> {
-    const game = await this.request(Request.ACTION_SYNC_GAME, { force_sync: false });
+  async syncGame(force: boolean = false): Promise<void> {
+    const game = await this.request(Request.ACTION_SYNC_GAME, { force_sync: force });
 
     this.game.update(game);
   }
@@ -527,7 +527,17 @@ export default class Request {
     });
 
     // updating things is too difficult, better allow it to recreate everything
-    await this.syncGame();
+    await this.syncGame(true);
+  }
+
+  async startDatingBattle(datingIndex: number, stepIndex: number) {
+    await this.request('startDatingBattle', {
+      dating_index: datingIndex,
+      step_index: stepIndex,
+      finish_cooldown: false,
+    });
+
+    await this.syncGame(true);
   }
 
   async getGuildLog(init = true): Promise<GuildMessage[]> {

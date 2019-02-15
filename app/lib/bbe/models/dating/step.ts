@@ -44,4 +44,8 @@ export default class DatingStep extends DataObject<datingStepRaw> {
   get isRewardProcessed() {
     return this.status === datingStepStatus.REWARDS_PROCESSED;
   }
+
+  get isReadyForBattle() {
+    return this.stepIndex === 5;
+  }
 }

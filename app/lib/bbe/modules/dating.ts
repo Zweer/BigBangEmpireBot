@@ -13,13 +13,17 @@ export default class DatingModule extends AbstractModule {
     await this.request.startNewDatingStep(this.currentStep.datingIndex, this.currentStep.stepIndex + 1);
   }
 
+  private async doBattle() {
+    await this.request.startDatingBattle(this.currentStep.datingIndex, this.currentStep.stepIndex);
+  }
+
   async handle() {
     if (this.currentStep.isFinished) {
       await this.claimReward();
-    }
-
-    if (this.currentStep.isRewardProcessed) {
+    } else if (this.currentStep.isRewardProcessed) {
       await this.startNewStep();
+    } else if (this.currentStep.isReadyForBattle) {
+      await this.doBattle();
     }
   }
 }
