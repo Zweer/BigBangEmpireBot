@@ -1,6 +1,8 @@
 import AbstractModule from '.';
 
 export default class MailboxModule extends AbstractModule {
+  private oldMessages: number = 0;
+
   async handle(): Promise<void> {
     await this.handleMessages();
     await this.handleResourceRequests();
@@ -15,9 +17,11 @@ export default class MailboxModule extends AbstractModule {
   }
 
   private async handleMessages() {
-    if (this.newMessages === 0) {
+    if (this.newMessages === 0 || this.newMessages === this.oldMessages) {
       return;
     }
+
+    this.oldMessages = this.newMessages;
 
     this.log.info(`You have ${this.newMessages} new messages (${this.pendingResourceRequests} resource requests)`);
 
