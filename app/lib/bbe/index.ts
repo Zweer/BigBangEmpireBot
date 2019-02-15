@@ -132,7 +132,7 @@ export default class BigBangEmpireBot {
   async initGame() {
     const { constants, extendedConfig } = await this.request.initGame(this.optionsWeb);
 
-    this.constants = this.profile.constants = constants;
+    this.constants = this.dating.constants = this.profile.constants = constants;
     this.extendedConfig.update(extendedConfig);
   }
 
@@ -225,6 +225,10 @@ export default class BigBangEmpireBot {
     const diffNext = nextLvlXp - lvlXp;
 
     return diff / diffNext;
+  }
+
+  get datingStepPercentage() {
+    return this.dating.currentStep.pointsCollected / (this.dating.currentStep.repeat ? this.dating.currentConstantStep.rewardStatPointsRepeat : this.dating.currentConstantStep.rewardStatPoints);
   }
 
   get questRemainingTime() {

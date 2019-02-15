@@ -60,7 +60,7 @@ export type gameRaw = {
   convention_character_data: object[],
   dating_lookup: object, // Dating
   dating_step: datingStepRaw[],
-  completed_dating_steps: datingStepRaw[],
+  completed_dating_steps: object,
   event_quest: object, // EventQuest
   guild: guildRaw, // Guild
   guild_competition_data: object, // GuildCompetition
@@ -252,7 +252,7 @@ export default class Game extends DataObject<gameRaw> {
   public conventionCharacterData: object[];
   public datingLookup: object; // Dating
   public datingStep: DatingStep[];
-  public completedDatingSteps: DatingStep[];
+  public completedDatingSteps: object;
   public eventQuest: object; // EventQuest
   public guild: Guild;
   public guildCompetitionData: object; // GuildCompetition
@@ -495,10 +495,6 @@ export default class Game extends DataObject<gameRaw> {
 
   setDatingStep(datingStep: datingStepRaw[]) {
     this.datingStep = datingStep.map(d => new DatingStep(d));
-  }
-
-  setCompletedDatingSteps(datingStep: datingStepRaw[]) {
-    this.completedDatingSteps = datingStep.map(d => new DatingStep(d));
   }
 
   setStoryDungeon(storyDungeon: storyDungeonRaw) {

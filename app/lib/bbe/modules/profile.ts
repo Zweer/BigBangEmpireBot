@@ -1,13 +1,9 @@
 import { findKey } from 'lodash';
 import * as moment from 'moment';
 
-import AbstractModule from '.';
+import { AbstractModuleWithConstants } from '.';
 
-import Constants from '../models/constants';
-
-export default class ProfileModule extends AbstractModule {
-  constants: Constants;
-
+export default class ProfileModule extends AbstractModuleWithConstants {
   static WORK_DELAY = [3, 'hours'];
 
   get newUserVoucherIds() {
@@ -47,7 +43,6 @@ export default class ProfileModule extends AbstractModule {
       }));
     }
   }
-
 
   private async handleBoosters() {
     if (!this.activeQuestBoosterId) {

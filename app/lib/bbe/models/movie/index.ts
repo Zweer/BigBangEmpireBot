@@ -79,11 +79,7 @@ export default class Movie extends AbstractMovie<movieRaw> {
       return true;
     }
 
-    if (this.energy >= this.neededEnergy && this.claimedStars < 3) {
-      return true;
-    }
-
-    return false;
+    return this.energy >= this.neededEnergy;
   }
 
   get isWaitingForFinish() {

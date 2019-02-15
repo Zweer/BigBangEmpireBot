@@ -4,6 +4,7 @@ import Booster, { boosterRaw } from './booster';
 import Goal, { goalRaw } from './goal';
 
 import DataObject from './utils/dataObject';
+import DatingConstant, {datingConstantRaw} from "./dating/constant";
 
 export type level = {
   xp: number;
@@ -718,7 +719,7 @@ export type constantsRaw = {
   character_appearances: object;
   convention_rewards: object;
   custom_stages: object;
-  dating: object;
+  dating: { [key: number]: datingConstantRaw };
   dating_items: object;
   defined_character_appearances: object;
   dungeon_quest_templates: object;
@@ -1483,7 +1484,7 @@ export default class Constants extends DataObject<constantsRaw> {
   characterAppearances: object;
   conventionRewards: object;
   customStages: object;
-  dating: object;
+  dating: { [key: number]: DatingConstant };
   datingItems: object;
   definedCharacterAppearances: object;
   dungeonQuestTemplates: object;
@@ -1544,5 +1545,9 @@ export default class Constants extends DataObject<constantsRaw> {
 
   setBoosters(boosters: { [key: string]: boosterRaw }) {
     this.boosters = mapValues(boosters, (booster: boosterRaw) => new Booster(booster));
+  }
+
+  setDating(dating: { [key: number]: datingConstantRaw }) {
+    this.dating = mapValues(dating, (d: datingConstantRaw) => new DatingConstant(d));
   }
 }

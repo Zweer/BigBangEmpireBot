@@ -28,6 +28,7 @@ import MessageCharacter from './models/mailbox/character';
 import Message from './models/mailbox/message';
 import GuildMessage from "./models/guild/message";
 import Voucher from "./models/voucher";
+import StoryDungeon from "./models/storyDungeon";
 
 export default class Request {
   readonly baseUrl: string;
@@ -644,18 +645,18 @@ export default class Request {
     console.log(response);
   }
 
-  async startStoryDungeonBattle(storyDungeonIndex: number) {
-    const response = await this.request('startStoryDungeonBattle', {
-      story_dungeon_index: storyDungeonIndex,
+  async startStoryDungeonBattle(storyDungeon: StoryDungeon) {
+    const { story_dungeon: updatedStoryDungeon } = await this.request('startStoryDungeonBattle', {
+      story_dungeon_index: storyDungeon.storyDungeonIndex,
       finish_cooldown: false,
     });
 
-    console.log(response);
+    storyDungeon.update(updatedStoryDungeon);
   }
 
-  async claimStoryDungeonReward(storyDungeonIndex: number) {
+  async claimStoryDungeonReward(storyDungeon: StoryDungeon) {
     await this.request('claimStoryDungeonReward', {
-      story_dungeon_index: storyDungeonIndex,
+      story_dungeon_index: storyDungeon.storyDungeonIndex,
       discard_item: false,
     });
   }

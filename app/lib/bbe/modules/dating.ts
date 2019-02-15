@@ -1,8 +1,12 @@
-import AbstractModule from '.';
+import { AbstractModuleWithConstants } from '.';
 
-export default class DatingModule extends AbstractModule {
+export default class DatingModule extends AbstractModuleWithConstants {
   get currentStep() {
     return this.game.datingStep[this.game.datingStep.length - 1];
+  }
+
+  get currentConstantStep() {
+    return this.constants.dating[this.currentStep.datingIndex].steps[this.currentStep.stepIndex];
   }
 
   private async claimReward() {

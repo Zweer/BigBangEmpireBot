@@ -128,11 +128,11 @@ export default class QuestModule extends AbstractModule {
     }
 
     // TODO: isFinished???
-    if (this.game.storyDungeon.isFinished && this.game.storyDungeon.tsLastAttack.isBefore(moment().subtract(1, 'hour'))) {
+    if (this.game.storyDungeon.tsLastAttack.isBefore(moment().subtract(1, 'hour'))) {
       this.log.info('Starting a story dungeon attack');
 
-      await this.request.startStoryDungeonBattle(this.game.storyDungeon.storyDungeonIndex);
-      await this.request.claimStoryDungeonReward(this.game.storyDungeon.storyDungeonIndex);
+      await this.request.startStoryDungeonBattle(this.game.storyDungeon);
+      await this.request.claimStoryDungeonReward(this.game.storyDungeon);
     }
   }
 }

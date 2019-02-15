@@ -1,16 +1,16 @@
-import {camelCase, flatten, upperFirst} from 'lodash';
+import { camelCase, flatten, upperFirst } from 'lodash';
 import * as config from 'config';
 import * as numeral from 'numeral';
-import Telegraf, {ContextMessageUpdate, Markup} from 'telegraf';
+import Telegraf, { ContextMessageUpdate, Markup } from 'telegraf';
 import * as Transport from 'winston-transport';
 
 import BigBangEmpireBot from '.';
 
-import {stat} from './models/types/common';
-import {optionsTelegramBot} from './models/types/options';
-import {messageFlag} from "./models/mailbox/message";
-import Item from "./models/item";
-import Inventory from "./models/inventory";
+import { stat } from './models/types/common';
+import { optionsTelegramBot } from './models/types/options';
+import { messageFlag } from './models/mailbox/message';
+import Item from './models/item';
+import Inventory from './models/inventory';
 
 export class TelegramBotLogger extends Transport {
   private bot: TelegramBot;
@@ -100,7 +100,7 @@ export default class TelegramBot {
       messageArr.push('--------------------');
       messageArr.push(`- energy: ${this.bbe.game.character.questEnergy} + ${200 - this.bbe.game.character.questEnergyRefillAmountToday} (${this.bbe.questRemainingTime})`);
       messageArr.push(`- stamina: ${this.bbe.game.character.duelStamina} / ${this.bbe.game.character.maxDuelStamina} (${this.bbe.game.character.duelStaminaCost})`);
-      messageArr.push(`- dating: `);
+      messageArr.push(`- dating: ${numeral(this.bbe.datingStepPercentage).format('0%')}`);
 
       if (this.bbe.game.movie) {
         messageArr.push('--------------------');
