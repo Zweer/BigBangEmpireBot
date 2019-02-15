@@ -26,6 +26,7 @@ import TelegramBot, { TelegramBotLogger } from './telegram';
 
 import DatingModule from './modules/dating';
 import DuelModule from './modules/duel';
+import GuildModule from './modules/guild';
 import InventoryModule from './modules/inventory';
 import MailboxModule from './modules/mailbox';
 import MovieModule from './modules/movie';
@@ -63,6 +64,7 @@ export default class BigBangEmpireBot {
 
   readonly dating: DatingModule;
   readonly duel: DuelModule;
+  readonly guild: GuildModule;
   readonly inventory: InventoryModule;
   readonly mailbox: MailboxModule;
   readonly movie: MovieModule;
@@ -100,6 +102,7 @@ export default class BigBangEmpireBot {
 
     this.dating = new DatingModule(this.game, this.request, this.log, this.bot);
     this.duel = new DuelModule(this.game, this.request, this.log, this.bot);
+    this.guild = new GuildModule(this.game, this.request, this.log, this.bot);
     this.inventory = new InventoryModule(this.game, this.request, this.log, this.bot);
     this.mailbox = new MailboxModule(this.game, this.request, this.log, this.bot);
     this.movie = new MovieModule(this.game, this.request, this.log, this.bot);
@@ -156,12 +159,11 @@ export default class BigBangEmpireBot {
       await this.dating.handle();
       await this.duel.handle();
       await this.inventory.handle();
+      await this.guild.handle(),
       await this.mailbox.handle();
       await this.movie.handle();
       await this.profile.handle();
       await this.quest.handle();
-
-      await this.handleGuildMessages();
 
       await this.handleRankRetrieval();
     } catch (err) {
@@ -188,14 +190,6 @@ export default class BigBangEmpireBot {
     }
 
     this.level = this.game.character.level;
-  }
-
-  async handleGuildMessages() {
-    if (this.game.newGuildLogEntries) {
-      const guildMessages = await this.request.getGuildLog();
-
-      guildMessages.forEach(guildMessage => this.log.info(`👥 ${guildMessage}`));
-    }
   }
 
   async handleRankRetrieval() {

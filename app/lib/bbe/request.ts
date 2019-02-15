@@ -561,12 +561,10 @@ export default class Request {
     return Object.keys(guildLogs).map(guildLogId => new GuildMessage(guildLogs[guildLogId], guildLogId));
   }
 
-  async joinGuildBattle() {
-    const response = await this.request('joinGuildBattle', {
-      attack: true,
-    });
+  async joinGuildBattle(attack: boolean) {
+    await this.request('joinGuildBattle', { attack });
 
-    console.log(response);
+    await this.syncGame(true);
   }
 
   async buyShopItem(item: Item | number, targetSlot: number): Promise<void> {
@@ -612,5 +610,26 @@ export default class Request {
     });
 
     await this.syncGame(true);
+  }
+
+  async claimGuildBattleReward(guildBattleId: number) {
+    await this.request('claimGuildBattleReward', {
+      guild_battle_id: guildBattleId,
+      discard_item: false,
+    });
+  }
+
+  async getGuildCompetitionTournamentReward() {
+    const response = await this.request('getGuildCompetitionTournamentReward');
+
+    console.log(response);
+  }
+
+  async claimGuildCompetitionTournamentReward() {
+    const response = await this.request('claimGuildCompetitionTournamentReward', {
+      discard_item: false,
+    });
+
+    console.log(response);
   }
 }
