@@ -1,5 +1,6 @@
 import { camelCase, flatten, upperFirst } from 'lodash';
 import * as config from 'config';
+import * as moment from 'moment';
 import * as numeral from 'numeral';
 import Telegraf, { ContextMessageUpdate, Markup } from 'telegraf';
 import * as Transport from 'winston-transport';
@@ -101,6 +102,7 @@ export default class TelegramBot {
       messageArr.push(`- energy: ${this.bbe.game.character.questEnergy} + ${200 - this.bbe.game.character.questEnergyRefillAmountToday} (${this.bbe.questRemainingTime})`);
       messageArr.push(`- stamina: ${this.bbe.game.character.duelStamina} / ${this.bbe.game.character.maxDuelStamina} (${this.bbe.game.character.duelStaminaCost})`);
       messageArr.push(`- dating: ${numeral(this.bbe.datingStepPercentage).format('0%')}`);
+      messageArr.push(`- story dungeon in ${moment.duration(this.bbe.quest.storyDungeon.tsLastAttack.diff(moment())).humanize()}`);
 
       if (this.bbe.game.movie) {
         messageArr.push('--------------------');

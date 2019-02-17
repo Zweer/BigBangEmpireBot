@@ -38,6 +38,10 @@ export default class QuestModule extends AbstractModule {
     return this.game.character.usedResources;
   }
 
+  get storyDungeon() {
+    return this.game.storyDungeon;
+  }
+
   async handle(): Promise<void> {
     await this.handleBuyEnergy();
 
@@ -119,20 +123,20 @@ export default class QuestModule extends AbstractModule {
   }
 
   private async handleStoryDungeon() {
-    if (this.game.currentQuest || this.questEnergy === 0) {
+    if (this.currentQuest || this.questEnergy === 0) {
       return;
     }
 
-    if (!this.game.storyDungeon) {
+    if (!this.storyDungeon) {
       return;
     }
 
     // TODO: isFinished???
-    if (this.game.storyDungeon.tsLastAttack.isBefore(moment().subtract(1, 'hour'))) {
+    if (this.storyDungeon.tsLastAttack.isBefore(moment().subtract(1, 'hour'))) {
       this.log.info('Starting a story dungeon attack');
 
-      await this.request.startStoryDungeonBattle(this.game.storyDungeon);
-      await this.request.claimStoryDungeonReward(this.game.storyDungeon);
+      await this.request.startStoryDungeonBattle(this.storyDungeon);
+      await this.request.claimStoryDungeonReward(this.storyDungeon);
     }
   }
 }

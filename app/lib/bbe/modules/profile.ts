@@ -26,6 +26,14 @@ export default class ProfileModule extends AbstractModuleWithConstants {
     return this.game.character.activeWorkBoosterId;
   }
 
+  get currentGoalValue() {
+    return this.game.currentGoalValue;
+  }
+
+  get collectedGoals() {
+    return this.game.collectedGoals;
+  }
+
   async handle(): Promise<void> {
     await this.handleVoucher();
     await this.handleBoosters();
@@ -77,10 +85,10 @@ export default class ProfileModule extends AbstractModuleWithConstants {
   }
 
   private async handleCompleteGoals() {
-    await Object.keys(this.game.currentGoalValue)
+    await Object.keys(this.currentGoalValue)
       .map((goalName) => {
-        const currentGoalValue = this.game.currentGoalValue[goalName];
-        const collectedGoal = this.game.collectedGoals[goalName] || { value: 0 };
+        const currentGoalValue = this.currentGoalValue[goalName];
+        const collectedGoal = this.collectedGoals[goalName] || { value: 0 };
         const goal = this.constants.goals[goalName];
 
         if (currentGoalValue.currentValue <= collectedGoal.value) {

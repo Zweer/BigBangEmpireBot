@@ -37,6 +37,10 @@ export default class MovieModule extends AbstractModule {
     return this.game.character.movieVotes;
   }
 
+  get tsLastMovieFinished() {
+    return this.game.character.tsLastMovieFinished;
+  }
+
   private async handleVotes(): Promise<void> {
     if (this.movieVotes === 0) {
       return;
@@ -49,7 +53,7 @@ export default class MovieModule extends AbstractModule {
   }
 
   private async handleCurrentQuest(): Promise<void> {
-    if (!this.game.movie) {
+    if (!this.movie) {
       return;
     }
 
@@ -61,17 +65,17 @@ export default class MovieModule extends AbstractModule {
   }
 
   private async handleMovieStar(): Promise<void> {
-    if (!this.game.movie) {
+    if (!this.movie) {
       return;
     }
 
-    if (this.game.movie.isWaitingForClaim) {
+    if (this.movie.isWaitingForClaim) {
       await this.request.claimMovieStar();
 
-      this.log.info(`🎥 ${numeral(this.game.movie.claimedStars).format('0o')} star claimed`);
+      this.log.info(`🎥 ${numeral(this.movie.claimedStars).format('0o')} star claimed`);
     }
 
-    if (this.game.movie.isWaitingForFinish) {
+    if (this.movie.isWaitingForFinish) {
       await this.request.finishMovie();
 
       this.log.info('🎥 Finished');
@@ -83,7 +87,7 @@ export default class MovieModule extends AbstractModule {
       return;
     }
 
-    if (this.game.character.tsLastMovieFinished.isAfter(moment().subtract(1, 'hour'))) {
+    if (this.tsLastMovieFinished.isAfter(moment().subtract(1, 'hour'))) {
       return;
     }
 
