@@ -10,6 +10,7 @@
   "telegram": {
     "token": "TELEGRAM_TOKEN",
     "self": "TELEGRAM_SELF",
-    "port": "PORT"
+    "port": "PORT",
+    "baseurl": "TELEGRAM_WEBHOOK_BASEURL"
   }
 }

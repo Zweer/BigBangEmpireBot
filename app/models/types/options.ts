@@ -12,6 +12,7 @@ export type optionsTelegramBot = {
   token: string;
   self: number;
   port: number;
+  baseurl: string;
 };
 
 export type optionsWeb = {
