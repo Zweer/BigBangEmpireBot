@@ -3,32 +3,32 @@ import { mapValues, merge } from 'lodash';
 import * as moment from 'moment';
 import * as request from 'request-promise';
 
-import BigBangEmpireError from './models/error';
+import BigBangEmpireError from '../models/error';
 
-import { resource, stat } from './models/types/common';
-import { itemType } from './models/types/item';
-import { optionsWeb } from './models/types/options';
+import { resource, stat } from '../models/types/common';
+import { itemType } from '../models/types/item';
+import { optionsWeb } from '../models/types/options';
 
-import Battle from './models/battle';
-import CollectedWork from './models/work/collected';
-import Constants from './models/constants';
-import Duel from './models/duel';
-import ExtendedConfig from './models/extendedConfig';
-import Friend from './models/friend';
-import Game from './models/game';
-import Item from './models/item';
-import MissedDuel from './models/duel/missed';
-import Movie from './models/movie';
-import MovieQuest from './models/movie/quest';
-import Opponent from './models/duel/opponent';
-import Quest from './models/quest';
-import Reward from './models/reward';
-import VotableMovie from './models/movie/votable';
-import MessageCharacter from './models/mailbox/character';
-import Message from './models/mailbox/message';
-import GuildMessage from "./models/guild/message";
-import Voucher from "./models/voucher";
-import StoryDungeon from "./models/storyDungeon";
+import Battle from '../models/battle';
+import CollectedWork from '../models/work/collected';
+import Constants from '../models/constants';
+import Duel from '../models/duel';
+import ExtendedConfig from '../models/extendedConfig';
+import Friend from '../models/friend';
+import Game from '../models/game';
+import Item from '../models/item';
+import MissedDuel from '../models/duel/missed';
+import Movie from '../models/movie';
+import MovieQuest from '../models/movie/quest';
+import Opponent from '../models/duel/opponent';
+import Quest from '../models/quest';
+import Reward from '../models/reward';
+import VotableMovie from '../models/movie/votable';
+import MessageCharacter from '../models/mailbox/character';
+import Message from '../models/mailbox/message';
+import GuildMessage from "../models/guild/message";
+import Voucher from "../models/voucher";
+import StoryDungeon from "../models/storyDungeon";
 
 export default class Request {
   readonly baseUrl: string;

@@ -19,9 +19,9 @@ import Constants from './models/constants';
 import ExtendedConfig from './models/extendedConfig';
 // import Friend from './models/friend';
 
-import Request from './request';
-import RequestWeb from './requestWeb';
-import TelegramBot, { TelegramBotLogger } from './telegram';
+import Request from './lib/request';
+import RequestWeb from './lib/requestWeb';
+import TelegramBot, { TelegramBotLogger } from './lib/telegram';
 
 import DatingModule from './modules/dating';
 import DuelModule from './modules/duel';

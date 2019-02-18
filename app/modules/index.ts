@@ -1,7 +1,7 @@
 import * as winston from 'winston';
 
-import Request from '../request';
-import TelegramBot from '../telegram';
+import Request from '../lib/request';
+import TelegramBot from '../lib/telegram';
 
 import Constants from '../models/constants';
 import Game from '../models/game';
