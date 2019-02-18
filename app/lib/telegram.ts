@@ -55,6 +55,7 @@ export default class TelegramBot {
 
     // @ts-ignore
     if (this.options.has('port')) {
+      console.log(process.env);
       this.bot.startWebhook('/telegram', null, this.options.port);
     } else {
       this.bot.startPolling();
