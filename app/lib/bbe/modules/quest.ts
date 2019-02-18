@@ -58,6 +58,10 @@ export default class QuestModule extends AbstractModule {
     }
   }
 
+  get hasEnergy() {
+    return this.questEnergy + QuestModule.MAX_DAILY_REFILL - this.questEnergyRefillAmountToday >= 2;
+  }
+
   private async handleCurrentQuest(): Promise<void> {
     if (!this.currentQuest || this.currentQuest.tsComplete.isAfter(moment())) {
       return;
@@ -138,5 +142,20 @@ export default class QuestModule extends AbstractModule {
       await this.request.startStoryDungeonBattle(this.storyDungeon);
       await this.request.claimStoryDungeonReward(this.storyDungeon);
     }
+  }
+
+  get remainingTime() {
+    const now = moment();
+
+    if (!this.currentQuest || this.currentQuest.tsComplete.isBefore(now)) {
+      return 'no quest in progress';
+    }
+
+    const diff = this.currentQuest.tsComplete.diff(now, 'seconds');
+
+    const minutes = Math.round(diff / 60);
+    const seconds = diff % 60;
+
+    return `${minutes} minute${minutes === 1 ? '' : 's'} ${seconds} second${seconds === 1 ? '' : 's'}`;
   }
 }

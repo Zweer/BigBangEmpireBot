@@ -1,5 +1,4 @@
 import * as config from 'config';
-import * as moment from 'moment';
 import * as winston from 'winston';
 
 // @ts-ignore
@@ -73,6 +72,10 @@ export default class BigBangEmpireBot {
 
   readonly bot: TelegramBot;
   readonly log: winston.Logger;
+
+  public restartGame: boolean = false;
+  public closeGame: boolean = false;
+  public closeWhenNoQuestEnergy: boolean = true;
 
   static BASE_URL: string = 'https://{SERVER}.bigbangempire.com';
 
@@ -148,7 +151,27 @@ export default class BigBangEmpireBot {
     /* this.friends = */ await this.request.initFriends();
   }
 
+  restart() {
+    this.restartGame = true;
+  }
+
+  close() {
+    this.closeGame = true;
+  }
+
   async playRound() {
+    if (this.restartGame) {
+      this.restartGame = false;
+
+      return this.run();
+    }
+
+    if (this.closeGame || (!this.quest.hasEnergy && this.closeWhenNoQuestEnergy)) {
+      this.bot.bot.stop();
+
+      return;
+    }
+
     try {
       await this.syncGame();
 
@@ -231,22 +254,6 @@ export default class BigBangEmpireBot {
     const unlockPointsNeeded = this.dating.currentStep.repeat ? this.dating.currentConstantStep.unlockPointsNeededRepeat : this.dating.currentConstantStep.unlockPointsNeeded;
 
     return this.dating.currentStep.pointsCollected / unlockPointsNeeded;
-  }
-
-  get questRemainingTime() {
-    const currentQuest = this.game.currentQuest;
-    const now = moment();
-
-    if (!currentQuest || currentQuest.tsComplete.isBefore(now)) {
-      return 'no quest in progress';
-    }
-
-    const diff = currentQuest.tsComplete.diff(now, 'seconds');
-
-    const minutes = Math.round(diff / 60);
-    const seconds = diff % 60;
-
-    return `${minutes} minute${minutes === 1 ? '' : 's'} ${seconds} second${seconds === 1 ? '' : 's'}`;
   }
 }
 

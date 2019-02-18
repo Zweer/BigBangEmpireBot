@@ -73,6 +73,7 @@ export default class TelegramBot {
     this.initRouteStats();
     this.initRouteMailbox();
     this.initRouteItems();
+    this.initRouteClose();
   }
 
   initRouteStart() {
@@ -99,7 +100,7 @@ export default class TelegramBot {
       }
 
       messageArr.push('--------------------');
-      messageArr.push(`- energy: ${this.bbe.game.character.questEnergy} + ${200 - this.bbe.game.character.questEnergyRefillAmountToday} (${this.bbe.questRemainingTime})`);
+      messageArr.push(`- energy: ${this.bbe.game.character.questEnergy} + ${200 - this.bbe.game.character.questEnergyRefillAmountToday} (${this.bbe.quest.remainingTime})`);
       messageArr.push(`- stamina: ${this.bbe.game.character.duelStamina} / ${this.bbe.game.character.maxDuelStamina} (${this.bbe.game.character.duelStaminaCost})`);
       messageArr.push(`- dating: ${numeral(this.bbe.datingStepPercentage).format('0%')}`);
 
@@ -269,5 +270,19 @@ export default class TelegramBot {
       .extra();
 
     return this.broadcastMessage(messageArr.join('\n'), extra);
+  }
+
+  private async initRouteClose() {
+    this.bot.command('close', async ({ reply }: ContextMessageUpdate) => {
+      this.bbe.close();
+
+      await reply('Closing...');
+    });
+
+    this.bot.command('restart', async ({ reply }: ContextMessageUpdate) => {
+      this.bbe.restart();
+
+      await reply('Restarting...');
+    });
   }
 }
