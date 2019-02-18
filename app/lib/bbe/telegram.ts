@@ -74,6 +74,7 @@ export default class TelegramBot {
     this.initRouteMailbox();
     this.initRouteItems();
     this.initRouteClose();
+    this.initRouteHelp();
   }
 
   initRouteStart() {
@@ -272,7 +273,7 @@ export default class TelegramBot {
     return this.broadcastMessage(messageArr.join('\n'), extra);
   }
 
-  private async initRouteClose() {
+  private initRouteClose() {
     this.bot.command('close', async ({ reply }: ContextMessageUpdate) => {
       this.bbe.close();
 
@@ -283,6 +284,25 @@ export default class TelegramBot {
       this.bbe.restart();
 
       await reply('Restarting...');
+    });
+  }
+
+  private initRouteHelp() {
+    this.bot.command('help', async ({ reply }: ContextMessageUpdate) => {
+      await reply(`
+From here you can control your Big Bang Empire Bot.
+
+Commands are:
+
+/help - View this help message
+
+/profile - Print info about your hero
+/stats - View (and manage) your character's stats
+/messages - View the messages
+
+/restart - Restarts the game (if something bad happened)
+/close - Shout down the game (enough?)
+`);
     });
   }
 }
