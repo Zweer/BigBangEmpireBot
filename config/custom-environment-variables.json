@@ -1,0 +1,14 @@
+{
+  "bbe": {
+    "auth": {
+      "server": "BBE_SERVER",
+      "email": "BBE_AUTH_EMAIL",
+      "password": "BBE_AUTH_PASSWORD"
+    }
+  },
+
+  "telegram": {
+    "token": "TELEGRAM_TOKEN",
+    "self": "TELEGRAM_SELF"
+  }
+}
