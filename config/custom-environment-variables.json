@@ -9,6 +9,7 @@
 
   "telegram": {
     "token": "TELEGRAM_TOKEN",
-    "self": "TELEGRAM_SELF"
+    "self": "TELEGRAM_SELF",
+    "port": "PORT"
   }
 }

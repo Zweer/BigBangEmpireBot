@@ -11,6 +11,7 @@ export type optionsConfig = {
 export type optionsTelegramBot = {
   token: string;
   self: number;
+  port: number;
 };
 
 export type optionsWeb = {

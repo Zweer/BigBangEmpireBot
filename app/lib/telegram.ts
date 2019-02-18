@@ -52,7 +52,13 @@ export default class TelegramBot {
     }
 
     this.bot = new Telegraf(this.options.token);
-    this.bot.startPolling();
+
+    // @ts-ignore
+    if (this.options.has('port')) {
+      this.bot.startWebhook('/telegram', null, this.options.port);
+    } else {
+      this.bot.startPolling();
+    }
 
     this.initRoutes();
   }
