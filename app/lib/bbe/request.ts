@@ -660,4 +660,19 @@ export default class Request {
       discard_item: false,
     });
   }
+
+  async getDailyBonusRewardData() {
+    const response = await this.request('getDailyBonusRewardData');
+
+    return response;
+  }
+
+  async collectHerobookReward(id: number) {
+    const response = await this.request('collectHerobookReward', {
+      id,
+      discard_item: false,
+    });
+
+    console.log(response);
+  }
 }

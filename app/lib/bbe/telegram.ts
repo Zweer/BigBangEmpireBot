@@ -102,7 +102,10 @@ export default class TelegramBot {
       messageArr.push(`- energy: ${this.bbe.game.character.questEnergy} + ${200 - this.bbe.game.character.questEnergyRefillAmountToday} (${this.bbe.questRemainingTime})`);
       messageArr.push(`- stamina: ${this.bbe.game.character.duelStamina} / ${this.bbe.game.character.maxDuelStamina} (${this.bbe.game.character.duelStaminaCost})`);
       messageArr.push(`- dating: ${numeral(this.bbe.datingStepPercentage).format('0%')}`);
-      messageArr.push(`- story dungeon in ${moment.duration(this.bbe.quest.storyDungeon.tsLastAttack.diff(moment())).humanize()}`);
+
+      if (this.bbe.quest.storyDungeon) {
+        messageArr.push(`- story dungeon in ${moment.duration(this.bbe.quest.storyDungeon.tsLastAttack.diff(moment())).humanize()}`);
+      }
 
       if (this.bbe.game.movie) {
         messageArr.push('--------------------');

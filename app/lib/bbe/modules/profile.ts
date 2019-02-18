@@ -1,4 +1,4 @@
-import { findKey } from 'lodash';
+import { findKey, findLastKey } from 'lodash';
 import * as moment from 'moment';
 
 import { AbstractModuleWithConstants } from '.';
@@ -35,10 +35,15 @@ export default class ProfileModule extends AbstractModuleWithConstants {
   }
 
   async handle(): Promise<void> {
+    await this.handleDailyBonus();
     await this.handleVoucher();
     await this.handleBoosters();
     await this.handleCollectWork();
     await this.handleCompleteGoals();
+  }
+
+  private async handleDailyBonus() {
+    await this.request.getDailyBonusRewardData();
   }
 
   private async handleVoucher() {
@@ -67,7 +72,7 @@ export default class ProfileModule extends AbstractModuleWithConstants {
   }
 
   private async buyBestBooster(type: number, premium: boolean = false) {
-    const boosterId = findKey(this.constants.boosters, b => b.type === type && b.premium_item === premium);
+    const boosterId = findLastKey(this.constants.boosters, b => b.type === type && b.premiumItem === premium);
 
     this.log.info(`Buying booster ${boosterId}`);
 
