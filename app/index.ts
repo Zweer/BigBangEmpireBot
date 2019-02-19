@@ -51,7 +51,6 @@ export default class BigBangEmpireBot {
     temple: 0,
   };
 
-  readonly options: optionsConfig;
   private optionsWeb: optionsWeb;
 
   readonly dating: DatingModule;
@@ -69,9 +68,7 @@ export default class BigBangEmpireBot {
 
   static BASE_URL: string = 'https://{SERVER}.bigbangempire.com';
 
-  constructor(options?: optionsConfig) {
-    this.options = options || config.get('bbe');
-
+  constructor(readonly options: optionsConfig = config.get('bbe')) {
     bot.setBBE(this);
 
     this.dating = new DatingModule();
@@ -85,38 +82,14 @@ export default class BigBangEmpireBot {
   }
 
   async run() {
-    await this.initConfigFromWeb();
-    await this.initEnvironment();
-    await this.initGame();
-    await this.login();
-    await this.initOffers();
-    await this.initFriends();
+    this.optionsWeb = await requestWeb.initConfigFromWeb();
+    await request.initEnvironment();
+    await request.initGame(this.optionsWeb);
+    await request.login(this.options.auth.email, this.options.auth.password);
+    this.offers = await request.initOffers(this.optionsWeb.locale);
+    /* this.friends = */ await request.initFriends();
 
     await this.playRound();
-  }
-
-  async initConfigFromWeb() {
-    this.optionsWeb = await requestWeb.initConfigFromWeb();
-  }
-
-  async initEnvironment() {
-    await request.initEnvironment();
-  }
-
-  async initGame() {
-    await request.initGame(this.optionsWeb);
-  }
-
-  async login() {
-    await request.login(this.options.auth.email, this.options.auth.password);
-  }
-
-  async initOffers() {
-    this.offers = await request.initOffers(this.optionsWeb.locale);
-  }
-
-  async initFriends() {
-    /* this.friends = */ await request.initFriends();
   }
 
   restart() {
@@ -135,7 +108,7 @@ export default class BigBangEmpireBot {
     }
 
     if (this.closeGame || (!this.quest.hasEnergy && this.closeWhenNoQuestEnergy)) {
-      bot.bot.stop();
+      bot.stop();
 
       return;
     }

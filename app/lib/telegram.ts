@@ -41,6 +41,10 @@ class TelegramBot {
     this.bbe = bbe;
   }
 
+  stop() {
+    this.bot.stop();
+  }
+
   async startTelegram() {
     // @ts-ignore
     if (this.options.has('port') && this.options.has('baseurl')) {

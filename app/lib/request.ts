@@ -4,7 +4,7 @@ import * as config from 'config';
 import * as moment from 'moment';
 import * as request from 'request-promise';
 
-import BigBangEmpireError from '../models/error';
+import BigBangEmpireError from '../models/utils/error';
 
 import { resource, stat } from '../models/types/common';
 import { itemType } from '../models/types/item';
@@ -44,8 +44,6 @@ class Request {
   static PLATFORM = 'standalone';
 
   static AUTH_SERVER: string = config.get('bbe.auth.server');
-  static AUTH_EMAIL: string = config.get('bbe.auth.email');
-  static AUTH_PASSWORD: string = config.get('bbe.auth.password');
   static BASE_URL: string = config.get('bbe.baseUrl').replace('{SERVER}', Request.AUTH_SERVER);
   static ENDPOINT_REQUEST: string = '/request.php';
 
