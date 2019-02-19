@@ -8,7 +8,7 @@ import game from '../models/game';
 import AbstractModule from '.';
 
 import { questStatus } from '../models/abstracts/quest';
-import Quest from '../models/quest';
+import Quest from '../models/story/quest';
 import { resource } from '../models/types/common';
 
 export default class QuestModule extends AbstractModule {

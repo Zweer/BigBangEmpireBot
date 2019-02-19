@@ -1,4 +1,4 @@
-import Reward from '../reward';
+import Reward from '../story/reward';
 
 import AbstractDuel, { abstractDuelRaw } from '../abstracts/duel';
 

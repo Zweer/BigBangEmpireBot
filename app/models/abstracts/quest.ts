@@ -1,6 +1,6 @@
 import * as moment from 'moment';
 
-import Reward from '../reward';
+import Reward from '../story/reward';
 
 import { difficulty, stat } from '../types/common';
 

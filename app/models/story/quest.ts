@@ -1,4 +1,4 @@
-import AbstractQuest, { abstractQuestRaw } from './abstracts/quest';
+import AbstractQuest, { abstractQuestRaw } from '../abstracts/quest';
 
 export type questRaw = abstractQuestRaw & {
   stage: number,

@@ -1,6 +1,6 @@
-import { itemQuality } from './types/common';
+import { itemQuality } from '../types/common';
 
-import DataObject from './utils/dataObject';
+import DataObject from '../utils/dataObject';
 
 export type rewardRaw = {
   xp: number;

@@ -23,14 +23,14 @@ import MissedDuel from '../models/duel/missed';
 import Movie from '../models/movie';
 import MovieQuest from '../models/movie/quest';
 import Opponent from '../models/duel/opponent';
-import Quest from '../models/quest';
-import Reward from '../models/reward';
+import Quest from '../models/story/quest';
+import Reward from '../models/story/reward';
 import VotableMovie from '../models/movie/votable';
 import MessageCharacter from '../models/mailbox/character';
 import Message from '../models/mailbox/message';
 import GuildMessage from '../models/guild/message';
 import Voucher from '../models/voucher';
-import StoryDungeon from '../models/storyDungeon';
+import StoryDungeon from '../models/story/storyDungeon';
 
 class Request {
   private semaphore = true;

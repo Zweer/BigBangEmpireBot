@@ -7,14 +7,14 @@ import Inventory, { inventoryRaw } from './inventory';
 import Item, { itemRaw } from './inventory/item';
 import Movie, { movieRaw } from './movie';
 import MovieQuest, { movieQuestRaw } from './movie/quest';
-import Quest, { questRaw } from './quest';
+import Quest, { questRaw } from './story/quest';
 import User, { userRaw } from './user';
 
 import { questStatus } from './abstracts/quest';
 import DataObject from './utils/dataObject';
 import Guild, { guildRaw } from './guild';
 import DatingStep, { datingStepRaw } from './dating/step';
-import StoryDungeon, { storyDungeonRaw } from './storyDungeon';
+import StoryDungeon, { storyDungeonRaw } from './story/storyDungeon';
 
 export type gameRaw = {
   saved_seconds: number,

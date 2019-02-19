@@ -1,4 +1,4 @@
-import Reward from '../reward';
+import Reward from '../story/reward';
 
 import DataObject from '../utils/dataObject';
 

@@ -2,7 +2,7 @@ import * as moment from 'moment';
 
 import Reward from './reward';
 
-import DataObject from './utils/dataObject';
+import DataObject from '../utils/dataObject';
 
 export type storyDungeonRaw = {
   id: number;
