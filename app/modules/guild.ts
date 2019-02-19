@@ -1,5 +1,6 @@
 import game from '../models/game';
 
+import log from '../lib/log';
 import request from '../lib/request';
 
 import AbstractModule from '.';
@@ -22,7 +23,7 @@ export default class GuildModule extends AbstractModule {
     if (this.newGuildLogEntries) {
       const guildMessages = await request.getGuildLog();
 
-      guildMessages.forEach(guildMessage => this.log.info(`👥 ${guildMessage}`));
+      guildMessages.forEach(guildMessage => log.info(`👥 ${guildMessage}`));
     }
   }
 

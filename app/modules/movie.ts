@@ -1,8 +1,10 @@
 import * as moment from 'moment';
 import * as numeral from 'numeral';
 
-import game from '../models/game';
+import log from '../lib/log';
 import request from '../lib/request';
+
+import game from '../models/game';
 
 import AbstractModule from '.';
 
@@ -75,13 +77,13 @@ export default class MovieModule extends AbstractModule {
     if (this.movie.isWaitingForClaim) {
       await request.claimMovieStar();
 
-      this.log.info(`🎥 ${numeral(this.movie.claimedStars).format('0o')} star claimed`);
+      log.info(`🎥 ${numeral(this.movie.claimedStars).format('0o')} star claimed`);
     }
 
     if (this.movie.isWaitingForFinish) {
       await request.finishMovie();
 
-      this.log.info('🎥 Finished');
+      log.info('🎥 Finished');
     }
   }
 
@@ -102,7 +104,7 @@ export default class MovieModule extends AbstractModule {
       return;
     }
 
-    this.log.debug('Choosing the next movie');
+    log.debug('Choosing the next movie');
 
     const movie = this.movies
       .sort((a, b) => b.fans - a.fans)
@@ -123,7 +125,7 @@ export default class MovieModule extends AbstractModule {
     const quest = this.movieQuests.find(q => q.type === questType.STAT);
 
     if (quest && this.movieEnergy >= quest.energyCost) {
-      this.log.verbose(`Starting a movie quest: ${quest.rewards.movieProgress} reward`);
+      log.verbose(`Starting a movie quest: ${quest.rewards.movieProgress} reward`);
 
       await request.startMovieQuest(quest);
     }

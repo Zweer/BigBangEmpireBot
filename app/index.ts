@@ -1,5 +1,4 @@
 import * as config from 'config';
-import * as winston from 'winston';
 
 // @ts-ignore
 Promise.serial = async function resolveSerial(promises: Promise<any>[]): Promise<any[]> {
@@ -18,9 +17,10 @@ import game from './models/game';
 import constants from './models/constants';
 // import Friend from './models/friend';
 
+import log from './lib/log';
 import request from './lib/request';
 import RequestWeb from './lib/requestWeb';
-import TelegramBot, { TelegramBotLogger } from './lib/telegram';
+import TelegramBot from './lib/telegram';
 
 import DatingModule from './modules/dating';
 import DuelModule from './modules/duel';
@@ -64,7 +64,6 @@ export default class BigBangEmpireBot {
   readonly quest: QuestModule;
 
   readonly bot: TelegramBot;
-  readonly log: winston.Logger;
 
   public restartGame: boolean = false;
   public closeGame: boolean = false;
@@ -77,29 +76,14 @@ export default class BigBangEmpireBot {
 
     this.bot = new TelegramBot(this);
 
-    this.log = winston.createLogger({
-      level: 'silly',
-      format: winston.format.combine(
-        winston.format.timestamp(),
-        winston.format.printf(info => `${info.timestamp} [${info.level}] ${info.message}`),
-      ),
-      transports: [
-        new winston.transports.Console(),
-        new TelegramBotLogger({
-          bot: this.bot,
-          level: 'info',
-        }),
-      ],
-    });
-
-    this.dating = new DatingModule(this.log, this.bot);
-    this.duel = new DuelModule(this.log, this.bot);
-    this.guild = new GuildModule(this.log, this.bot);
-    this.inventory = new InventoryModule(this.log, this.bot);
-    this.mailbox = new MailboxModule(this.log, this.bot);
-    this.movie = new MovieModule(this.log, this.bot);
-    this.profile = new ProfileModule(this.log, this.bot);
-    this.quest = new QuestModule(this.log, this.bot);
+    this.dating = new DatingModule(this.bot);
+    this.duel = new DuelModule(this.bot);
+    this.guild = new GuildModule(this.bot);
+    this.inventory = new InventoryModule(this.bot);
+    this.mailbox = new MailboxModule(this.bot);
+    this.movie = new MovieModule(this.bot);
+    this.profile = new ProfileModule(this.bot);
+    this.quest = new QuestModule(this.bot);
   }
 
   async run() {
@@ -174,8 +158,8 @@ export default class BigBangEmpireBot {
 
       await this.handleRankRetrieval();
     } catch (err) {
-      this.log.error(err);
-      this.log.debug(err.stack);
+      log.error(err);
+      log.debug(err.stack);
     }
 
     setTimeout(() => this.playRound(), this.options.delaySyncTime);
@@ -187,7 +171,7 @@ export default class BigBangEmpireBot {
 
   handleNewLevel() {
     if (this.level !== game.character.level && this.level !== 0) {
-      this.log.info(`New level: ${game.character.level}!!`);
+      log.info(`New level: ${game.character.level}!!`);
     }
 
     this.level = game.character.level;

@@ -7,7 +7,9 @@ import * as Transport from 'winston-transport';
 
 import BigBangEmpireBot from '..';
 
+import log from '../lib/log';
 import request from '../lib/request';
+
 import constants from '../models/constants';
 import game from '../models/game';
 
@@ -232,7 +234,7 @@ export default class TelegramBot {
           break;
 
         default:
-          this.bbe.log.error(`Unhandled message flag: ${message.flag} - ${message.flagValue}`);
+          log.error(`Unhandled message flag: ${message.flag} - ${message.flagValue}`);
           break;
       }
 

@@ -1,9 +1,11 @@
 import { findKey, findLastKey } from 'lodash';
 import * as moment from 'moment';
 
+import log from '../lib/log';
+import request from '../lib/request';
+
 import constants from '../models/constants';
 import game from '../models/game';
-import request from '../lib/request';
 
 import AbstractModule from '.';
 
@@ -55,7 +57,7 @@ export default class ProfileModule extends AbstractModule {
       await Promise.all(this.newUserVoucherIds.map(async (voucherId) => {
         const voucher = await request.getUserVoucher(voucherId);
 
-        this.log.info(`Voucher:\n${voucher.rewards}`);
+        log.info(`Voucher:\n${voucher.rewards}`);
         await request.redeemVoucher(voucher);
       }));
     }
@@ -78,7 +80,7 @@ export default class ProfileModule extends AbstractModule {
   private async buyBestBooster(type: number, premium: boolean = false) {
     const boosterId = findLastKey(constants.boosters, b => b.type === type && b.premiumItem === premium);
 
-    this.log.info(`Buying booster ${boosterId}`);
+    log.info(`Buying booster ${boosterId}`);
 
     await request.buyBooster(boosterId);
   }
@@ -89,7 +91,7 @@ export default class ProfileModule extends AbstractModule {
     if (this.tsLastWorkCollection.isBefore(threeHoursAgo)) {
       const collectedWork = await request.collectWork();
 
-      this.log.verbose(`Collected work: ${collectedWork.gameCurrencyReward} coins (${collectedWork.offer})`);
+      log.verbose(`Collected work: ${collectedWork.gameCurrencyReward} coins (${collectedWork.offer})`);
     }
   }
 
@@ -123,7 +125,7 @@ export default class ProfileModule extends AbstractModule {
       })
       .filter(goal => !!goal)
       .reduce((previousPromise, { goalName, nextGoalValue }) => previousPromise.then(async () => {
-        this.log.verbose(`Completing a goal: ${goalName} (${nextGoalValue})`);
+        log.verbose(`Completing a goal: ${goalName} (${nextGoalValue})`);
 
         await request.collectGoalReward(goalName, nextGoalValue);
       }), Promise.resolve());

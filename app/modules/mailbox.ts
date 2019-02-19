@@ -1,5 +1,6 @@
 import game from '../models/game';
 
+import log from '../lib/log';
 import request from '../lib/request';
 
 import AbstractModule from '.';
@@ -27,10 +28,10 @@ export default class MailboxModule extends AbstractModule {
 
     this.oldMessages = this.newMessages;
 
-    this.log.info(`You have ${this.newMessages} new messages (${this.pendingResourceRequests} resource requests)`);
+    log.info(`You have ${this.newMessages} new messages (${this.pendingResourceRequests} resource requests)`);
 
     if (this.pendingResourceRequests > 0) {
-      this.log.debug('Accepting all resource requests');
+      log.debug('Accepting all resource requests');
 
       await request.acceptAllResourceRequests();
     }

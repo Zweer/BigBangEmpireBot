@@ -1,6 +1,8 @@
 import * as moment from 'moment';
 
+import log from '../lib/log';
 import request from '../lib/request';
+
 import game from '../models/game';
 
 import AbstractModule from '.';
@@ -88,11 +90,11 @@ export default class QuestModule extends AbstractModule {
     }
 
     if (this.questEnergy < 2) {
-      this.log.verbose('Energy low');
+      log.verbose('Energy low');
       return;
     }
 
-    this.log.debug(`Current energy: ${this.questEnergy}`);
+    log.debug(`Current energy: ${this.questEnergy}`);
 
     const quest = this.quests.find((quest: Quest) => quest.energyCost < this.questEnergy);
 
@@ -111,10 +113,10 @@ export default class QuestModule extends AbstractModule {
     messageArr.push(...currentQuest.rewards.nonStandardAttributes.map(nonStandardAttribute => `- with a ${nonStandardAttribute}`));
 
     if (currentQuest.rewards.dungeonKey) {
-      this.log.warn(`Got a new dungeonKey in ${currentQuest.energyCost} minutes`);
+      log.warn(`Got a new dungeonKey in ${currentQuest.energyCost} minutes`);
     }
 
-    this.log.debug(messageArr.join('\n'));
+    log.debug(messageArr.join('\n'));
 
     const quest = await request.startQuest(currentQuest.id);
 
@@ -125,7 +127,7 @@ export default class QuestModule extends AbstractModule {
     if (this.unusedResources[resource.QUEST_REDUCTION] > 0 && (!this.usedResources || this.usedResources[resource.QUEST_REDUCTION] < 4) && currentQuest.energyCost > 8) {
       const savedSeconds = await request.useResource(resource.QUEST_REDUCTION);
 
-      this.log.info(`Quest reduction resource used: ${savedSeconds} seconds saved`);
+      log.info(`Quest reduction resource used: ${savedSeconds} seconds saved`);
     }
   }
 
@@ -140,7 +142,7 @@ export default class QuestModule extends AbstractModule {
 
     // TODO: isFinished???
     if (this.storyDungeon.tsLastAttack.isBefore(moment().subtract(1, 'hour'))) {
-      this.log.info('Starting a story dungeon attack');
+      log.info('Starting a story dungeon attack');
 
       await request.startStoryDungeonBattle(this.storyDungeon);
       await request.claimStoryDungeonReward(this.storyDungeon);

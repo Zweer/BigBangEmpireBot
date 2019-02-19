@@ -1,5 +1,6 @@
 import * as numeral from 'numeral';
 
+import log from '../lib/log';
 import request from '../lib/request';
 
 import game from '../models/game';
@@ -46,19 +47,19 @@ export default class DuelModule extends AbstractModule {
       if (this.alertMissiles) {
         this.alertMissiles = false;
 
-        this.log.warn('No more missiles!');
+        log.warn('No more missiles!');
       }
     } else if (!this.canDuel) {
       this.canDuel = true;
       this.alertMissiles = true;
 
-      this.log.verbose('More missiles...');
+      log.verbose('More missiles...');
     }
 
     if (this.inventory.bagItemsId.every(bagItemId => bagItemId !== 0)) {
       this.canDuel = false;
 
-      this.log.warn('Inventory is full!');
+      log.warn('Inventory is full!');
     }
   }
 
@@ -67,12 +68,12 @@ export default class DuelModule extends AbstractModule {
       return;
     }
 
-    this.log.debug(`Duel stamina: ${this.duelStamina}`);
+    log.debug(`Duel stamina: ${this.duelStamina}`);
 
     const opponents = await request.getDuelOpponents();
 
     if (!opponents) {
-      this.log.error('No duel opponents');
+      log.error('No duel opponents');
     }
 
     const sortedOpponents = opponents
@@ -88,7 +89,7 @@ export default class DuelModule extends AbstractModule {
   }
 
   private async makeDuel(opponent: Opponent) {
-    this.log.verbose(`Starting duel with ${opponent.name}`);
+    log.verbose(`Starting duel with ${opponent.name}`);
 
     const { battle, duel } = await request.startDuel(opponent.id);
 
@@ -102,7 +103,7 @@ export default class DuelModule extends AbstractModule {
       addendum.push(`- ${duel.characterARewards.item} item`);
     }
 
-    this.log.verbose(`You ${battle.won ? 'won' : 'lost'} the duel!\n- ${numeral(duel.characterARewards.honor).format('+0')} honor${addendum.join('\n')}`);
+    log.verbose(`You ${battle.won ? 'won' : 'lost'} the duel!\n- ${numeral(duel.characterARewards.honor).format('+0')} honor${addendum.join('\n')}`);
 
     await request.checkForDuelComplete();
     await request.claimDuelRewards();
@@ -115,7 +116,7 @@ export default class DuelModule extends AbstractModule {
 
     const missedDuels = await request.getMissedDuelsNew();
 
-    missedDuels.forEach(missedDuel => this.log.verbose(`Missed duel: ${missedDuel.won ? 'won' : 'lost'}\n- ${missedDuel.opponent.name}\n- ${numeral(missedDuel.characterBRewards.honor).format('+0')} honor`));
+    missedDuels.forEach(missedDuel => log.verbose(`Missed duel: ${missedDuel.won ? 'won' : 'lost'}\n- ${missedDuel.opponent.name}\n- ${numeral(missedDuel.characterBRewards.honor).format('+0')} honor`));
 
     await request.claimMissedDuelsRewards();
   }

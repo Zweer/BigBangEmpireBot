@@ -1,4 +1,6 @@
+import log from '../lib/log';
 import request from '../lib/request';
+
 import game from '../models/game';
 
 import AbstractModule from '.';
@@ -53,7 +55,7 @@ export default class InventoryModule extends AbstractModule {
             return request.useInventoryItem(item);
           }
 
-          this.log.verbose(`Moving item: ${item.slot} (empty slot)`);
+          log.verbose(`Moving item: ${item.slot} (empty slot)`);
 
           modified = true;
 
@@ -67,20 +69,20 @@ export default class InventoryModule extends AbstractModule {
             return;
           }
 
-          this.log.verbose(`Selling item: ${item.slot}\n- my: ${equippedItem.statTotal}\n- bag: ${item.statTotal}`);
+          log.verbose(`Selling item: ${item.slot}\n- my: ${equippedItem.statTotal}\n- bag: ${item.statTotal}`);
 
           return request.sellInventoryItem(item.id);
         }
 
         if (!item.battleSkill && !equippedItem.battleSkill) {
-          this.log.verbose(`Moving item: ${item.slot} (better item)`);
+          log.verbose(`Moving item: ${item.slot} (better item)`);
 
           modified = true;
 
           return request.moveInventoryItem(item.id, item.type);
         }
 
-        this.log.verbose(`New item: ${item.slot}\n- my: ${equippedItem.statTotal}\n- bag: ${item.statTotal}`);
+        log.verbose(`New item: ${item.slot}\n- my: ${equippedItem.statTotal}\n- bag: ${item.statTotal}`);
       }));
     } while (modified);
   }
@@ -126,7 +128,7 @@ export default class InventoryModule extends AbstractModule {
           return this.bot.askForItemPurchase(item, messages, game.inventory);
         }
 
-        this.log.info(['You are buying an item:', ...messages].join('\n'));
+        log.info(['You are buying an item:', ...messages].join('\n'));
 
         return request.buyShopItem(item, game.inventory.firstAvailableSlot);
       }
@@ -137,7 +139,7 @@ export default class InventoryModule extends AbstractModule {
 
   private async handleRefreshShop() {
     if (!this.hasRefreshedShopToday && this.refreshShop) {
-      this.log.info('Refreshing shop');
+      log.info('Refreshing shop');
 
       await request.refreshShopItems();
     }
@@ -149,7 +151,7 @@ export default class InventoryModule extends AbstractModule {
     }
 
     if (this.oldStatPointAvailable !== this.statPointsAvailable) {
-      this.log.verbose(`You have stat points available: ${this.statPointsAvailable}`);
+      log.verbose(`You have stat points available: ${this.statPointsAvailable}`);
     }
 
     this.oldStatPointAvailable = this.statPointsAvailable;
