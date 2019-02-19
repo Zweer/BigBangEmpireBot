@@ -8,7 +8,7 @@ import Item, { itemRaw } from './inventory/item';
 import Movie, { movieRaw } from './movie';
 import MovieQuest, { movieQuestRaw } from './movie/quest';
 import Quest, { questRaw } from './story/quest';
-import User, { userRaw } from './user';
+import user, { User, userRaw } from './user';
 
 import { questStatus } from './abstracts/quest';
 import DataObject from './utils/dataObject';
@@ -216,7 +216,7 @@ class Game extends DataObject<gameRaw> {
   public customBannerAdvertisments: object[]; // CustomBannerAdvertisement
   public videoAdvertismentId: number;
   public success: boolean;
-  public user: User;
+  public user: User = user;
   public valid: boolean;
   public inventory: Inventory;
   public quests: Quest[];
@@ -450,7 +450,7 @@ class Game extends DataObject<gameRaw> {
   }
 
   setUser(user: userRaw) {
-    this.user = new User(user);
+    this.user.update(user);
   }
 
   get currentQuest() {

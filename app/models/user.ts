@@ -14,7 +14,7 @@ export type userRaw = {
   settings: string;
 };
 
-export default class User extends DataObject<userRaw> {
+export class User extends DataObject<userRaw> {
   id: number;
   sessionId: string;
   email: string;
@@ -27,3 +27,5 @@ export default class User extends DataObject<userRaw> {
   premiumCurrency: number;
   settings: string;
 }
+
+export default new User();
