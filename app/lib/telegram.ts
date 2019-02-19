@@ -7,6 +7,7 @@ import * as Transport from 'winston-transport';
 
 import BigBangEmpireBot from '..';
 
+import constants from '../models/constants';
 import game from '../models/game';
 
 import { stat } from '../models/types/common';
@@ -131,7 +132,7 @@ export default class TelegramBot {
       if (game.guild) {
         messageArr.push('--------------------');
         messageArr.push(`- ${numeral(game.guild.honor).format('0a')} glory (${numeral(this.bbe.rank.guild.glory).format('0o')})`);
-        messageArr.push(`- ${numeral(game.guild.statTotal / this.bbe.constants.guildPercentageTotalBase).format('0%')} expansion (${numeral(this.bbe.rank.guild.expansion).format('0o')})`);
+        messageArr.push(`- ${numeral(game.guild.statTotal / constants.guildPercentageTotalBase).format('0%')} expansion (${numeral(this.bbe.rank.guild.expansion).format('0o')})`);
         messageArr.push(`- ${numeral(game.guild.fans).format('0a')} fans (${numeral(this.bbe.rank.guild.fans).format('0o')})`);
 
         if (this.bbe.rank.temple) {
