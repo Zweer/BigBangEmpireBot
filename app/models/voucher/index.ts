@@ -1,4 +1,5 @@
 import DataObject from '../utils/dataObject';
+import request from "../../lib/request";
 
 export type voucherRaw = {
   id: number;
@@ -22,4 +23,12 @@ export default class Voucher extends DataObject<voucherRaw> {
   rewards: string;
   tsEnd: number;
   category: string;
+
+  static async getUserVoucher(id: number): Promise<Voucher> {
+    return request.getUserVoucher(id);
+  }
+
+  async redeemVoucher(): Promise<void> {
+    return request.redeemVoucher(this);
+  }
 }

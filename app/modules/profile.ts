@@ -1,45 +1,17 @@
-import { findKey, findLastKey } from 'lodash';
-import * as moment from 'moment';
-
 import log from '../lib/log';
 import request from '../lib/request';
 
+import character from '../models/character';
 import constants from '../models/constants';
 import game from '../models/game';
 
 import AbstractModule from '.';
 
+import Booster from '../models/booster';
+import Voucher from '../models/voucher';
+import CollectedWork from '../models/work/collected';
+
 export default class ProfileModule extends AbstractModule {
-  static WORK_DELAY = [3, 'hours'];
-
-  get newUserVoucherIds() {
-    return game.character.newUserVoucherIds;
-  }
-
-  get tsLastWorkCollection() {
-    return game.character.tsLastWorkCollection;
-  }
-
-  get activeQuestBoosterId() {
-    return game.character.activeQuestBoosterId;
-  }
-
-  get activeStatsBoosterId() {
-    return game.character.activeStatsBoosterId;
-  }
-
-  get activeWorkBoosterId() {
-    return game.character.activeWorkBoosterId;
-  }
-
-  get currentGoalValue() {
-    return game.currentGoalValue;
-  }
-
-  get collectedGoals() {
-    return game.collectedGoals;
-  }
-
   async handle(): Promise<void> {
     await this.handleDailyBonus();
     await this.handleVoucher();
@@ -53,53 +25,43 @@ export default class ProfileModule extends AbstractModule {
   }
 
   private async handleVoucher() {
-    if (this.newUserVoucherIds.length) {
-      await Promise.all(this.newUserVoucherIds.map(async (voucherId) => {
-        const voucher = await request.getUserVoucher(voucherId);
+    if (character.newUserVoucherIds.length) {
+      await Promise.all(character.newUserVoucherIds.map(async (voucherId) => {
+        const voucher = await Voucher.getUserVoucher(voucherId);
 
         log.info(`Voucher:\n${voucher.rewards}`);
-        await request.redeemVoucher(voucher);
+        await voucher.redeemVoucher();
       }));
     }
   }
 
   private async handleBoosters() {
-    if (!this.activeQuestBoosterId) {
-      await this.buyBestBooster(1);
+    if (!character.activeQuestBoosterId) {
+      await Booster.buyBestBooster(1);
     }
 
-    if (!this.activeStatsBoosterId) {
-      await this.buyBestBooster(2);
+    if (!character.activeStatsBoosterId) {
+      await Booster.buyBestBooster(2);
     }
 
-    if (!this.activeWorkBoosterId) {
-      await this.buyBestBooster(3);
+    if (!character.activeWorkBoosterId) {
+      await Booster.buyBestBooster(3);
     }
-  }
-
-  private async buyBestBooster(type: number, premium: boolean = false) {
-    const boosterId = findLastKey(constants.boosters, b => b.type === type && b.premiumItem === premium);
-
-    log.info(`Buying booster ${boosterId}`);
-
-    await request.buyBooster(boosterId);
   }
 
   private async handleCollectWork() {
-    const threeHoursAgo = moment().subtract(...ProfileModule.WORK_DELAY);
+    if (CollectedWork.needToCollect) {
+      const collectedWork = await CollectedWork.collectWork();
 
-    if (this.tsLastWorkCollection.isBefore(threeHoursAgo)) {
-      const collectedWork = await request.collectWork();
-
-      log.verbose(`Collected work: ${collectedWork.gameCurrencyReward} coins (${collectedWork.offer})`);
+      log.verbose(`${collectedWork}`);
     }
   }
 
   private async handleCompleteGoals() {
-    await Object.keys(this.currentGoalValue)
+    await Object.keys(game.currentGoalValue)
       .map((goalName) => {
-        const currentGoalValue = this.currentGoalValue[goalName];
-        const collectedGoal = this.collectedGoals[goalName] || { value: 0 };
+        const currentGoalValue = game.currentGoalValue[goalName];
+        const collectedGoal = game.collectedGoals[goalName] || { value: 0 };
         const goal = constants.goals[goalName];
 
         if (currentGoalValue.currentValue <= collectedGoal.value) {
