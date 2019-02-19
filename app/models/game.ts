@@ -1,6 +1,6 @@
 import { mapValues } from 'lodash';
 
-import Character, { characterRaw } from './character';
+import character, { Character, characterRaw } from './character';
 import CollectedGoal, { collectedGoalRaw } from './goal/collected';
 import CurrentGoal, { currentGoalRaw } from './goal/current';
 import Inventory, { inventoryRaw } from './inventory';
@@ -212,7 +212,7 @@ class Game extends DataObject<gameRaw> {
   public savedSeconds: number;
   public quest: Quest;
   public conventionShow: object; // Convention
-  public character: Character;
+  public character: Character = character;
   public customBannerAdvertisments: object[]; // CustomBannerAdvertisement
   public videoAdvertismentId: number;
   public success: boolean;
@@ -416,11 +416,7 @@ class Game extends DataObject<gameRaw> {
   }
 
   setCharacter(character: characterRaw) {
-    if (this.character) {
-      this.character.update(character);
-    } else {
-      this.character = new Character(character);
-    }
+    this.character.update(character);
   }
 
   setInventory(inventory: inventoryRaw) {

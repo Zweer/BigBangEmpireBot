@@ -167,7 +167,7 @@ type resources = {
   [resource.SLOTMACHINE_JETON]: number,
 };
 
-export default class Character extends AbstractCharacter<characterRaw> {
+export class Character extends AbstractCharacter<characterRaw> {
   userId: number;
   locale: string;
   sexuality: string;
@@ -376,3 +376,5 @@ export default class Character extends AbstractCharacter<characterRaw> {
     return (this.xp - this.levelXp) / (this.nextLevelXp - this.levelXp);
   }
 }
+
+export default new Character();
