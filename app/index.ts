@@ -59,7 +59,6 @@ export default class BigBangEmpireBot {
   private optionsWeb: optionsWeb;
 
   readonly request: Request;
-  readonly requestWeb: RequestWeb;
 
   readonly dating: DatingModule;
   readonly duel: DuelModule;
@@ -84,7 +83,6 @@ export default class BigBangEmpireBot {
     this.game = new Game();
 
     this.request = new Request(BigBangEmpireBot.BASE_URL, this.options.auth.server, this.options.auth.email, this.options.auth.password, this.game);
-    this.requestWeb = new RequestWeb(BigBangEmpireBot.BASE_URL, this.options.auth.server);
 
     this.bot = new TelegramBot(this);
 
@@ -125,7 +123,7 @@ export default class BigBangEmpireBot {
   }
 
   async initConfigFromWeb() {
-    this.optionsWeb = await this.requestWeb.initConfigFromWeb();
+    this.optionsWeb = await RequestWeb.initConfigFromWeb();
   }
 
   async initEnvironment() {

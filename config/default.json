@@ -2,7 +2,7 @@
   "bbe": {
     "delaySyncGame": 10000,
 
-    "baseUrl": "http://us2.bigbangempire.com/",
+    "baseUrl": "https://{SERVER}.bigbangempire.com",
 
     "auth": {
       "server": "your server",

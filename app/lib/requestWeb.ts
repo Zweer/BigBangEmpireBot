@@ -1,3 +1,4 @@
+import * as config from 'config';
 import * as cheerio from 'cheerio';
 import * as request from 'request-promise';
 
@@ -6,13 +7,11 @@ import { optionsWeb } from '../models/types/options';
 export default class RequestWeb {
   readonly baseUrl: string;
 
-  constructor(baseUrl: string, readonly server: string) {
-    this.baseUrl = baseUrl.replace('{SERVER}', this.server);
-  }
+  static BASE_URL = config.get('bbe.baseUrl').replace('{SERVER}', config.get('bbe.auth.server'));
 
-  async initConfigFromWeb(): Promise<optionsWeb> {
+  static async initConfigFromWeb(): Promise<optionsWeb> {
     const $ = await request.get({
-      url: this.baseUrl,
+      url: RequestWeb.BASE_URL,
       transform: body => cheerio.load(body),
     });
 
