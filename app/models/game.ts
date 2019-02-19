@@ -3,7 +3,7 @@ import { mapValues } from 'lodash';
 import character, { Character, characterRaw } from './character';
 import CollectedGoal, { collectedGoalRaw } from './goal/collected';
 import CurrentGoal, { currentGoalRaw } from './goal/current';
-import Inventory, { inventoryRaw } from './inventory';
+import inventory, { Inventory, inventoryRaw } from './inventory';
 import Item, { itemRaw } from './inventory/item';
 import Movie, { movieRaw } from './movie';
 import MovieQuest, { movieQuestRaw } from './movie/quest';
@@ -218,7 +218,7 @@ class Game extends DataObject<gameRaw> {
   public success: boolean;
   public user: User = user;
   public valid: boolean;
-  public inventory: Inventory;
+  public inventory: Inventory = inventory;
   public quests: Quest[];
   public items: Item[]; // Item[]
   public winMessages: string[];
@@ -420,7 +420,7 @@ class Game extends DataObject<gameRaw> {
   }
 
   setInventory(inventory: inventoryRaw) {
-    this.inventory = new Inventory(inventory);
+    this.inventory.update(inventory);
   }
 
   setOpponent(opponent: characterRaw) {

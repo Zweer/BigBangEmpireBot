@@ -47,7 +47,7 @@ export type inventoryRaw = {
   item_set_data: string,
 };
 
-export default class Inventory extends DataObject<inventoryRaw> {
+export class Inventory extends DataObject<inventoryRaw> {
   id: number;
 
   characterId: number;
@@ -143,3 +143,5 @@ export default class Inventory extends DataObject<inventoryRaw> {
     return 20 + firstEmptyIndex;
   }
 }
+
+export default new Inventory();

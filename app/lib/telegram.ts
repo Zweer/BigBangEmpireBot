@@ -17,7 +17,7 @@ import { stat } from '../models/types/common';
 import { optionsTelegramBot } from '../models/types/options';
 import { messageFlag } from '../models/mailbox/message';
 import Item from '../models/inventory/item';
-import Inventory from '../models/inventory';
+import inventory from '../models/inventory';
 
 class TelegramBot {
   readonly bot: Telegraf<ContextMessageUpdate>;
@@ -259,7 +259,7 @@ class TelegramBot {
     return this.broadcast(user => this.bot.telegram.sendMessage(user, message, extra));
   }
 
-  async askForItemPurchase(item: Item, messages: string[], inventory: Inventory) {
+  async askForItemPurchase(item: Item, messages: string[]) {
     const messageArr = [];
     messageArr.push('There\'s an interesting item in the shop:');
     messageArr.push(...messages);

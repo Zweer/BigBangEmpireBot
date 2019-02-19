@@ -126,7 +126,7 @@ export default class InventoryModule extends AbstractModule {
 
           this.notifiedItems.push(item.id);
 
-          return bot.askForItemPurchase(item, messages, game.inventory);
+          return bot.askForItemPurchase(item, messages);
         }
 
         log.info(['You are buying an item:', ...messages].join('\n'));

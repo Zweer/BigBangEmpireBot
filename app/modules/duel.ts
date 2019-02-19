@@ -3,7 +3,9 @@ import * as numeral from 'numeral';
 import log from '../lib/log';
 import request from '../lib/request';
 
+import character from '../models/character';
 import game from '../models/game';
+import inventory from '../models/inventory';
 
 import AbstractModule from '.';
 
@@ -13,26 +15,6 @@ export default class DuelModule extends AbstractModule {
   private alertMissiles: boolean;
   private canDuel: boolean;
 
-  get missilesItemId() {
-    return game.inventory.missilesItemId;
-  }
-
-  get inventory() {
-    return game.inventory;
-  }
-
-  get duelStamina() {
-    return game.character.duelStamina;
-  }
-
-  get duelStaminaCost() {
-    return game.character.duelStaminaCost;
-  }
-
-  get missedDuels() {
-    return game.missedDuels;
-  }
-
   async handle(): Promise<void> {
     this.handleInventoryFlags();
 
@@ -41,7 +23,7 @@ export default class DuelModule extends AbstractModule {
   }
 
   private handleInventoryFlags() {
-    if (this.missilesItemId === 0) {
+    if (inventory.missilesItemId === 0) {
       this.canDuel = false;
 
       if (this.alertMissiles) {
@@ -56,7 +38,7 @@ export default class DuelModule extends AbstractModule {
       log.verbose('More missiles...');
     }
 
-    if (this.inventory.bagItemsId.every(bagItemId => bagItemId !== 0)) {
+    if (inventory.bagItemsId.every(bagItemId => bagItemId !== 0)) {
       this.canDuel = false;
 
       log.warn('Inventory is full!');
@@ -64,11 +46,11 @@ export default class DuelModule extends AbstractModule {
   }
 
   private async handleDuel() {
-    if (this.duelStamina < this.duelStaminaCost || !this.canDuel) {
+    if (character.duelStamina < character.duelStaminaCost || !this.canDuel) {
       return;
     }
 
-    log.debug(`Duel stamina: ${this.duelStamina}`);
+    log.debug(`Duel stamina: ${character.duelStamina}`);
 
     const opponents = await request.getDuelOpponents();
 
@@ -110,7 +92,7 @@ export default class DuelModule extends AbstractModule {
   }
 
   private async handleMissedDuels() {
-    if (this.missedDuels === 0) {
+    if (game.missedDuels === 0) {
       return;
     }
 
