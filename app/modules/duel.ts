@@ -1,7 +1,4 @@
-import * as numeral from 'numeral';
-
 import log from '../lib/log';
-import request from '../lib/request';
 
 import character from '../models/character';
 import game from '../models/game';
@@ -9,6 +6,7 @@ import inventory from '../models/inventory';
 
 import AbstractModule from '.';
 
+import MissedDuel from '../models/duel/missed';
 import Opponent from '../models/duel/opponent';
 
 export default class DuelModule extends AbstractModule {
@@ -52,43 +50,13 @@ export default class DuelModule extends AbstractModule {
 
     log.debug(`Duel stamina: ${character.duelStamina}`);
 
-    const opponents = await request.getDuelOpponents();
-
-    if (!opponents) {
-      log.error('No duel opponents');
-    }
-
-    const sortedOpponents = opponents
-      .filter(o => !o.name.startsWith('deleted_'))
-      .filter(o => !!o)
-      .sort((a, b) => b.honor - a.honor);
-
-    const opponent = sortedOpponents.find(o => o.totalStats < game.character.statTotal) || sortedOpponents.pop();
+    const opponent = await Opponent.getDuelOpponent();
 
     if (opponent) {
-      await this.makeDuel(opponent);
+      await opponent.duel();
+    } else {
+      log.warn('No opponents to duel');
     }
-  }
-
-  private async makeDuel(opponent: Opponent) {
-    log.verbose(`Starting duel with ${opponent.name}`);
-
-    const { battle, duel } = await request.startDuel(opponent.id);
-
-    const addendum = [''];
-
-    if (duel.characterARewards.premium) {
-      addendum.push(`- ${duel.characterARewards.premium} gems`);
-    }
-
-    if (duel.characterARewards.item) {
-      addendum.push(`- ${duel.characterARewards.item} item`);
-    }
-
-    log.verbose(`You ${battle.won ? 'won' : 'lost'} the duel!\n- ${numeral(duel.characterARewards.honor).format('+0')} honor${addendum.join('\n')}`);
-
-    await request.checkForDuelComplete();
-    await request.claimDuelRewards();
   }
 
   private async handleMissedDuels() {
@@ -96,10 +64,10 @@ export default class DuelModule extends AbstractModule {
       return;
     }
 
-    const missedDuels = await request.getMissedDuelsNew();
+    const missedDuels = await MissedDuel.getMissedDuelsNew();
 
-    missedDuels.forEach(missedDuel => log.verbose(`Missed duel: ${missedDuel.won ? 'won' : 'lost'}\n- ${missedDuel.opponent.name}\n- ${numeral(missedDuel.characterBRewards.honor).format('+0')} honor`));
+    missedDuels.forEach(missedDuel => log.verbose(`${missedDuel}`));
 
-    await request.claimMissedDuelsRewards();
+    await MissedDuel.claimMissedDuelsRewards();
   }
 }

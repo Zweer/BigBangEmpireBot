@@ -1,4 +1,10 @@
+import * as numeral from 'numeral';
+
 import DataObject from '../utils/dataObject';
+
+import log from '../../lib/log';
+import request from '../../lib/request';
+import game from "../game";
 
 export type opponentRaw = {
   id: number;
@@ -32,4 +38,40 @@ export default class Opponent extends DataObject<opponentRaw> {
   onlineStatus: number;
   totalStats: number;
   battleData: string;
+
+  async duel() {
+    log.verbose(`Starting duel with ${this.name}`);
+
+    const { duel } = await request.startDuel(this);
+
+    const addendum = [''];
+
+    if (duel.characterARewards.premium) {
+      addendum.push(`- ${duel.characterARewards.premium} gems`);
+    }
+
+    if (duel.characterARewards.item) {
+      addendum.push(`- ${duel.characterARewards.item} item`);
+    }
+
+    log.verbose(`${duel}`);
+
+    await request.checkForDuelComplete();
+    await request.claimDuelRewards();
+  }
+
+  static async getDuelOpponents(): Promise<Opponent[]> {
+    return request.getDuelOpponents();
+  }
+
+  static async getDuelOpponent(): Promise<Opponent> {
+    const opponents = await Opponent.getDuelOpponents();
+
+    const sortedOpponents = opponents
+      .filter(o => !o.name.startsWith('deleted_'))
+      .filter(o => !!o)
+      .sort((a, b) => b.honor - a.honor);
+
+    return sortedOpponents.find(o => o.totalStats < game.character.statTotal) || sortedOpponents.pop();
+  }
 }

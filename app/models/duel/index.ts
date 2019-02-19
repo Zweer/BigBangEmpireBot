@@ -1,6 +1,10 @@
+import * as numeral from 'numeral';
+
 import Reward from '../story/reward';
 
 import AbstractDuel, { abstractDuelRaw } from '../abstracts/duel';
+
+import log from '../../lib/log';
 
 export type duelRaw = abstractDuelRaw & {
   battle_id: number;
@@ -23,5 +27,19 @@ export default class Duel extends AbstractDuel<duelRaw> {
     if (characterARewards) {
       this.characterARewards = new Reward(characterARewards);
     }
+  }
+
+  toString() {
+    const addendum = [''];
+
+    if (this.characterARewards.premium) {
+      addendum.push(`- ${this.characterARewards.premium} gems`);
+    }
+
+    if (this.characterARewards.item) {
+      addendum.push(`- ${this.characterARewards.item} item`);
+    }
+
+    return `You ${this.characterARewards.honor > 0 ? 'won' : 'lost'} the duel!\n- ${numeral(this.characterARewards.honor).format('+0')} honor${addendum.join('\n')}`;
   }
 }

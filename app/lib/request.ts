@@ -241,10 +241,10 @@ class Request {
     return opponents.map(opponent => new Opponent(opponent));
   }
 
-  async startDuel(opponentId: number): Promise<{ battle: Battle, duel: Duel, item: Item }> {
+  async startDuel(opponent: Opponent): Promise<{ battle: Battle, duel: Duel, item: Item }> {
     try {
       const { battle, duel, item } = await this.request('startDuel', {
-        character_id: opponentId,
+        character_id: opponent.id,
         use_premium: false,
       });
 
@@ -260,7 +260,7 @@ class Request {
         await this.checkForDuelComplete();
         await this.claimDuelRewards();
 
-        return this.startDuel(opponentId);
+        return this.startDuel(opponent);
       }
 
       throw error;
