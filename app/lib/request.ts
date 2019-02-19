@@ -13,7 +13,7 @@ import Battle from '../models/battle';
 import CollectedWork from '../models/work/collected';
 import constantsObj from '../models/constants';
 import Duel from '../models/duel';
-import ExtendedConfig from '../models/extendedConfig';
+import extendedConfigObj from '../models/extendedConfig';
 import Friend from '../models/friend';
 import gameObj from '../models/game';
 import Item from '../models/item';
@@ -132,13 +132,13 @@ export default class Request {
     return data;
   }
 
-  async initEnvironment(): Promise<ExtendedConfig> {
+  async initEnvironment(): Promise<void> {
     const { extendedConfig } = await this.request(Request.ACTION_INIT_ENVIRONMENT);
 
-    return new ExtendedConfig(extendedConfig);
+    extendedConfigObj.update(extendedConfig);
   }
 
-  async initGame(parameters: optionsWeb): Promise<{ extendedConfig: ExtendedConfig }> {
+  async initGame(parameters: optionsWeb): Promise<void> {
     const { constants, extendedConfig } = await this.request(Request.ACTION_INIT_GAME, {
       swf_ui_hash: parameters.swfUi,
       locale_version: parameters.localeVersion,
@@ -150,10 +150,7 @@ export default class Request {
     });
 
     constantsObj.update(constants);
-
-    return {
-      extendedConfig: new ExtendedConfig(extendedConfig),
-    };
+    extendedConfigObj.update(extendedConfig);
   }
 
   async login(email, password): Promise<void> {

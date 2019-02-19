@@ -16,7 +16,6 @@ import { optionsConfig, optionsWeb } from './models/types/options';
 
 import game from './models/game';
 import constants from './models/constants';
-import ExtendedConfig from './models/extendedConfig';
 // import Friend from './models/friend';
 
 import Request from './lib/request';
@@ -33,7 +32,6 @@ import ProfileModule from './modules/profile';
 import QuestModule from './modules/quest';
 
 export default class BigBangEmpireBot {
-  private extendedConfig: ExtendedConfig;
   private offers: { consumable; normal; special; text };
   // private friends: Friend[];
 
@@ -124,13 +122,11 @@ export default class BigBangEmpireBot {
   }
 
   async initEnvironment() {
-    this.extendedConfig = await this.request.initEnvironment();
+    await this.request.initEnvironment();
   }
 
   async initGame() {
-    const { extendedConfig } = await this.request.initGame(this.optionsWeb);
-
-    this.extendedConfig.update(extendedConfig);
+    await this.request.initGame(this.optionsWeb);
   }
 
   async login() {
