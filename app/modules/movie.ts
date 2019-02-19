@@ -2,14 +2,15 @@ import * as moment from 'moment';
 import * as numeral from 'numeral';
 
 import log from '../lib/log';
-import request from '../lib/request';
 
+import character from '../models/character';
 import game from '../models/game';
 
 import AbstractModule from '.';
 
-import { movieStatus } from '../models/movie';
-import { questType } from '../models/abstracts/quest';
+import Movie from '../models/movie';
+import MovieQuest from '../models/movie/quest';
+import VotableMovie from '../models/movie/votable';
 
 export default class MovieModule extends AbstractModule {
   async handle(): Promise<void> {
@@ -22,112 +23,84 @@ export default class MovieModule extends AbstractModule {
     await this.handleMovie();
   }
 
-  get movie() {
-    return game.movie;
-  }
-
-  get movies() {
-    return game.movies;
-  }
-
-  get movieQuests() {
-    return game.movieQuests;
-  }
-
-  get movieEnergy() {
-    return game.character.movieEnergy;
-  }
-
-  get movieVotes() {
-    return game.character.movieVotes;
-  }
-
-  get tsLastMovieFinished() {
-    return game.character.tsLastMovieFinished;
-  }
-
   private async handleVotes(): Promise<void> {
-    if (this.movieVotes === 0) {
+    if (character.movieVotes === 0) {
       return;
     }
 
-    const { movies } = await request.getMoviesToVote();
+    const { movies } = await VotableMovie.getMoviesToVote();
     const [movie] = movies; // TODO: implement something to vote movies from the same guild
 
-    await request.voteForMovie(movie);
+    await movie.voteForMovie();
   }
 
   private async handleCurrentQuest(): Promise<void> {
-    if (!this.movie) {
+    if (!game.movie) {
       return;
     }
 
-    try {
-      await request.claimMovieQuestRewards();
-    } catch (error) {
-      // do nothing
-    }
+    await MovieQuest.claimMovieQuestRewards();
   }
 
   private async handleMovieStar(): Promise<void> {
-    if (!this.movie) {
+    if (!game.movie) {
       return;
     }
 
-    if (this.movie.isWaitingForClaim) {
-      await request.claimMovieStar();
+    if (game.movie.isWaitingForClaim) {
+      await Movie.claimMovieStar();
 
-      log.info(`🎥 ${numeral(this.movie.claimedStars).format('0o')} star claimed`);
+      log.info(`🎥 ${numeral(game.movie.claimedStars).format('0o')} star claimed`);
     }
 
-    if (this.movie.isWaitingForFinish) {
-      await request.finishMovie();
+    if (game.movie.isWaitingForFinish) {
+      await Movie.finishMovie();
 
       log.info('🎥 Finished');
     }
   }
 
   private async handleMovieRefresh(): Promise<void> {
-    if (this.movie && this.movie.status !== movieStatus.FINISHED) {
+    if (game.movie && !game.movie.isFinished) {
       return;
     }
 
-    if (this.tsLastMovieFinished.isAfter(moment().subtract(1, 'hour'))) {
+    if (character.tsLastMovieFinished.isAfter(moment().subtract(1, 'hour'))) {
       return;
     }
 
-    await request.refreshMoviePool();
+    await Movie.refreshMoviePool();
   }
 
   private async handleMovieChoice(): Promise<void> {
-    if (this.movie || !(this.movies && this.movies.length)) {
+    if (game.movie || !(game.movies && game.movies.length)) {
       return;
     }
 
     log.debug('Choosing the next movie');
 
-    const movie = this.movies
+    const movie = game.movies
       .sort((a, b) => b.fans - a.fans)
       .find(m => !!m);
 
-    await request.startMovie(movie);
+    await movie.startMovie();
   }
 
   private async handleMovie(): Promise<void> {
-    if (!this.movie || !(this.movieQuests && this.movieQuests.length)) {
+    if (!game.movie || !(game.movieQuests && game.movieQuests.length)) {
       return;
     }
 
-    if (this.movie.status === movieStatus.TIMEUP) {
-      await request.extendMovieTime();
+    if (game.movie.isTimeout) {
+      await Movie.extendMovieTime();
     }
 
-    const quest = this.movieQuests.find(q => q.type === questType.STAT);
+    const quest = game.movieQuests.find(MovieQuest.findBestQuest);
 
-    if (quest && this.movieEnergy >= quest.energyCost) {
+    if (quest && quest.isDoable) {
       log.verbose(`Starting a movie quest: ${quest.rewards.movieProgress} reward`);
 
-      await request.startMovieQuest(quest);
+      await quest.startMovieQuest();
     }
   }
 }

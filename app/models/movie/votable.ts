@@ -1,6 +1,10 @@
 import * as moment from 'moment';
 
+import request from '../../lib/request';
+
 import AbstractMovie, { abstractMovieRaw } from '../abstracts/movie';
+
+import Reward from '../story/reward';
 
 export type votableMovieRaw = abstractMovieRaw & {
   guild_name: string;
@@ -17,5 +21,13 @@ export default class VotableMovie extends AbstractMovie<votableMovieRaw> {
 
   setTsCompleted(tsCompleted: number) {
     this.tsCompleted = moment(tsCompleted);
+  }
+
+  static async getMoviesToVote(): Promise<{ movies: VotableMovie[], reward: Reward }> {
+    return request.getMoviesToVote();
+  }
+
+  async voteForMovie(): Promise<void> {
+    return request.voteForMovie(this);
   }
 }

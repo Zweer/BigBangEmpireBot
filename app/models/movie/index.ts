@@ -1,4 +1,5 @@
 import AbstractMovie, { abstractMovieRaw } from '../abstracts/movie';
+import request from "../../lib/request";
 
 export type movieRaw = abstractMovieRaw & {
   character_id: number;
@@ -70,7 +71,7 @@ export default class Movie extends AbstractMovie<movieRaw> {
   votes: number;
   rank: number;
 
-  get isWaitingForClaim() {
+  get isWaitingForClaim(): boolean {
     if (this.energy * 10 >= this.neededEnergy && this.claimedStars < 1) {
       return true;
     }
@@ -82,7 +83,35 @@ export default class Movie extends AbstractMovie<movieRaw> {
     return this.energy >= this.neededEnergy;
   }
 
-  get isWaitingForFinish() {
-    return this.claimedStars >= 3 && this.status !== movieStatus.FINISHED;
+  get isWaitingForFinish(): boolean {
+    return this.claimedStars >= 3 && !this.isFinished;
+  }
+
+  get isFinished(): boolean {
+    return this.status === movieStatus.FINISHED;
+  }
+
+  get isTimeout(): boolean {
+    return this.status === movieStatus.TIMEUP;
+  }
+
+  static async claimMovieStar(): Promise<void> {
+    return request.claimMovieStar();
+  }
+
+  static async finishMovie(): Promise<void> {
+    return request.finishMovie();
+  }
+
+  static async refreshMoviePool(): Promise<void> {
+    return request.refreshMoviePool();
+  }
+
+  async startMovie(): Promise<void> {
+    return request.startMovie(this);
+  }
+
+  static async extendMovieTime(): Promise<void> {
+    return request.extendMovieTime();
   }
 }
