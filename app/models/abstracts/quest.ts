@@ -5,6 +5,8 @@ import Reward from '../story/reward';
 import { difficulty, stat } from '../types/common';
 
 import DataObject from '../utils/dataObject';
+import game from "../game";
+import request from "../../lib/request";
 
 export type abstractQuestRaw = {
   id: number;
@@ -58,5 +60,17 @@ export default class AbstractQuest<T extends abstractQuestRaw> extends DataObjec
 
   setRewards(rewards: string) {
     this.rewards = new Reward(rewards);
+  }
+
+  get isOngoing(): boolean {
+    return this.tsComplete.isAfter(moment());
+  }
+
+  get isFinished(): boolean {
+    return game.currentQuest.status === questStatus.FINISHED;
+  }
+
+  static async claimQuestRewards(): Promise<void> {
+    return request.claimQuestRewards();
   }
 }

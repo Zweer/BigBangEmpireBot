@@ -1,4 +1,14 @@
+import * as moment from 'moment';
+
 import AbstractQuest, { abstractQuestRaw } from '../abstracts/quest';
+
+import log from '../../lib/log';
+import request from '../../lib/request';
+
+import game from '../game';
+import character from '../character';
+
+import { resource } from '../types/common';
 
 export type questRaw = abstractQuestRaw & {
   stage: number,
@@ -25,11 +35,51 @@ export default class Quest extends AbstractQuest<questRaw> {
       return deltaPremium;
     }
 
-    const deltaNonStandardAttributes = b.rewards.nonStandardAttributes.length - a.rewards.nonStandardAttributes.length;
-    if (deltaNonStandardAttributes !== 0) {
-      return deltaNonStandardAttributes;
+    return b.value - a.value;
+  }
+
+  async checkForQuestCompleteAndUpdate(): Promise<void> {
+    const currentQuest = await request.checkForQuestComplete();
+
+    this.update(currentQuest);
+  }
+
+  get value(): number {
+    return this.xpPerEnergy + this.rewards.nonStandardAttributes.length * 100000;
+  }
+
+  async doQuest() {
+    const messageArr = [];
+    messageArr.push('Starting a new quest:');
+    messageArr.push(`- ${this.xpPerEnergy} xp/energy`);
+    messageArr.push(`- ${this.energyCost} energy`);
+
+    messageArr.push(...this.rewards.nonStandardAttributes.map(nonStandardAttribute => `- with a ${nonStandardAttribute}`));
+
+    if (this.rewards.dungeonKey) {
+      log.warn(`Got a new dungeonKey in ${this.energyCost} minutes`);
     }
 
-    return b.xpPerEnergy - a.xpPerEnergy;
+    log.debug(messageArr.join('\n'));
+
+    await request.startQuest(this);
+  }
+
+  async doUseResources() {
+    if (character.unusedResources[resource.QUEST_REDUCTION] > 0 && (!character.usedResources || character.usedResources[resource.QUEST_REDUCTION] < 4) && this.energyCost > 8) {
+      const savedSeconds = await request.useResource(resource.QUEST_REDUCTION);
+
+      log.info(`Quest reduction resource used: ${savedSeconds} seconds saved`);
+    }
+  }
+
+  get remainingTime(): string {
+    const now = moment();
+
+    if (this.tsComplete.isBefore(now)) {
+      return 'no quest in progress';
+    }
+
+    return moment.duration(this.tsComplete.diff(now)).humanize();
   }
 }

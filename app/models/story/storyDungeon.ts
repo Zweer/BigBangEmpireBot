@@ -3,6 +3,8 @@ import * as moment from 'moment';
 import Reward from './reward';
 
 import DataObject from '../utils/dataObject';
+import game from "../game";
+import request from "../../lib/request";
 
 export type storyDungeonRaw = {
   id: number;
@@ -56,5 +58,17 @@ export default class StoryDungeon extends DataObject<storyDungeonRaw> {
 
   get isFinished() {
     return this.status === storyDungeonStatus.FINISHED;
+  }
+
+  get isMoreThanAnHourAgo() {
+    return this.tsLastAttack.isBefore(moment().subtract(1, 'hour'));
+  }
+
+  async startStoryDungeonBattle(): Promise<void> {
+    return request.startStoryDungeonBattle(this);
+  }
+
+  async claimStoryDungeonReward(): Promise<void> {
+    return request.claimStoryDungeonReward(this);
   }
 }

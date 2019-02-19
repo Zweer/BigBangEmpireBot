@@ -501,6 +501,10 @@ class Game extends DataObject<gameRaw> {
   setStoryDungeons(storyDungeons: storyDungeonRaw[]) {
     this.storyDungeons = storyDungeons.map(s => new StoryDungeon(s));
   }
+
+  get minQuestEnergy(): number {
+    return this.quests.reduce((tmpMinQuestEnergy: number, quest: Quest) => tmpMinQuestEnergy > quest.energyCost ? quest.energyCost : tmpMinQuestEnergy, Infinity);
+  }
 }
 
 export default new Game();

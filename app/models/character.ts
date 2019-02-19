@@ -325,6 +325,9 @@ export class Character extends AbstractCharacter<characterRaw> {
   newUserVoucherIds: number[];
   herobookObjectivesRenewedToday: number;
 
+  private static MAX_DAILY_REFILL: number = 200;
+  private static REFILL_AMOUNT: number = 50;
+
   setUnusedResources(unusedResources: string) {
     if (unusedResources && typeof unusedResources === 'string') {
       this.unusedResources = JSON.parse(unusedResources);
@@ -389,6 +392,18 @@ export class Character extends AbstractCharacter<characterRaw> {
     if (this.finishedGuildBattleDefenseId) {
       return request.claimGuildBattleReward(this.finishedGuildBattleDefenseId);
     }
+  }
+
+  get remainingEnergy(): number {
+    return this.questEnergy + Character.MAX_DAILY_REFILL - this.questEnergyRefillAmountToday;
+  }
+
+  get needToRefillEnergy(): boolean {
+    return this.questEnergyRefillAmountToday < Character.MAX_DAILY_REFILL && this.questEnergy + Character.REFILL_AMOUNT < this.maxQuestEnergy;
+  }
+
+  static async buyQuestEnergy(): Promise<void> {
+    return request.buyQuestEnergy();
   }
 }
 

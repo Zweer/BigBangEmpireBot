@@ -100,12 +100,12 @@ class TelegramBot {
       }
 
       messageArr.push('--------------------');
-      messageArr.push(`- energy: ${game.character.questEnergy} + ${200 - game.character.questEnergyRefillAmountToday} (${this.bbe.quest.remainingTime})`);
+      messageArr.push(`- energy: ${game.character.questEnergy} + ${200 - game.character.questEnergyRefillAmountToday}${game.currentQuest ? ` (${game.currentQuest.remainingTime})` : ''}`);
       messageArr.push(`- stamina: ${game.character.duelStamina} / ${game.character.maxDuelStamina} (${game.character.duelStaminaCost})`);
       messageArr.push(`- dating: ${numeral(this.bbe.datingStepPercentage).format('0%')}`);
 
-      if (this.bbe.quest.storyDungeon) {
-        messageArr.push(`- story dungeon in ${moment.duration(this.bbe.quest.storyDungeon.tsLastAttack.diff(moment())).humanize()}`);
+      if (game.storyDungeon) {
+        messageArr.push(`- story dungeon in ${moment.duration(game.storyDungeon.tsLastAttack.diff(moment())).humanize()}`);
       }
 
       if (game.movie) {

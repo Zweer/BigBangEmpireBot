@@ -170,7 +170,7 @@ class Request {
     }
   }
 
-  async claimQuestRewards(): Promise<{ currentGoalValues: object, currentItemPatternValues: object }> {
+  async claimQuestRewards(): Promise<void> {
     const {
       current_goal_values: currentGoalValues = {},
       current_item_pattern_values: currentItemPatternValues = {},
@@ -187,17 +187,12 @@ class Request {
 
     Object.assign(gameObj.currentGoalValue, currentGoalValues);
     Object.assign(gameObj.currentItemPatternValues, currentItemPatternValues);
-
-    return {
-      currentGoalValues,
-      currentItemPatternValues,
-    };
   }
 
-  async startQuest(questId: number): Promise<Quest> {
-    const { quest } = await this.request('startQuest', { quest_id: questId });
+  async startQuest(quest: Quest): Promise<void> {
+    const { quest: updatedQuest } = await this.request('startQuest', { quest_id: quest.id });
 
-    return new Quest(quest);
+    quest.update(updatedQuest);
   }
 
   async useResource(resourceType: resource): Promise<number> {

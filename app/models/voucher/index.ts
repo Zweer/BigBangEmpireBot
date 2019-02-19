@@ -1,5 +1,6 @@
 import DataObject from '../utils/dataObject';
-import request from "../../lib/request";
+
+import request from '../../lib/request';
 
 export type voucherRaw = {
   id: number;
