@@ -4,7 +4,7 @@ import Booster, { boosterRaw } from './booster';
 import Goal, { goalRaw } from './goal';
 
 import DataObject from './utils/dataObject';
-import DatingConstant, {datingConstantRaw} from "./dating/constant";
+import DatingConstant, { datingConstantRaw } from './dating/constant';
 
 export type level = {
   xp: number;
@@ -775,7 +775,7 @@ export type constantsRaw = {
   warforged_infos: object;
 };
 
-export default class Constants extends DataObject<constantsRaw> {
+class Constants extends DataObject<constantsRaw> {
   toleranceSmall: number;
   toleranceMedium: number;
   toleranceLarge: number;
@@ -1551,3 +1551,5 @@ export default class Constants extends DataObject<constantsRaw> {
     this.dating = mapValues(dating, (d: datingConstantRaw) => new DatingConstant(d));
   }
 }
+
+export default new Constants();

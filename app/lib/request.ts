@@ -11,7 +11,7 @@ import { optionsWeb } from '../models/types/options';
 
 import Battle from '../models/battle';
 import CollectedWork from '../models/work/collected';
-import Constants from '../models/constants';
+import constantsObj from '../models/constants';
 import Duel from '../models/duel';
 import ExtendedConfig from '../models/extendedConfig';
 import Friend from '../models/friend';
@@ -138,7 +138,7 @@ export default class Request {
     return new ExtendedConfig(extendedConfig);
   }
 
-  async initGame(parameters: optionsWeb): Promise<{ constants: Constants, extendedConfig: ExtendedConfig }> {
+  async initGame(parameters: optionsWeb): Promise<{ extendedConfig: ExtendedConfig }> {
     const { constants, extendedConfig } = await this.request(Request.ACTION_INIT_GAME, {
       swf_ui_hash: parameters.swfUi,
       locale_version: parameters.localeVersion,
@@ -149,8 +149,9 @@ export default class Request {
       no_text: true,
     });
 
+    constantsObj.update(constants);
+
     return {
-      constants: new Constants(constants),
       extendedConfig: new ExtendedConfig(extendedConfig),
     };
   }

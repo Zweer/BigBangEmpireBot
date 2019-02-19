@@ -15,7 +15,7 @@ Promise.serial = async function resolveSerial(promises: Promise<any>[]): Promise
 import { optionsConfig, optionsWeb } from './models/types/options';
 
 import game from './models/game';
-import Constants from './models/constants';
+import constants from './models/constants';
 import ExtendedConfig from './models/extendedConfig';
 // import Friend from './models/friend';
 
@@ -34,7 +34,6 @@ import QuestModule from './modules/quest';
 
 export default class BigBangEmpireBot {
   private extendedConfig: ExtendedConfig;
-  public constants: Constants;
   private offers: { consumable; normal; special; text };
   // private friends: Friend[];
 
@@ -129,9 +128,8 @@ export default class BigBangEmpireBot {
   }
 
   async initGame() {
-    const { constants, extendedConfig } = await this.request.initGame(this.optionsWeb);
+    const { extendedConfig } = await this.request.initGame(this.optionsWeb);
 
-    this.constants = this.dating.constants = this.profile.constants = constants;
     this.extendedConfig.update(extendedConfig);
   }
 
@@ -237,8 +235,8 @@ export default class BigBangEmpireBot {
     const nextLvl = lvl + 1;
 
     const xp = game.character.xp;
-    const lvlXp = this.constants.levels[lvl].xp;
-    const nextLvlXp = this.constants.levels[nextLvl].xp;
+    const lvlXp = constants.levels[lvl].xp;
+    const nextLvlXp = constants.levels[nextLvl].xp;
 
     const diff = xp - lvlXp;
     const diffNext = nextLvlXp - lvlXp;

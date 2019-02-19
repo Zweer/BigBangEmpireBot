@@ -1,11 +1,12 @@
 import { findKey, findLastKey } from 'lodash';
 import * as moment from 'moment';
 
+import constants from '../models/constants';
 import game from '../models/game';
 
-import { AbstractModuleWithConstants } from '.';
+import AbstractModule from '.';
 
-export default class ProfileModule extends AbstractModuleWithConstants {
+export default class ProfileModule extends AbstractModule {
   static WORK_DELAY = [3, 'hours'];
 
   get newUserVoucherIds() {
@@ -74,7 +75,7 @@ export default class ProfileModule extends AbstractModuleWithConstants {
   }
 
   private async buyBestBooster(type: number, premium: boolean = false) {
-    const boosterId = findLastKey(this.constants.boosters, b => b.type === type && b.premiumItem === premium);
+    const boosterId = findLastKey(constants.boosters, b => b.type === type && b.premiumItem === premium);
 
     this.log.info(`Buying booster ${boosterId}`);
 
@@ -96,7 +97,7 @@ export default class ProfileModule extends AbstractModuleWithConstants {
       .map((goalName) => {
         const currentGoalValue = this.currentGoalValue[goalName];
         const collectedGoal = this.collectedGoals[goalName] || { value: 0 };
-        const goal = this.constants.goals[goalName];
+        const goal = constants.goals[goalName];
 
         if (currentGoalValue.currentValue <= collectedGoal.value) {
           return;
