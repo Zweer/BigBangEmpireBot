@@ -4,6 +4,7 @@ import * as numeral from 'numeral';
 import log from '../lib/log';
 
 import character from '../models/character';
+import constants from '../models/constants';
 import game from '../models/game';
 
 import AbstractModule from '.';
@@ -66,6 +67,10 @@ export default class MovieModule extends AbstractModule {
     }
 
     if (character.tsLastMovieFinished.isAfter(moment().subtract(1, 'hour'))) {
+      return;
+    }
+
+    if (character.moviesStartedToday >= constants.movieDailyLimit) {
       return;
     }
 
