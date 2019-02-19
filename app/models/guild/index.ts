@@ -1,4 +1,6 @@
 import DataObject from '../utils/dataObject';
+import game from "../game";
+import request from "../../lib/request";
 
 export type guildRaw = {
   id: number;
@@ -69,7 +71,7 @@ export type guildRaw = {
   ts_active_duel_boost_expires: number;
 };
 
-export default class Guild extends DataObject<guildRaw> {
+export class Guild extends DataObject<guildRaw> {
   id: number;
   tsCreation: number;
   initiatorCharacterId: number;
@@ -140,4 +142,18 @@ export default class Guild extends DataObject<guildRaw> {
   get statTotal() {
     return this.statGuildCapacity + this.statCharacterBaseStatsBoost + this.statQuestXpRewardBoost + this.statQuestGameCurrencyRewardBoost;
   }
+
+  async joinGuildBattleAttack() {
+    if (this.pendingGuildBattleAttackId && !game.pendingGuildBattleAttack) {
+      return request.joinGuildBattle(true);
+    }
+  }
+
+  async joinGuildBattleDefence() {
+    if (this.pendingGuildBattleDefenseId && !game.pendingGuildBattleDefense) {
+      return request.joinGuildBattle(false);
+    }
+  }
 }
+
+export default new Guild();

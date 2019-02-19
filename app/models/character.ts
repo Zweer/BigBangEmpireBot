@@ -4,6 +4,8 @@ import constants from './constants';
 import { resource } from './types/common';
 
 import AbstractCharacter, { abstractCharacterRaw } from './abstracts/character';
+import request from "../lib/request";
+import game from "./game";
 
 export type characterRaw = abstractCharacterRaw & {
   user_id: number,
@@ -374,6 +376,18 @@ export class Character extends AbstractCharacter<characterRaw> {
 
   get levelPercentage() {
     return (this.xp - this.levelXp) / (this.nextLevelXp - this.levelXp);
+  }
+
+  async claimGuildBattleAttackReward(): Promise<void> {
+    if (this.finishedGuildBattleAttackId) {
+      return request.claimGuildBattleReward(this.finishedGuildBattleAttackId);
+    }
+  }
+
+  async claimGuildBattleDefenseReward(): Promise<void> {
+    if (this.finishedGuildBattleDefenseId) {
+      return request.claimGuildBattleReward(this.finishedGuildBattleDefenseId);
+    }
   }
 }
 

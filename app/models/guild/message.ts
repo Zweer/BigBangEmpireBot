@@ -1,6 +1,7 @@
 import * as moment from 'moment';
 
 import DataObject from '../utils/dataObject';
+import request from '../../lib/request';
 
 export type guildMessageEventRaw = {
   timestamp: number;
@@ -134,5 +135,9 @@ export default class GuildMessage extends DataObject<guildMessageEventRaw | guil
     }
 
     return `${this.characterName}: ${this.message}`;
+  }
+
+  static async getGuildLog() {
+    return request.getGuildLog();
   }
 }

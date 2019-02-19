@@ -1,20 +1,21 @@
 import { mapValues } from 'lodash';
 
 import character, { Character, characterRaw } from './character';
+import DatingStep, { datingStepRaw } from './dating/step';
 import CollectedGoal, { collectedGoalRaw } from './goal/collected';
 import CurrentGoal, { currentGoalRaw } from './goal/current';
+import guild, { Guild, guildRaw } from './guild';
 import inventory, { Inventory, inventoryRaw } from './inventory';
 import Item, { itemRaw } from './inventory/item';
 import Movie, { movieRaw } from './movie';
 import MovieQuest, { movieQuestRaw } from './movie/quest';
 import Quest, { questRaw } from './story/quest';
+import StoryDungeon, { storyDungeonRaw } from './story/storyDungeon';
 import user, { User, userRaw } from './user';
 
 import { questStatus } from './abstracts/quest';
+
 import DataObject from './utils/dataObject';
-import Guild, { guildRaw } from './guild';
-import DatingStep, { datingStepRaw } from './dating/step';
-import StoryDungeon, { storyDungeonRaw } from './story/storyDungeon';
 
 export type gameRaw = {
   saved_seconds: number,
@@ -254,7 +255,7 @@ class Game extends DataObject<gameRaw> {
   public datingStep: DatingStep[];
   public completedDatingSteps: object;
   public eventQuest: object; // EventQuest
-  public guild: Guild;
+  public guild: Guild = guild;
   public guildCompetitionData: object; // GuildCompetition
   public storyDungeons: StoryDungeon[];
   public fanFoto: object; // FanPhoto
@@ -486,7 +487,7 @@ class Game extends DataObject<gameRaw> {
   }
 
   setGuild(guild: guildRaw) {
-    this.guild = new Guild(guild);
+    this.guild.update(guild);
   }
 
   setDatingStep(datingStep: datingStepRaw[]) {
