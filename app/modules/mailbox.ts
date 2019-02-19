@@ -1,7 +1,8 @@
+import character from '../models/character';
 import game from '../models/game';
+import ResourceRequest from '../models/mailbox/resourceRequest';
 
 import log from '../lib/log';
-import request from '../lib/request';
 
 import AbstractModule from '.';
 
@@ -13,35 +14,23 @@ export default class MailboxModule extends AbstractModule {
     await this.handleResourceRequests();
   }
 
-  get newMessages() {
-    return game.newMessages;
-  }
-
-  get pendingResourceRequests() {
-    return game.character.pendingResourceRequests;
-  }
-
   private async handleMessages() {
-    if (this.newMessages === 0 || this.newMessages === this.oldMessages) {
+    if (game.newMessages === 0 || game.newMessages === this.oldMessages) {
       return;
     }
 
-    this.oldMessages = this.newMessages;
+    this.oldMessages = game.newMessages;
 
-    log.info(`You have ${this.newMessages} new messages (${this.pendingResourceRequests} resource requests)`);
+    log.info(`You have ${game.newMessages} new messages (${character.pendingResourceRequests} resource requests)`);
 
-    if (this.pendingResourceRequests > 0) {
+    if (character.pendingResourceRequests > 0) {
       log.debug('Accepting all resource requests');
 
-      await request.acceptAllResourceRequests();
+      await ResourceRequest.acceptAllResourceRequests();
     }
   }
 
   private async handleResourceRequests() {
-    const friends = await request.getAvailableResourceRequestFriends();
-
-    if (friends.length) {
-      await request.createResourceRequest(friends);
-    }
+    await ResourceRequest.createResourceRequest();
   }
 }
