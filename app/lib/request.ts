@@ -14,11 +14,11 @@ import constantsObj from '../models/constants';
 import extendedConfigObj from '../models/extendedConfig';
 import gameObj from '../models/game';
 
-import Battle from '../models/battle';
+import Battle from '../models/duel/battle';
 import CollectedWork from '../models/work/collected';
 import Duel from '../models/duel';
 import Friend from '../models/friend';
-import Item from '../models/item';
+import Item from '../models/inventory/item';
 import MissedDuel from '../models/duel/missed';
 import Movie from '../models/movie';
 import MovieQuest from '../models/movie/quest';

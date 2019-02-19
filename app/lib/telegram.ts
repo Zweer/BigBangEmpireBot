@@ -16,7 +16,7 @@ import game from '../models/game';
 import { stat } from '../models/types/common';
 import { optionsTelegramBot } from '../models/types/options';
 import { messageFlag } from '../models/mailbox/message';
-import Item from '../models/item';
+import Item from '../models/inventory/item';
 import Inventory from '../models/inventory';
 
 class TelegramBot {

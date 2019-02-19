@@ -1,4 +1,4 @@
-import DataObject from './utils/dataObject';
+import DataObject from '../utils/dataObject';
 
 export type battleRaw = {
   id: number;

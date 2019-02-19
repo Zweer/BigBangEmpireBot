@@ -4,7 +4,7 @@ import Character, { characterRaw } from './character';
 import CollectedGoal, { collectedGoalRaw } from './goal/collected';
 import CurrentGoal, { currentGoalRaw } from './goal/current';
 import Inventory, { inventoryRaw } from './inventory';
-import Item, { itemRaw } from './item';
+import Item, { itemRaw } from './inventory/item';
 import Movie, { movieRaw } from './movie';
 import MovieQuest, { movieQuestRaw } from './movie/quest';
 import Quest, { questRaw } from './quest';

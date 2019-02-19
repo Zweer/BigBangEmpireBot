@@ -1,8 +1,8 @@
 import { camelCase } from 'lodash';
 
-import { itemType } from './types/item';
+import { itemType } from '../types/item';
 
-import DataObject from './utils/dataObject';
+import DataObject from '../utils/dataObject';
 
 export type inventoryRaw = {
   id: number,
