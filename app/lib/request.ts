@@ -183,7 +183,7 @@ class Request {
 
     gameObj.inventory.update(inventory);
 
-    gameObj.quests = quests.map(quest => new Quest(quest));
+    gameObj.setQuests(quests);
 
     Object.assign(gameObj.currentGoalValue, currentGoalValues);
     Object.assign(gameObj.currentItemPatternValues, currentItemPatternValues);

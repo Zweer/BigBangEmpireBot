@@ -56,6 +56,10 @@ export default class Quest extends AbstractQuest<questRaw> {
 
     messageArr.push(...this.rewards.nonStandardAttributes.map(nonStandardAttribute => `- with a ${nonStandardAttribute}`));
 
+    if (this.rewards.premium) {
+      log.warn(`Got ${this.rewards.premium} diamonds in ${this.energyCost} minutes`);
+    }
+
     if (this.rewards.dungeonKey) {
       log.warn(`Got a new dungeonKey in ${this.energyCost} minutes`);
     }
