@@ -53,15 +53,19 @@ export default class TelegramBot {
 
     this.bot = new Telegraf(this.options.token);
 
+    this.startTelegram();
+    this.initRoutes();
+  }
+
+  async startTelegram() {
     // @ts-ignore
     if (this.options.has('port') && this.options.has('baseurl')) {
-      this.bot.telegram.setWebhook(`${this.options.baseurl}/telegram`);
+      await this.bot.telegram.setWebhook(`${this.options.baseurl}/telegram`);
       this.bot.startWebhook('/telegram', null, this.options.port);
     } else {
+      await this.bot.telegram.deleteWebhook();
       this.bot.startPolling();
     }
-
-    this.initRoutes();
   }
 
   initRoutes() {

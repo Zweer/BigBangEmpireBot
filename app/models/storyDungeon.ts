@@ -45,7 +45,9 @@ export default class StoryDungeon extends DataObject<storyDungeonRaw> {
   }
 
   setBattleIds(battleIds: string) {
-    this.battleIds = JSON.parse(battleIds);
+    if (battleIds) {
+      this.battleIds = JSON.parse(battleIds);
+    }
   }
 
   setRewards(rewards: string) {
