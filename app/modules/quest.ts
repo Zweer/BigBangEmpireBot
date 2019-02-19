@@ -1,5 +1,6 @@
 import * as moment from 'moment';
 
+import request from '../lib/request';
 import game from '../models/game';
 
 import AbstractModule from '.';
@@ -56,7 +57,7 @@ export default class QuestModule extends AbstractModule {
 
   private async handleBuyEnergy(): Promise<void> {
     if (this.questEnergyRefillAmountToday < QuestModule.MAX_DAILY_REFILL && this.questEnergy + QuestModule.REFILL_AMOUNT < this.maxQuestEnergy) {
-      await this.request.buyQuestEnergy();
+      await request.buyQuestEnergy();
     }
   }
 
@@ -69,7 +70,7 @@ export default class QuestModule extends AbstractModule {
       return;
     }
 
-    const currentQuestUpdate = await this.request.checkForQuestComplete();
+    const currentQuestUpdate = await request.checkForQuestComplete();
     if (currentQuestUpdate) {
       this.currentQuest.update(currentQuestUpdate);
     }
@@ -78,7 +79,7 @@ export default class QuestModule extends AbstractModule {
       return;
     }
 
-    await this.request.claimQuestRewards();
+    await request.claimQuestRewards();
   }
 
   private async handleStartQuest(): Promise<void> {
@@ -115,14 +116,14 @@ export default class QuestModule extends AbstractModule {
 
     this.log.debug(messageArr.join('\n'));
 
-    const quest = await this.request.startQuest(currentQuest.id);
+    const quest = await request.startQuest(currentQuest.id);
 
     currentQuest.update(quest);
   }
 
   private async doUseResources(currentQuest: Quest) {
     if (this.unusedResources[resource.QUEST_REDUCTION] > 0 && (!this.usedResources || this.usedResources[resource.QUEST_REDUCTION] < 4) && currentQuest.energyCost > 8) {
-      const savedSeconds = await this.request.useResource(resource.QUEST_REDUCTION);
+      const savedSeconds = await request.useResource(resource.QUEST_REDUCTION);
 
       this.log.info(`Quest reduction resource used: ${savedSeconds} seconds saved`);
     }
@@ -141,8 +142,8 @@ export default class QuestModule extends AbstractModule {
     if (this.storyDungeon.tsLastAttack.isBefore(moment().subtract(1, 'hour'))) {
       this.log.info('Starting a story dungeon attack');
 
-      await this.request.startStoryDungeonBattle(this.storyDungeon);
-      await this.request.claimStoryDungeonReward(this.storyDungeon);
+      await request.startStoryDungeonBattle(this.storyDungeon);
+      await request.claimStoryDungeonReward(this.storyDungeon);
     }
   }
 

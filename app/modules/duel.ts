@@ -1,5 +1,7 @@
 import * as numeral from 'numeral';
 
+import request from '../lib/request';
+
 import game from '../models/game';
 
 import AbstractModule from '.';
@@ -67,7 +69,7 @@ export default class DuelModule extends AbstractModule {
 
     this.log.debug(`Duel stamina: ${this.duelStamina}`);
 
-    const opponents = await this.request.getDuelOpponents();
+    const opponents = await request.getDuelOpponents();
 
     if (!opponents) {
       this.log.error('No duel opponents');
@@ -88,7 +90,7 @@ export default class DuelModule extends AbstractModule {
   private async makeDuel(opponent: Opponent) {
     this.log.verbose(`Starting duel with ${opponent.name}`);
 
-    const { battle, duel } = await this.request.startDuel(opponent.id);
+    const { battle, duel } = await request.startDuel(opponent.id);
 
     const addendum = [''];
 
@@ -102,8 +104,8 @@ export default class DuelModule extends AbstractModule {
 
     this.log.verbose(`You ${battle.won ? 'won' : 'lost'} the duel!\n- ${numeral(duel.characterARewards.honor).format('+0')} honor${addendum.join('\n')}`);
 
-    await this.request.checkForDuelComplete();
-    await this.request.claimDuelRewards();
+    await request.checkForDuelComplete();
+    await request.claimDuelRewards();
   }
 
   private async handleMissedDuels() {
@@ -111,10 +113,10 @@ export default class DuelModule extends AbstractModule {
       return;
     }
 
-    const missedDuels = await this.request.getMissedDuelsNew();
+    const missedDuels = await request.getMissedDuelsNew();
 
     missedDuels.forEach(missedDuel => this.log.verbose(`Missed duel: ${missedDuel.won ? 'won' : 'lost'}\n- ${missedDuel.opponent.name}\n- ${numeral(missedDuel.characterBRewards.honor).format('+0')} honor`));
 
-    await this.request.claimMissedDuelsRewards();
+    await request.claimMissedDuelsRewards();
   }
 }

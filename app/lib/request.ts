@@ -1,5 +1,6 @@
 import { createHash } from 'crypto';
 import { mapValues, merge } from 'lodash';
+import * as config from 'config';
 import * as moment from 'moment';
 import * as request from 'request-promise';
 
@@ -9,13 +10,14 @@ import { resource, stat } from '../models/types/common';
 import { itemType } from '../models/types/item';
 import { optionsWeb } from '../models/types/options';
 
+import constantsObj from '../models/constants';
+import extendedConfigObj from '../models/extendedConfig';
+import gameObj from '../models/game';
+
 import Battle from '../models/battle';
 import CollectedWork from '../models/work/collected';
-import constantsObj from '../models/constants';
 import Duel from '../models/duel';
-import extendedConfigObj from '../models/extendedConfig';
 import Friend from '../models/friend';
-import gameObj from '../models/game';
 import Item from '../models/item';
 import MissedDuel from '../models/duel/missed';
 import Movie from '../models/movie';
@@ -30,10 +32,7 @@ import GuildMessage from '../models/guild/message';
 import Voucher from '../models/voucher';
 import StoryDungeon from '../models/storyDungeon';
 
-export default class Request {
-  readonly baseUrl: string;
-  readonly clientId: string;
-
+class Request {
   private semaphore = true;
 
   private userId: number = 0;
@@ -44,53 +43,15 @@ export default class Request {
   static AUTH_SALT: string = 'bpHgj5214';
   static PLATFORM = 'standalone';
 
+  static AUTH_SERVER: string = config.get('bbe.auth.server');
+  static AUTH_EMAIL: string = config.get('bbe.auth.email');
+  static AUTH_PASSWORD: string = config.get('bbe.auth.password');
+  static BASE_URL: string = config.get('bbe.baseUrl').replace('{SERVER}', Request.AUTH_SERVER);
   static ENDPOINT_REQUEST: string = '/request.php';
 
-  static ACTION_INIT_ENVIRONMENT = 'initEnvironment';
-  static ACTION_INIT_GAME = 'initGame';
-  static ACTION_LOGIN_USER = 'loginUser';
-  static ACTION_GET_STANDALONE_PAYMENT_OFFERS = 'getStandalonePaymentOffers';
-  static ACTION_LOGIN_FRIEND_BAR = 'loginFriendBar';
-  static ACTION_SYNC_GAME = 'syncGame';
-  static ACTION_CHECK_FOR_QUEST_COMPLETE = 'checkForQuestComplete';
-  static ACTION_CLAIM_QUEST_REWARDS = 'claimQuestRewards';
-  static ACTION_START_QUEST = 'startQuest';
-  static ACTION_USE_RESOURCES = 'useResource';
-  static ACTION_USE_COLLEECTED_GOAL_REWARD = 'collectGoalReward';
-  static ACTION_MOVE_INVENTORY_ITEM = 'moveInventoryItem';
-  static ACTION_SELL_INVENTORY_ITEM = 'sellInventoryItem';
-  static ACTION_GET_DUEL_OPPONENTS = 'getDuelOpponents';
-  static ACTION_START_DUEL = 'startDuel';
-  static ACTION_CHECK_FOR_DUEL_COMPLETE = 'checkForDuelComplete';
-  static ACTION_CLAIM_DUEL_REWARDS = 'claimDuelRewards';
-  static ACTION_GET_MISSED_DUELS_NEW = 'getMissedDuelsNew';
-  static ACTION_CLAIM_MISSED_DUELS_REWARDS = 'claimMissedDuelsRewards';
-  static ACTION_COLLECT_WORK = 'collectWork';
-  static ACTION_ACCEPT_ALL_RESOURCE_REQUESTS = 'acceptAllResourceRequests';
-  static ACTION_GET_AVAILABLE_RESOURCE_REQUEST_FRIENDS = 'getAvailableResourceRequestFriends';
-  static ACTION_CREATE_RESOURCE_REQUEST = 'createResourceRequest';
-  static ACTION_RETRIEVE_LEADERBOARD = 'retrieveLeaderboard';
-  static ACTION_BUY_QUEST_ENERGY = 'buyQuestEnergy';
-  static ACTION_CLAIM_MOVIE_QUEST_REWARDS = 'claimMovieQuestRewards';
-  static ACTION_REFRESH_MOVIE_POOL = 'refreshMoviePool';
-  static ACTION_START_MOVIE = 'startMovie';
-  static ACTION_START_MOVIE_QUEST = 'startMovieQuest';
-  static ACTION_CLAIM_MOVIE_STAR = 'claimMovieStar';
-  static ACTION_FINISH_MOVIE = 'finishMovie';
-  static ACTION_GET_MOVIES_TO_VOTE = 'getMoviesToVote';
-  static ACTION_VOTE_FOR_MOVIE = 'voteForMovie';
-  static ACTION_EXTEND_MOVIE_TIME = 'extendMovieTime';
-  static ACTION_IMPROVE_CHARACTER_STAT = 'improveCharacterStat';
-  static ACTION_GET_MESSAGE_LIST = 'getMessageList';
-  static ACTION_GET_MESSAGE = 'getMessage';
-  static ACTION_DELETE_MESSAGES = 'deleteMessages';
+  static CLIENT_ID: string = `${Request.AUTH_SERVER}${moment().format('X')}`;
 
   static STATUS_CHECK_FOR_QUEST_COMPLETE = ['errFinishInvalidStatus', 'errCheckForQuestCompleteNoActiveQuest', 'errFinishNotYetCompleted'];
-
-  constructor(baseUrl: string, readonly server: string, readonly email: string, readonly password: string) {
-    this.baseUrl = baseUrl.replace('{SERVER}', this.server);
-    this.clientId = `${this.server}${moment().format('X')}`;
-  }
 
   async request(action: string, parameters: object = {}): Promise<any> {
     while (!this.semaphore) {
@@ -99,7 +60,7 @@ export default class Request {
 
     this.semaphore = false;
 
-    const url = `${this.baseUrl}${Request.ENDPOINT_REQUEST}`;
+    const url = `${Request.BASE_URL}${Request.ENDPOINT_REQUEST}`;
     const form = {
       action,
       rct: 1,
@@ -133,13 +94,13 @@ export default class Request {
   }
 
   async initEnvironment(): Promise<void> {
-    const { extendedConfig } = await this.request(Request.ACTION_INIT_ENVIRONMENT);
+    const { extendedConfig } = await this.request('initEnvironment');
 
     extendedConfigObj.update(extendedConfig);
   }
 
   async initGame(parameters: optionsWeb): Promise<void> {
-    const { constants, extendedConfig } = await this.request(Request.ACTION_INIT_GAME, {
+    const { constants, extendedConfig } = await this.request('initGame', {
       swf_ui_hash: parameters.swfUi,
       locale_version: parameters.localeVersion,
       swf_main_hash: parameters.swfMain,
@@ -154,13 +115,13 @@ export default class Request {
   }
 
   async login(email, password): Promise<void> {
-    const game = await this.request(Request.ACTION_LOGIN_USER, {
+    const game = await this.request('loginUser', {
       email,
       password,
       platform_user_id: '',
       platform: '',
       app_version: Request.CLIENT_VERSION,
-      client_id: this.clientId,
+      client_id: Request.CLIENT_ID,
     });
 
     gameObj.update(game);
@@ -174,13 +135,13 @@ export default class Request {
       normal_offers: normal,
       special_offers: special,
       text,
-    } = await this.request(Request.ACTION_GET_STANDALONE_PAYMENT_OFFERS, { locale });
+    } = await this.request('getStandalonePaymentOffers', { locale });
 
     return { consumable, normal, special, text };
   }
 
   async initFriends(): Promise<Friend[]> {
-    const { friend_data: friendsRaw } = await this.request(Request.ACTION_LOGIN_FRIEND_BAR, {
+    const { friend_data: friendsRaw } = await this.request('loginFriendBar', {
       platform: Request.PLATFORM,
       existing_session_id: this.userSessionId,
       existing_user_id: this.userId,
@@ -190,14 +151,14 @@ export default class Request {
   }
 
   async syncGame(force: boolean = false): Promise<void> {
-    const game = await this.request(Request.ACTION_SYNC_GAME, { force_sync: force });
+    const game = await this.request('syncGame', { force_sync: force });
 
     gameObj.update(game);
   }
 
   async checkForQuestComplete(): Promise<Quest> {
     try {
-      const { quest } = await this.request(Request.ACTION_CHECK_FOR_QUEST_COMPLETE);
+      const { quest } = await this.request('checkForQuestComplete');
 
       return new Quest(quest);
     } catch (errorRaw) {
@@ -217,7 +178,7 @@ export default class Request {
       current_item_pattern_values: currentItemPatternValues = {},
       inventory,
       quests,
-    } = await this.request(Request.ACTION_CLAIM_QUEST_REWARDS, {
+    } = await this.request('claimQuestRewards', {
       discard_item: false,
       create_new: true,
     });
@@ -236,13 +197,13 @@ export default class Request {
   }
 
   async startQuest(questId: number): Promise<Quest> {
-    const { quest } = await this.request(Request.ACTION_START_QUEST, { quest_id: questId });
+    const { quest } = await this.request('startQuest', { quest_id: questId });
 
     return new Quest(quest);
   }
 
   async useResource(resourceType: resource): Promise<number> {
-    const { quest, saved_seconds: savedSeconds } = await this.request(Request.ACTION_USE_RESOURCES, {
+    const { quest, saved_seconds: savedSeconds } = await this.request('useResource', {
       feature_type: resourceType,
     });
 
@@ -252,7 +213,7 @@ export default class Request {
   }
 
   async collectGoalReward(goalName: string, nextGoalValue: number): Promise<void> {
-    const {} = await this.request(Request.ACTION_USE_COLLEECTED_GOAL_REWARD, {
+    const {} = await this.request('collectGoalReward', {
       value: nextGoalValue,
       identifier: goalName,
       discard_item: false,
@@ -260,7 +221,7 @@ export default class Request {
   }
 
   async moveInventoryItem(itemId: number, itemType: itemType): Promise<void> {
-    const { inventory } = await this.request(Request.ACTION_MOVE_INVENTORY_ITEM, {
+    const { inventory } = await this.request('moveInventoryItem', {
       item_id: itemId,
       target_slot: itemType,
     });
@@ -269,7 +230,7 @@ export default class Request {
   }
 
   async sellInventoryItem(itemId: number): Promise<void> {
-    const { inventory } = await this.request(Request.ACTION_SELL_INVENTORY_ITEM, {
+    const { inventory } = await this.request('sellInventoryItem', {
       item_id: itemId,
     });
 
@@ -277,14 +238,14 @@ export default class Request {
   }
 
   async getDuelOpponents(): Promise<Opponent[]> {
-    const { opponents } = await this.request(Request.ACTION_GET_DUEL_OPPONENTS);
+    const { opponents } = await this.request('getDuelOpponents');
 
     return opponents.map(opponent => new Opponent(opponent));
   }
 
   async startDuel(opponentId: number): Promise<{ battle: Battle, duel: Duel, item: Item }> {
     try {
-      const { battle, duel, item } = await this.request(Request.ACTION_START_DUEL, {
+      const { battle, duel, item } = await this.request('startDuel', {
         character_id: opponentId,
         use_premium: false,
       });
@@ -309,17 +270,17 @@ export default class Request {
   }
 
   async checkForDuelComplete() {
-    await this.request(Request.ACTION_CHECK_FOR_DUEL_COMPLETE);
+    await this.request('checkForDuelComplete');
   }
 
   async claimDuelRewards() {
-    await this.request(Request.ACTION_CLAIM_DUEL_REWARDS, {
+    await this.request('claimDuelRewards', {
       discard_item: false,
     });
   }
 
   async getMissedDuelsNew(): Promise<MissedDuel[]> {
-    const { missed_duel_data: missedDuels, missed_duel_opponents: missedDuelOpponents } = await this.request(Request.ACTION_GET_MISSED_DUELS_NEW, {
+    const { missed_duel_data: missedDuels, missed_duel_opponents: missedDuelOpponents } = await this.request('getMissedDuelsNew', {
       history: false,
     });
 
@@ -328,23 +289,23 @@ export default class Request {
   }
 
   async claimMissedDuelsRewards(): Promise<void> {
-    const { missed_duels: missedDuels } = await this.request(Request.ACTION_CLAIM_MISSED_DUELS_REWARDS);
+    const { missed_duels: missedDuels } = await this.request('claimMissedDuelsRewards');
 
     gameObj.missedDuels = missedDuels;
   }
 
   async collectWork(): Promise<CollectedWork> {
-    const { collected_work: collectedWork } = await this.request(Request.ACTION_COLLECT_WORK);
+    const { collected_work: collectedWork } = await this.request('collectWork');
 
     return new CollectedWork(collectedWork);
   }
 
   async acceptAllResourceRequests() {
-    await this.request(Request.ACTION_ACCEPT_ALL_RESOURCE_REQUESTS);
+    await this.request('acceptAllResourceRequests');
   }
 
   async getAvailableResourceRequestFriends(featureType = 1): Promise<Friend[]> {
-    const { resource_request_friends: resourceRequestFriends } = await this.request(Request.ACTION_GET_AVAILABLE_RESOURCE_REQUEST_FRIENDS, {
+    const { resource_request_friends: resourceRequestFriends } = await this.request('getAvailableResourceRequestFriends', {
       platform: Request.PLATFORM,
       feature_type: featureType,
     });
@@ -353,14 +314,14 @@ export default class Request {
   }
 
   async createResourceRequest(friends: Friend[], featureType = 1): Promise<void> {
-    await this.request(Request.ACTION_CREATE_RESOURCE_REQUEST, {
+    await this.request('createResourceRequest', {
       feature_type: featureType,
       user_ids: friends.map(f => f.userId).join(';'),
     });
   }
 
   async retrieveLeaderboard(sortType): Promise<number> {
-    const { centered_rank: rank } = await this.request(Request.ACTION_RETRIEVE_LEADERBOARD, {
+    const { centered_rank: rank } = await this.request('retrieveLeaderboard', {
       sort_type: sortType,
       character_name: gameObj.character.name,
     });
@@ -390,20 +351,20 @@ export default class Request {
   }
 
   async buyQuestEnergy(): Promise<void> {
-    await this.request(Request.ACTION_BUY_QUEST_ENERGY, {
+    await this.request('buyQuestEnergy', {
       use_premium: false,
     });
   }
 
   async claimMovieQuestRewards() {
-    const { movie, movie_quests: movieQuests } = await this.request(Request.ACTION_CLAIM_MOVIE_QUEST_REWARDS);
+    const { movie, movie_quests: movieQuests } = await this.request('claimMovieQuestRewards');
 
     gameObj.movie.update(movie);
     gameObj.setMovieQuests(movieQuests);
   }
 
   async refreshMoviePool(): Promise<void> {
-    const { movies } = await this.request(Request.ACTION_REFRESH_MOVIE_POOL, {
+    const { movies } = await this.request('refreshMoviePool', {
       use_premium: false,
     });
 
@@ -411,7 +372,7 @@ export default class Request {
   }
 
   async startMovie(movie: Movie): Promise<void> {
-    const { movie: movieAddendum, movie_quests: movieQuests } = await this.request(Request.ACTION_START_MOVIE, {
+    const { movie: movieAddendum, movie_quests: movieQuests } = await this.request('startMovie', {
       movie_id: movie.id,
     });
 
@@ -420,13 +381,13 @@ export default class Request {
   }
 
   async startMovieQuest(movieQuest: MovieQuest): Promise<void> {
-    await this.request(Request.ACTION_START_MOVIE_QUEST, {
+    await this.request('startMovieQuest', {
       movie_quest_id: movieQuest.id,
     });
   }
 
   async claimMovieStar() {
-    const { movie } = await this.request(Request.ACTION_CLAIM_MOVIE_STAR, {
+    const { movie } = await this.request('claimMovieStar', {
       discard_item: false,
     });
 
@@ -434,13 +395,13 @@ export default class Request {
   }
 
   async finishMovie() {
-    const { movie } = await this.request(Request.ACTION_FINISH_MOVIE);
+    const { movie } = await this.request('finishMovie');
 
     gameObj.movie.update(movie);
   }
 
   async getMoviesToVote(): Promise<{ movies: VotableMovie[], reward: Reward }> {
-    const { movies_to_vote: moviesToVote, movie_vote_reward: movieVoteReward } = await this.request(Request.ACTION_GET_MOVIES_TO_VOTE, {
+    const { movies_to_vote: moviesToVote, movie_vote_reward: movieVoteReward } = await this.request('getMoviesToVote', {
       refresh: false,
     });
 
@@ -451,14 +412,14 @@ export default class Request {
   }
 
   async voteForMovie(movie: VotableMovie) {
-    await this.request(Request.ACTION_VOTE_FOR_MOVIE, {
+    await this.request('voteForMovie', {
       discard_item: false,
       movie_id: movie.id,
     });
   }
 
   async extendMovieTime() {
-    const { movie } = await this.request(Request.ACTION_EXTEND_MOVIE_TIME, {
+    const { movie } = await this.request('extendMovieTime', {
       use_premium: false,
     });
 
@@ -466,14 +427,14 @@ export default class Request {
   }
 
   async improveCharacterStat(statistic: stat, value: number = 1) {
-    await this.request(Request.ACTION_IMPROVE_CHARACTER_STAT, {
+    await this.request('improveCharacterStat', {
       stat_type: statistic,
       skill_value: value,
     });
   }
 
   async getMessageList(received = true): Promise<Message[]> {
-    const { messages, messages_character_info: messageCharactersInfo } = await this.request(Request.ACTION_GET_MESSAGE_LIST, {
+    const { messages, messages_character_info: messageCharactersInfo } = await this.request('getMessageList', {
       load_received: received,
       load_sent: !received,
       load_ignored: true,
@@ -489,7 +450,7 @@ export default class Request {
   async getMessage(message: number | Message): Promise<Message> {
     const messageId = message instanceof Message ? message.id : message;
 
-    const { message: completeMessage, messages_character_info: messageCharactersInfo } = await this.request(Request.ACTION_GET_MESSAGE, {
+    const { message: completeMessage, messages_character_info: messageCharactersInfo } = await this.request('getMessage', {
       message_id: messageId,
     });
 
@@ -505,7 +466,7 @@ export default class Request {
   async deleteMessages(messages: (number | Message)[]): Promise<void> {
     const messagesId = messages.map(message => message instanceof Message ? message.id : message);
 
-    await this.request(Request.ACTION_DELETE_MESSAGES, {
+    await this.request('deleteMessages', {
       message_ids: messagesId.join(','),
     });
   }
@@ -672,3 +633,5 @@ export default class Request {
     console.log(response);
   }
 }
+
+export default new Request();

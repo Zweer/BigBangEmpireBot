@@ -1,3 +1,5 @@
+import request from '../lib/request';
+
 import constants from '../models/constants';
 import game from '../models/game';
 
@@ -13,15 +15,15 @@ export default class DatingModule extends AbstractModule {
   }
 
   private async claimReward() {
-    await this.request.claimDatingStepReward(this.currentStep.datingIndex, this.currentStep.stepIndex);
+    await request.claimDatingStepReward(this.currentStep.datingIndex, this.currentStep.stepIndex);
   }
 
   private async startNewStep() {
-    await this.request.startNewDatingStep(this.currentStep.datingIndex, this.currentStep.stepIndex + 1);
+    await request.startNewDatingStep(this.currentStep.datingIndex, this.currentStep.stepIndex + 1);
   }
 
   private async doBattle() {
-    await this.request.startDatingBattle(this.currentStep.datingIndex, this.currentStep.stepIndex);
+    await request.startDatingBattle(this.currentStep.datingIndex, this.currentStep.stepIndex);
   }
 
   async handle() {

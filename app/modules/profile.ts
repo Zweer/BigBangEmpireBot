@@ -3,6 +3,7 @@ import * as moment from 'moment';
 
 import constants from '../models/constants';
 import game from '../models/game';
+import request from '../lib/request';
 
 import AbstractModule from '.';
 
@@ -46,16 +47,16 @@ export default class ProfileModule extends AbstractModule {
   }
 
   private async handleDailyBonus() {
-    await this.request.getDailyBonusRewardData();
+    await request.getDailyBonusRewardData();
   }
 
   private async handleVoucher() {
     if (this.newUserVoucherIds.length) {
       await Promise.all(this.newUserVoucherIds.map(async (voucherId) => {
-        const voucher = await this.request.getUserVoucher(voucherId);
+        const voucher = await request.getUserVoucher(voucherId);
 
         this.log.info(`Voucher:\n${voucher.rewards}`);
-        await this.request.redeemVoucher(voucher);
+        await request.redeemVoucher(voucher);
       }));
     }
   }
@@ -79,14 +80,14 @@ export default class ProfileModule extends AbstractModule {
 
     this.log.info(`Buying booster ${boosterId}`);
 
-    await this.request.buyBooster(boosterId);
+    await request.buyBooster(boosterId);
   }
 
   private async handleCollectWork() {
     const threeHoursAgo = moment().subtract(...ProfileModule.WORK_DELAY);
 
     if (this.tsLastWorkCollection.isBefore(threeHoursAgo)) {
-      const collectedWork = await this.request.collectWork();
+      const collectedWork = await request.collectWork();
 
       this.log.verbose(`Collected work: ${collectedWork.gameCurrencyReward} coins (${collectedWork.offer})`);
     }
@@ -124,7 +125,7 @@ export default class ProfileModule extends AbstractModule {
       .reduce((previousPromise, { goalName, nextGoalValue }) => previousPromise.then(async () => {
         this.log.verbose(`Completing a goal: ${goalName} (${nextGoalValue})`);
 
-        await this.request.collectGoalReward(goalName, nextGoalValue);
+        await request.collectGoalReward(goalName, nextGoalValue);
       }), Promise.resolve());
 
     game.currentGoalValue = {};

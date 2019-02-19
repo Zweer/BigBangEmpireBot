@@ -1,3 +1,4 @@
+import request from '../lib/request';
 import game from '../models/game';
 
 import AbstractModule from '.';
@@ -49,14 +50,14 @@ export default class InventoryModule extends AbstractModule {
 
         if (!equippedItemId) {
           if (item.isUsable) {
-            return this.request.useInventoryItem(item);
+            return request.useInventoryItem(item);
           }
 
           this.log.verbose(`Moving item: ${item.slot} (empty slot)`);
 
           modified = true;
 
-          return this.request.moveInventoryItem(item.id, item.type);
+          return request.moveInventoryItem(item.id, item.type);
         }
 
         const equippedItem = game.getItem(equippedItemId);
@@ -68,7 +69,7 @@ export default class InventoryModule extends AbstractModule {
 
           this.log.verbose(`Selling item: ${item.slot}\n- my: ${equippedItem.statTotal}\n- bag: ${item.statTotal}`);
 
-          return this.request.sellInventoryItem(item.id);
+          return request.sellInventoryItem(item.id);
         }
 
         if (!item.battleSkill && !equippedItem.battleSkill) {
@@ -76,7 +77,7 @@ export default class InventoryModule extends AbstractModule {
 
           modified = true;
 
-          return this.request.moveInventoryItem(item.id, item.type);
+          return request.moveInventoryItem(item.id, item.type);
         }
 
         this.log.verbose(`New item: ${item.slot}\n- my: ${equippedItem.statTotal}\n- bag: ${item.statTotal}`);
@@ -127,7 +128,7 @@ export default class InventoryModule extends AbstractModule {
 
         this.log.info(['You are buying an item:', ...messages].join('\n'));
 
-        return this.request.buyShopItem(item, game.inventory.firstAvailableSlot);
+        return request.buyShopItem(item, game.inventory.firstAvailableSlot);
       }
     }));
 
@@ -138,7 +139,7 @@ export default class InventoryModule extends AbstractModule {
     if (!this.hasRefreshedShopToday && this.refreshShop) {
       this.log.info('Refreshing shop');
 
-      await this.request.refreshShopItems();
+      await request.refreshShopItems();
     }
   }
 

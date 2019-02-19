@@ -7,6 +7,7 @@ import * as Transport from 'winston-transport';
 
 import BigBangEmpireBot from '..';
 
+import request from '../lib/request';
 import constants from '../models/constants';
 import game from '../models/game';
 
@@ -182,7 +183,7 @@ export default class TelegramBot {
         return context.reply('You can\'t add stats: no points available');
       }
 
-      await this.bbe.request.improveCharacterStat(statName, value);
+      await request.improveCharacterStat(statName, value);
 
       await handleStats(context);
     });
@@ -190,7 +191,7 @@ export default class TelegramBot {
 
   initRouteMailbox() {
     this.bot.command('messages', async ({ reply }: ContextMessageUpdate) => {
-      const messages = await this.bbe.request.getMessageList();
+      const messages = await request.getMessageList();
 
       const messageArr = [];
       messageArr.push(`You have ${game.newMessages} new message[s]`);
@@ -208,7 +209,7 @@ export default class TelegramBot {
       // @ts-ignore
       const { groups: { messageId } } = context.match;
 
-      const message = await this.bbe.request.getMessage(messageId as number);
+      const message = await request.getMessage(messageId as number);
 
       const messageArr = [];
       messageArr.push(`From: ${message.sender}`);
@@ -248,7 +249,7 @@ export default class TelegramBot {
       // @ts-ignore
       const { groups: { messageId } } = context.match;
 
-      await this.bbe.request.deleteMessage(messageId);
+      await request.deleteMessage(messageId);
 
       await context.reply('Message deleted');
     });
@@ -260,7 +261,7 @@ export default class TelegramBot {
       // @ts-ignore
       const { groups: { itemId, targetSlot } } = context.match;
 
-      await this.bbe.request.buyShopItem(parseInt(itemId, 10), parseInt(targetSlot, 10));
+      await request.buyShopItem(parseInt(itemId, 10), parseInt(targetSlot, 10));
 
       await context.reply('Item bought!');
     });

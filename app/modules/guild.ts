@@ -1,5 +1,7 @@
 import game from '../models/game';
 
+import request from '../lib/request';
+
 import AbstractModule from '.';
 
 export default class GuildModule extends AbstractModule {
@@ -18,7 +20,7 @@ export default class GuildModule extends AbstractModule {
 
   private async handleGuildMessages() {
     if (this.newGuildLogEntries) {
-      const guildMessages = await this.request.getGuildLog();
+      const guildMessages = await request.getGuildLog();
 
       guildMessages.forEach(guildMessage => this.log.info(`👥 ${guildMessage}`));
     }
@@ -27,27 +29,27 @@ export default class GuildModule extends AbstractModule {
   private async handleCurrentBattle() {
     // TODO: add if the battle was won or lost
     if (game.character.finishedGuildBattleAttackId) {
-      await this.request.claimGuildBattleReward(game.character.finishedGuildBattleAttackId);
+      await request.claimGuildBattleReward(game.character.finishedGuildBattleAttackId);
     }
 
     if (game.character.finishedGuildBattleDefenseId) {
-      await this.request.claimGuildBattleReward(game.character.finishedGuildBattleDefenseId);
+      await request.claimGuildBattleReward(game.character.finishedGuildBattleDefenseId);
     }
   }
 
   private async handleNextBattle() {
     if (game.guild.pendingGuildBattleAttackId && !game.pendingGuildBattleAttack) {
-      await this.request.joinGuildBattle(true);
+      await request.joinGuildBattle(true);
     }
 
     if (game.guild.pendingGuildBattleDefenseId && !game.pendingGuildBattleDefense) {
-      await this.request.joinGuildBattle(false);
+      await request.joinGuildBattle(false);
     }
   }
 
   private async handleTemple() {
-    await this.request.getGuildCompetitionTournamentReward();
+    await request.getGuildCompetitionTournamentReward();
 
-    // await this.request.claimGuildCompetitionTournamentReward();
+    // await request.claimGuildCompetitionTournamentReward();
   }
 }

@@ -2,6 +2,7 @@ import * as moment from 'moment';
 import * as numeral from 'numeral';
 
 import game from '../models/game';
+import request from '../lib/request';
 
 import AbstractModule from '.';
 
@@ -48,10 +49,10 @@ export default class MovieModule extends AbstractModule {
       return;
     }
 
-    const { movies } = await this.request.getMoviesToVote();
+    const { movies } = await request.getMoviesToVote();
     const [movie] = movies; // TODO: implement something to vote movies from the same guild
 
-    await this.request.voteForMovie(movie);
+    await request.voteForMovie(movie);
   }
 
   private async handleCurrentQuest(): Promise<void> {
@@ -60,7 +61,7 @@ export default class MovieModule extends AbstractModule {
     }
 
     try {
-      await this.request.claimMovieQuestRewards();
+      await request.claimMovieQuestRewards();
     } catch (error) {
       // do nothing
     }
@@ -72,13 +73,13 @@ export default class MovieModule extends AbstractModule {
     }
 
     if (this.movie.isWaitingForClaim) {
-      await this.request.claimMovieStar();
+      await request.claimMovieStar();
 
       this.log.info(`🎥 ${numeral(this.movie.claimedStars).format('0o')} star claimed`);
     }
 
     if (this.movie.isWaitingForFinish) {
-      await this.request.finishMovie();
+      await request.finishMovie();
 
       this.log.info('🎥 Finished');
     }
@@ -93,7 +94,7 @@ export default class MovieModule extends AbstractModule {
       return;
     }
 
-    await this.request.refreshMoviePool();
+    await request.refreshMoviePool();
   }
 
   private async handleMovieChoice(): Promise<void> {
@@ -107,7 +108,7 @@ export default class MovieModule extends AbstractModule {
       .sort((a, b) => b.fans - a.fans)
       .find(m => !!m);
 
-    await this.request.startMovie(movie);
+    await request.startMovie(movie);
   }
 
   private async handleMovie(): Promise<void> {
@@ -116,7 +117,7 @@ export default class MovieModule extends AbstractModule {
     }
 
     if (this.movie.status === movieStatus.TIMEUP) {
-      await this.request.extendMovieTime();
+      await request.extendMovieTime();
     }
 
     const quest = this.movieQuests.find(q => q.type === questType.STAT);
@@ -124,7 +125,7 @@ export default class MovieModule extends AbstractModule {
     if (quest && this.movieEnergy >= quest.energyCost) {
       this.log.verbose(`Starting a movie quest: ${quest.rewards.movieProgress} reward`);
 
-      await this.request.startMovieQuest(quest);
+      await request.startMovieQuest(quest);
     }
   }
 }

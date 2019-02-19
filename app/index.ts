@@ -18,7 +18,7 @@ import game from './models/game';
 import constants from './models/constants';
 // import Friend from './models/friend';
 
-import Request from './lib/request';
+import request from './lib/request';
 import RequestWeb from './lib/requestWeb';
 import TelegramBot, { TelegramBotLogger } from './lib/telegram';
 
@@ -54,8 +54,6 @@ export default class BigBangEmpireBot {
   readonly options: optionsConfig;
   private optionsWeb: optionsWeb;
 
-  readonly request: Request;
-
   readonly dating: DatingModule;
   readonly duel: DuelModule;
   readonly guild: GuildModule;
@@ -77,8 +75,6 @@ export default class BigBangEmpireBot {
   constructor(options?: optionsConfig) {
     this.options = options || config.get('bbe');
 
-    this.request = new Request(BigBangEmpireBot.BASE_URL, this.options.auth.server, this.options.auth.email, this.options.auth.password);
-
     this.bot = new TelegramBot(this);
 
     this.log = winston.createLogger({
@@ -96,14 +92,14 @@ export default class BigBangEmpireBot {
       ],
     });
 
-    this.dating = new DatingModule(this.request, this.log, this.bot);
-    this.duel = new DuelModule(this.request, this.log, this.bot);
-    this.guild = new GuildModule(this.request, this.log, this.bot);
-    this.inventory = new InventoryModule(this.request, this.log, this.bot);
-    this.mailbox = new MailboxModule(this.request, this.log, this.bot);
-    this.movie = new MovieModule(this.request, this.log, this.bot);
-    this.profile = new ProfileModule(this.request, this.log, this.bot);
-    this.quest = new QuestModule(this.request, this.log, this.bot);
+    this.dating = new DatingModule(this.log, this.bot);
+    this.duel = new DuelModule(this.log, this.bot);
+    this.guild = new GuildModule(this.log, this.bot);
+    this.inventory = new InventoryModule(this.log, this.bot);
+    this.mailbox = new MailboxModule(this.log, this.bot);
+    this.movie = new MovieModule(this.log, this.bot);
+    this.profile = new ProfileModule(this.log, this.bot);
+    this.quest = new QuestModule(this.log, this.bot);
   }
 
   async run() {
@@ -122,23 +118,23 @@ export default class BigBangEmpireBot {
   }
 
   async initEnvironment() {
-    await this.request.initEnvironment();
+    await request.initEnvironment();
   }
 
   async initGame() {
-    await this.request.initGame(this.optionsWeb);
+    await request.initGame(this.optionsWeb);
   }
 
   async login() {
-    await this.request.login(this.options.auth.email, this.options.auth.password);
+    await request.login(this.options.auth.email, this.options.auth.password);
   }
 
   async initOffers() {
-    this.offers = await this.request.initOffers(this.optionsWeb.locale);
+    this.offers = await request.initOffers(this.optionsWeb.locale);
   }
 
   async initFriends() {
-    /* this.friends = */ await this.request.initFriends();
+    /* this.friends = */ await request.initFriends();
   }
 
   restart() {
@@ -186,7 +182,7 @@ export default class BigBangEmpireBot {
   }
 
   async syncGame() {
-    await this.request.syncGame();
+    await request.syncGame();
   }
 
   handleNewLevel() {
@@ -199,8 +195,8 @@ export default class BigBangEmpireBot {
 
   async handleRankRetrieval() {
     await Promise.all([1, 2, 3].map(async (sortType) => {
-      const characterRank = await this.request.retrieveLeaderboard(sortType);
-      const guildRank = await this.request.retrieveGuildLeaderboard(sortType);
+      const characterRank = await request.retrieveLeaderboard(sortType);
+      const guildRank = await request.retrieveGuildLeaderboard(sortType);
 
       switch (sortType) {
         case 1:
@@ -222,8 +218,8 @@ export default class BigBangEmpireBot {
       }
     }));
 
-    this.rank.movieTournament = await this.request.retrieveMovieTournamentLeaderboard();
-    this.rank.temple = await this.request.retrieveSoloGuildCompetitionTournamentLeaderboard();
+    this.rank.movieTournament = await request.retrieveMovieTournamentLeaderboard();
+    this.rank.temple = await request.retrieveSoloGuildCompetitionTournamentLeaderboard();
   }
 
   get characterLevelPercentage() {

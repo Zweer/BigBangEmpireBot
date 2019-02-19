@@ -1,5 +1,7 @@
 import game from '../models/game';
 
+import request from '../lib/request';
+
 import AbstractModule from '.';
 
 export default class MailboxModule extends AbstractModule {
@@ -30,15 +32,15 @@ export default class MailboxModule extends AbstractModule {
     if (this.pendingResourceRequests > 0) {
       this.log.debug('Accepting all resource requests');
 
-      await this.request.acceptAllResourceRequests();
+      await request.acceptAllResourceRequests();
     }
   }
 
   private async handleResourceRequests() {
-    const friends = await this.request.getAvailableResourceRequestFriends();
+    const friends = await request.getAvailableResourceRequestFriends();
 
     if (friends.length) {
-      await this.request.createResourceRequest(friends);
+      await request.createResourceRequest(friends);
     }
   }
 }
