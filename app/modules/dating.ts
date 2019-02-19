@@ -1,8 +1,10 @@
+import game from '../models/game';
+
 import { AbstractModuleWithConstants } from '.';
 
 export default class DatingModule extends AbstractModuleWithConstants {
   get currentStep() {
-    return this.game.datingStep[this.game.datingStep.length - 1];
+    return game.datingStep[game.datingStep.length - 1];
   }
 
   get currentConstantStep() {

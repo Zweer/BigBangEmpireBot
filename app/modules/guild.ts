@@ -1,8 +1,10 @@
+import game from '../models/game';
+
 import AbstractModule from '.';
 
 export default class GuildModule extends AbstractModule {
   get newGuildLogEntries() {
-    return this.game.newGuildLogEntries;
+    return game.newGuildLogEntries;
   }
 
   async handle(): Promise<void> {
@@ -24,21 +26,21 @@ export default class GuildModule extends AbstractModule {
 
   private async handleCurrentBattle() {
     // TODO: add if the battle was won or lost
-    if (this.game.character.finishedGuildBattleAttackId) {
-      await this.request.claimGuildBattleReward(this.game.character.finishedGuildBattleAttackId);
+    if (game.character.finishedGuildBattleAttackId) {
+      await this.request.claimGuildBattleReward(game.character.finishedGuildBattleAttackId);
     }
 
-    if (this.game.character.finishedGuildBattleDefenseId) {
-      await this.request.claimGuildBattleReward(this.game.character.finishedGuildBattleDefenseId);
+    if (game.character.finishedGuildBattleDefenseId) {
+      await this.request.claimGuildBattleReward(game.character.finishedGuildBattleDefenseId);
     }
   }
 
   private async handleNextBattle() {
-    if (this.game.guild.pendingGuildBattleAttackId && !this.game.pendingGuildBattleAttack) {
+    if (game.guild.pendingGuildBattleAttackId && !game.pendingGuildBattleAttack) {
       await this.request.joinGuildBattle(true);
     }
 
-    if (this.game.guild.pendingGuildBattleDefenseId && !this.game.pendingGuildBattleDefense) {
+    if (game.guild.pendingGuildBattleDefenseId && !game.pendingGuildBattleDefense) {
       await this.request.joinGuildBattle(false);
     }
   }

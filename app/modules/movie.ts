@@ -1,6 +1,8 @@
 import * as moment from 'moment';
 import * as numeral from 'numeral';
 
+import game from '../models/game';
+
 import AbstractModule from '.';
 
 import { movieStatus } from '../models/movie';
@@ -18,27 +20,27 @@ export default class MovieModule extends AbstractModule {
   }
 
   get movie() {
-    return this.game.movie;
+    return game.movie;
   }
 
   get movies() {
-    return this.game.movies;
+    return game.movies;
   }
 
   get movieQuests() {
-    return this.game.movieQuests;
+    return game.movieQuests;
   }
 
   get movieEnergy() {
-    return this.game.character.movieEnergy;
+    return game.character.movieEnergy;
   }
 
   get movieVotes() {
-    return this.game.character.movieVotes;
+    return game.character.movieVotes;
   }
 
   get tsLastMovieFinished() {
-    return this.game.character.tsLastMovieFinished;
+    return game.character.tsLastMovieFinished;
   }
 
   private async handleVotes(): Promise<void> {

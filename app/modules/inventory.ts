@@ -1,3 +1,5 @@
+import game from '../models/game';
+
 import AbstractModule from '.';
 
 import { itemType } from '../models/types/item';
@@ -15,15 +17,15 @@ export default class InventoryModule extends AbstractModule {
   }
 
   get inventory() {
-    return this.game.inventory;
+    return game.inventory;
   }
 
   get hasRefreshedShopToday() {
-    return this.game.character.hasRefreshedShopToday;
+    return game.character.hasRefreshedShopToday;
   }
 
   get statPointsAvailable() {
-    return this.game.character.statPointsAvailable;
+    return game.character.statPointsAvailable;
   }
 
   private async handleInventoryAdvanced() {
@@ -38,7 +40,7 @@ export default class InventoryModule extends AbstractModule {
           return;
         }
 
-        const item = this.game.getItem(bagItemId);
+        const item = game.getItem(bagItemId);
         if (!item) {
           return;
         }
@@ -57,7 +59,7 @@ export default class InventoryModule extends AbstractModule {
           return this.request.moveInventoryItem(item.id, item.type);
         }
 
-        const equippedItem = this.game.getItem(equippedItemId);
+        const equippedItem = game.getItem(equippedItemId);
 
         if (equippedItem && item.statTotal <= equippedItem.statTotal) {
           if (item.type === itemType.MISSILES) {
@@ -88,9 +90,9 @@ export default class InventoryModule extends AbstractModule {
         return;
       }
 
-      const item = this.game.getItem(shopItemId);
+      const item = game.getItem(shopItemId);
       const equippedItemId = this.inventory.getItemBySlot(item.slot);
-      const equippedItem = equippedItemId && this.game.getItem(equippedItemId);
+      const equippedItem = equippedItemId && game.getItem(equippedItemId);
 
       const isUnequipped = !equippedItem;
       const isBetter = equippedItem && item.statTotal > equippedItem.statTotal;
@@ -120,12 +122,12 @@ export default class InventoryModule extends AbstractModule {
 
           this.notifiedItems.push(item.id);
 
-          return this.bot.askForItemPurchase(item, messages, this.game.inventory);
+          return this.bot.askForItemPurchase(item, messages, game.inventory);
         }
 
         this.log.info(['You are buying an item:', ...messages].join('\n'));
 
-        return this.request.buyShopItem(item, this.game.inventory.firstAvailableSlot);
+        return this.request.buyShopItem(item, game.inventory.firstAvailableSlot);
       }
     }));
 

@@ -7,6 +7,8 @@ import * as Transport from 'winston-transport';
 
 import BigBangEmpireBot from '..';
 
+import game from '../models/game';
+
 import { stat } from '../models/types/common';
 import { optionsTelegramBot } from '../models/types/options';
 import { messageFlag } from '../models/mailbox/message';
@@ -70,7 +72,7 @@ export default class TelegramBot {
 
   initRoutes() {
     this.bot.use(async ({ reply }: ContextMessageUpdate, next) => {
-      if (typeof this.bbe.game.character === 'undefined') {
+      if (typeof game.character === 'undefined') {
         await reply('BBE not yet initialized. Please retry in seconds');
 
         return;
@@ -100,37 +102,37 @@ export default class TelegramBot {
 
   initRouteProfile() {
     this.bot.command('profile', async ({ reply }: ContextMessageUpdate) => {
-      const messageArr = [this.bbe.game.character.name];
-      messageArr.push(`- lvl ${this.bbe.game.character.level} (${numeral(this.bbe.characterLevelPercentage).format('0%')}) (${numeral(this.bbe.rank.character.level).format('0o')})`);
-      messageArr.push(`- ${numeral(this.bbe.game.character.gameCurrency).format('0a')} coins`);
-      messageArr.push(`- ${numeral(this.bbe.game.user.premiumCurrency).format('0,0')} gems`);
-      messageArr.push(`- ${numeral(this.bbe.game.character.honor).format('0a')} honor (${numeral(this.bbe.rank.character.honor).format('0o')})`);
-      messageArr.push(`- ${numeral(this.bbe.game.character.fans).format('0a')} fans (${numeral(this.bbe.rank.character.fans).format('0o')})`);
+      const messageArr = [game.character.name];
+      messageArr.push(`- lvl ${game.character.level} (${numeral(this.bbe.characterLevelPercentage).format('0%')}) (${numeral(this.bbe.rank.character.level).format('0o')})`);
+      messageArr.push(`- ${numeral(game.character.gameCurrency).format('0a')} coins`);
+      messageArr.push(`- ${numeral(game.user.premiumCurrency).format('0,0')} gems`);
+      messageArr.push(`- ${numeral(game.character.honor).format('0a')} honor (${numeral(this.bbe.rank.character.honor).format('0o')})`);
+      messageArr.push(`- ${numeral(game.character.fans).format('0a')} fans (${numeral(this.bbe.rank.character.fans).format('0o')})`);
 
       if (this.bbe.rank.movieTournament) {
         messageArr.push(`- movie tournament: ${numeral(this.bbe.rank.movieTournament).format('0o')}`);
       }
 
       messageArr.push('--------------------');
-      messageArr.push(`- energy: ${this.bbe.game.character.questEnergy} + ${200 - this.bbe.game.character.questEnergyRefillAmountToday} (${this.bbe.quest.remainingTime})`);
-      messageArr.push(`- stamina: ${this.bbe.game.character.duelStamina} / ${this.bbe.game.character.maxDuelStamina} (${this.bbe.game.character.duelStaminaCost})`);
+      messageArr.push(`- energy: ${game.character.questEnergy} + ${200 - game.character.questEnergyRefillAmountToday} (${this.bbe.quest.remainingTime})`);
+      messageArr.push(`- stamina: ${game.character.duelStamina} / ${game.character.maxDuelStamina} (${game.character.duelStaminaCost})`);
       messageArr.push(`- dating: ${numeral(this.bbe.datingStepPercentage).format('0%')}`);
 
       if (this.bbe.quest.storyDungeon) {
         messageArr.push(`- story dungeon in ${moment.duration(this.bbe.quest.storyDungeon.tsLastAttack.diff(moment())).humanize()}`);
       }
 
-      if (this.bbe.game.movie) {
+      if (game.movie) {
         messageArr.push('--------------------');
-        messageArr.push(`- movie: ${numeral(this.bbe.game.movie.energy / this.bbe.game.movie.neededEnergy).format('0%')}`);
-        messageArr.push(`- movie energy: ${this.bbe.game.character.movieEnergy}`);
+        messageArr.push(`- movie: ${numeral(game.movie.energy / game.movie.neededEnergy).format('0%')}`);
+        messageArr.push(`- movie energy: ${game.character.movieEnergy}`);
       }
 
-      if (this.bbe.game.guild) {
+      if (game.guild) {
         messageArr.push('--------------------');
-        messageArr.push(`- ${numeral(this.bbe.game.guild.honor).format('0a')} glory (${numeral(this.bbe.rank.guild.glory).format('0o')})`);
-        messageArr.push(`- ${numeral(this.bbe.game.guild.statTotal / this.bbe.constants.guildPercentageTotalBase).format('0%')} expansion (${numeral(this.bbe.rank.guild.expansion).format('0o')})`);
-        messageArr.push(`- ${numeral(this.bbe.game.guild.fans).format('0a')} fans (${numeral(this.bbe.rank.guild.fans).format('0o')})`);
+        messageArr.push(`- ${numeral(game.guild.honor).format('0a')} glory (${numeral(this.bbe.rank.guild.glory).format('0o')})`);
+        messageArr.push(`- ${numeral(game.guild.statTotal / this.bbe.constants.guildPercentageTotalBase).format('0%')} expansion (${numeral(this.bbe.rank.guild.expansion).format('0o')})`);
+        messageArr.push(`- ${numeral(game.guild.fans).format('0a')} fans (${numeral(this.bbe.rank.guild.fans).format('0o')})`);
 
         if (this.bbe.rank.temple) {
           messageArr.push(`- temple: ${numeral(this.bbe.rank.temple).format('0o')}`);
@@ -144,12 +146,12 @@ export default class TelegramBot {
   initRouteStats() {
     const handleStats = async ({ reply }: ContextMessageUpdate) => {
       const messsageArr = [];
-      messsageArr.push(`${this.bbe.game.character.name} (${this.bbe.game.character.statPointsAvailable} points):`);
-      messsageArr.push(`- Stamina: ${this.bbe.game.character.statBaseStamina} (${this.bbe.game.character.statTotalStamina})`);
-      messsageArr.push(`- Strength: ${this.bbe.game.character.statBaseStrength} (${this.bbe.game.character.statTotalStrength})`);
-      messsageArr.push(`- CriticalRating: ${this.bbe.game.character.statBaseCriticalRating} (${this.bbe.game.character.statTotalCriticalRating})`);
-      messsageArr.push(`- DodgeRating: ${this.bbe.game.character.statBaseDodgeRating} (${this.bbe.game.character.statTotalDodgeRating})`);
-      messsageArr.push(`- Weapon: ${this.bbe.game.character.statWeaponDamage}`);
+      messsageArr.push(`${game.character.name} (${game.character.statPointsAvailable} points):`);
+      messsageArr.push(`- Stamina: ${game.character.statBaseStamina} (${game.character.statTotalStamina})`);
+      messsageArr.push(`- Strength: ${game.character.statBaseStrength} (${game.character.statTotalStrength})`);
+      messsageArr.push(`- CriticalRating: ${game.character.statBaseCriticalRating} (${game.character.statTotalCriticalRating})`);
+      messsageArr.push(`- DodgeRating: ${game.character.statBaseDodgeRating} (${game.character.statTotalDodgeRating})`);
+      messsageArr.push(`- Weapon: ${game.character.statWeaponDamage}`);
 
       const extra = Markup
         .inlineKeyboard(flatten(Object.keys(stat)
@@ -175,7 +177,7 @@ export default class TelegramBot {
       const statName = parseInt(statNameStr, 10);
       const value = parseInt(valueStr, 10);
 
-      if (this.bbe.game.character.statPointsAvailable < value) {
+      if (game.character.statPointsAvailable < value) {
         return context.reply('You can\'t add stats: no points available');
       }
 
@@ -190,7 +192,7 @@ export default class TelegramBot {
       const messages = await this.bbe.request.getMessageList();
 
       const messageArr = [];
-      messageArr.push(`You have ${this.bbe.game.newMessages} new message[s]`);
+      messageArr.push(`You have ${game.newMessages} new message[s]`);
 
       const extra = Markup
         .inlineKeyboard(messages.map(m => Markup.callbackButton(`${m.subject} (${m.sender})`, `messages:read:${m.id}`)))

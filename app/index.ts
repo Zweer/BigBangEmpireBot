@@ -14,7 +14,7 @@ Promise.serial = async function resolveSerial(promises: Promise<any>[]): Promise
 
 import { optionsConfig, optionsWeb } from './models/types/options';
 
-import Game from './models/game';
+import game from './models/game';
 import Constants from './models/constants';
 import ExtendedConfig from './models/extendedConfig';
 // import Friend from './models/friend';
@@ -33,7 +33,6 @@ import ProfileModule from './modules/profile';
 import QuestModule from './modules/quest';
 
 export default class BigBangEmpireBot {
-  readonly game: Game;
   private extendedConfig: ExtendedConfig;
   public constants: Constants;
   private offers: { consumable; normal; special; text };
@@ -80,9 +79,8 @@ export default class BigBangEmpireBot {
 
   constructor(options?: optionsConfig) {
     this.options = options || config.get('bbe');
-    this.game = new Game();
 
-    this.request = new Request(BigBangEmpireBot.BASE_URL, this.options.auth.server, this.options.auth.email, this.options.auth.password, this.game);
+    this.request = new Request(BigBangEmpireBot.BASE_URL, this.options.auth.server, this.options.auth.email, this.options.auth.password);
 
     this.bot = new TelegramBot(this);
 
@@ -101,14 +99,14 @@ export default class BigBangEmpireBot {
       ],
     });
 
-    this.dating = new DatingModule(this.game, this.request, this.log, this.bot);
-    this.duel = new DuelModule(this.game, this.request, this.log, this.bot);
-    this.guild = new GuildModule(this.game, this.request, this.log, this.bot);
-    this.inventory = new InventoryModule(this.game, this.request, this.log, this.bot);
-    this.mailbox = new MailboxModule(this.game, this.request, this.log, this.bot);
-    this.movie = new MovieModule(this.game, this.request, this.log, this.bot);
-    this.profile = new ProfileModule(this.game, this.request, this.log, this.bot);
-    this.quest = new QuestModule(this.game, this.request, this.log, this.bot);
+    this.dating = new DatingModule(this.request, this.log, this.bot);
+    this.duel = new DuelModule(this.request, this.log, this.bot);
+    this.guild = new GuildModule(this.request, this.log, this.bot);
+    this.inventory = new InventoryModule(this.request, this.log, this.bot);
+    this.mailbox = new MailboxModule(this.request, this.log, this.bot);
+    this.movie = new MovieModule(this.request, this.log, this.bot);
+    this.profile = new ProfileModule(this.request, this.log, this.bot);
+    this.quest = new QuestModule(this.request, this.log, this.bot);
   }
 
   async run() {
@@ -198,11 +196,11 @@ export default class BigBangEmpireBot {
   }
 
   handleNewLevel() {
-    if (this.level !== this.game.character.level && this.level !== 0) {
-      this.log.info(`New level: ${this.game.character.level}!!`);
+    if (this.level !== game.character.level && this.level !== 0) {
+      this.log.info(`New level: ${game.character.level}!!`);
     }
 
-    this.level = this.game.character.level;
+    this.level = game.character.level;
   }
 
   async handleRankRetrieval() {
@@ -235,10 +233,10 @@ export default class BigBangEmpireBot {
   }
 
   get characterLevelPercentage() {
-    const lvl = this.game.character.level;
+    const lvl = game.character.level;
     const nextLvl = lvl + 1;
 
-    const xp = this.game.character.xp;
+    const xp = game.character.xp;
     const lvlXp = this.constants.levels[lvl].xp;
     const nextLvlXp = this.constants.levels[nextLvl].xp;
 

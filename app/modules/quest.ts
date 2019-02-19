@@ -1,5 +1,7 @@
 import * as moment from 'moment';
 
+import game from '../models/game';
+
 import AbstractModule from '.';
 
 import { questStatus } from '../models/abstracts/quest';
@@ -11,35 +13,35 @@ export default class QuestModule extends AbstractModule {
   static REFILL_AMOUNT = 50;
 
   get questEnergyRefillAmountToday() {
-    return this.game.character.questEnergyRefillAmountToday;
+    return game.character.questEnergyRefillAmountToday;
   }
 
   get questEnergy() {
-    return this.game.character.questEnergy;
+    return game.character.questEnergy;
   }
 
   get maxQuestEnergy() {
-    return this.game.character.maxQuestEnergy;
+    return game.character.maxQuestEnergy;
   }
 
   get currentQuest() {
-    return this.game.currentQuest;
+    return game.currentQuest;
   }
 
   get quests() {
-    return this.game.quests;
+    return game.quests;
   }
 
   get unusedResources() {
-    return this.game.character.unusedResources;
+    return game.character.unusedResources;
   }
 
   get usedResources() {
-    return this.game.character.usedResources;
+    return game.character.usedResources;
   }
 
   get storyDungeon() {
-    return this.game.storyDungeon;
+    return game.storyDungeon;
   }
 
   async handle(): Promise<void> {

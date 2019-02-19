@@ -1,37 +1,39 @@
 import { findKey, findLastKey } from 'lodash';
 import * as moment from 'moment';
 
+import game from '../models/game';
+
 import { AbstractModuleWithConstants } from '.';
 
 export default class ProfileModule extends AbstractModuleWithConstants {
   static WORK_DELAY = [3, 'hours'];
 
   get newUserVoucherIds() {
-    return this.game.character.newUserVoucherIds;
+    return game.character.newUserVoucherIds;
   }
 
   get tsLastWorkCollection() {
-    return this.game.character.tsLastWorkCollection;
+    return game.character.tsLastWorkCollection;
   }
 
   get activeQuestBoosterId() {
-    return this.game.character.activeQuestBoosterId;
+    return game.character.activeQuestBoosterId;
   }
 
   get activeStatsBoosterId() {
-    return this.game.character.activeStatsBoosterId;
+    return game.character.activeStatsBoosterId;
   }
 
   get activeWorkBoosterId() {
-    return this.game.character.activeWorkBoosterId;
+    return game.character.activeWorkBoosterId;
   }
 
   get currentGoalValue() {
-    return this.game.currentGoalValue;
+    return game.currentGoalValue;
   }
 
   get collectedGoals() {
-    return this.game.collectedGoals;
+    return game.collectedGoals;
   }
 
   async handle(): Promise<void> {
@@ -124,6 +126,6 @@ export default class ProfileModule extends AbstractModuleWithConstants {
         await this.request.collectGoalReward(goalName, nextGoalValue);
       }), Promise.resolve());
 
-    this.game.currentGoalValue = {};
+    game.currentGoalValue = {};
   }
 }

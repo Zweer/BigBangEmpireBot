@@ -1,3 +1,5 @@
+import game from '../models/game';
+
 import AbstractModule from '.';
 
 export default class MailboxModule extends AbstractModule {
@@ -9,11 +11,11 @@ export default class MailboxModule extends AbstractModule {
   }
 
   get newMessages() {
-    return this.game.newMessages;
+    return game.newMessages;
   }
 
   get pendingResourceRequests() {
-    return this.game.character.pendingResourceRequests;
+    return game.character.pendingResourceRequests;
   }
 
   private async handleMessages() {

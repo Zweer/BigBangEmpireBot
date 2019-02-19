@@ -15,7 +15,7 @@ import Constants from '../models/constants';
 import Duel from '../models/duel';
 import ExtendedConfig from '../models/extendedConfig';
 import Friend from '../models/friend';
-import Game from '../models/game';
+import gameObj from '../models/game';
 import Item from '../models/item';
 import MissedDuel from '../models/duel/missed';
 import Movie from '../models/movie';
@@ -26,9 +26,9 @@ import Reward from '../models/reward';
 import VotableMovie from '../models/movie/votable';
 import MessageCharacter from '../models/mailbox/character';
 import Message from '../models/mailbox/message';
-import GuildMessage from "../models/guild/message";
-import Voucher from "../models/voucher";
-import StoryDungeon from "../models/storyDungeon";
+import GuildMessage from '../models/guild/message';
+import Voucher from '../models/voucher';
+import StoryDungeon from '../models/storyDungeon';
 
 export default class Request {
   readonly baseUrl: string;
@@ -87,7 +87,7 @@ export default class Request {
 
   static STATUS_CHECK_FOR_QUEST_COMPLETE = ['errFinishInvalidStatus', 'errCheckForQuestCompleteNoActiveQuest', 'errFinishNotYetCompleted'];
 
-  constructor(baseUrl: string, readonly server: string, readonly email: string, readonly password: string, readonly game: Game) {
+  constructor(baseUrl: string, readonly server: string, readonly email: string, readonly password: string) {
     this.baseUrl = baseUrl.replace('{SERVER}', this.server);
     this.clientId = `${this.server}${moment().format('X')}`;
   }
@@ -121,19 +121,19 @@ export default class Request {
       throw new BigBangEmpireError(error, action, form);
     }
 
-    if (data.character && this.game.character) {
-      this.game.character.update(data.character);
+    if (data.character && gameObj.character) {
+      gameObj.character.update(data.character);
     }
 
-    if (data.user && this.game.user) {
-      this.game.user.update(data.user);
+    if (data.user && gameObj.user) {
+      gameObj.user.update(data.user);
     }
 
     return data;
   }
 
   async initEnvironment(): Promise<ExtendedConfig> {
-    const { textures, extendedConfig } = await this.request(Request.ACTION_INIT_ENVIRONMENT);
+    const { extendedConfig } = await this.request(Request.ACTION_INIT_ENVIRONMENT);
 
     return new ExtendedConfig(extendedConfig);
   }
@@ -165,9 +165,9 @@ export default class Request {
       client_id: this.clientId,
     });
 
-    this.game.update(game);
-    this.userId = this.game.user.id;
-    this.userSessionId = this.game.user.sessionId;
+    gameObj.update(game);
+    this.userId = gameObj.user.id;
+    this.userSessionId = gameObj.user.sessionId;
   }
 
   async initOffers(locale) {
@@ -194,7 +194,7 @@ export default class Request {
   async syncGame(force: boolean = false): Promise<void> {
     const game = await this.request(Request.ACTION_SYNC_GAME, { force_sync: force });
 
-    this.game.update(game);
+    gameObj.update(game);
   }
 
   async checkForQuestComplete(): Promise<Quest> {
@@ -215,23 +215,21 @@ export default class Request {
 
   async claimQuestRewards(): Promise<{ currentGoalValues: object, currentItemPatternValues: object }> {
     const {
-      character,
       current_goal_values: currentGoalValues = {},
       current_item_pattern_values: currentItemPatternValues = {},
       inventory,
       quests,
-      user,
     } = await this.request(Request.ACTION_CLAIM_QUEST_REWARDS, {
       discard_item: false,
       create_new: true,
     });
 
-    this.game.inventory.update(inventory);
+    gameObj.inventory.update(inventory);
 
-    this.game.quests = quests.map(quest => new Quest(quest));
+    gameObj.quests = quests.map(quest => new Quest(quest));
 
-    Object.assign(this.game.currentGoalValue, currentGoalValues);
-    Object.assign(this.game.currentItemPatternValues, currentItemPatternValues);
+    Object.assign(gameObj.currentGoalValue, currentGoalValues);
+    Object.assign(gameObj.currentItemPatternValues, currentItemPatternValues);
 
     return {
       currentGoalValues,
@@ -250,7 +248,7 @@ export default class Request {
       feature_type: resourceType,
     });
 
-    this.game.currentQuest.update(quest);
+    gameObj.currentQuest.update(quest);
 
     return savedSeconds;
   }
@@ -269,7 +267,7 @@ export default class Request {
       target_slot: itemType,
     });
 
-    this.game.inventory.update(inventory);
+    gameObj.inventory.update(inventory);
   }
 
   async sellInventoryItem(itemId: number): Promise<void> {
@@ -277,7 +275,7 @@ export default class Request {
       item_id: itemId,
     });
 
-    this.game.inventory.update(inventory);
+    gameObj.inventory.update(inventory);
   }
 
   async getDuelOpponents(): Promise<Opponent[]> {
@@ -323,7 +321,7 @@ export default class Request {
   }
 
   async getMissedDuelsNew(): Promise<MissedDuel[]> {
-    const { missed_duel_data: missedDuels, missed_duel_opponents: missedDuelOpponents, user } = await this.request(Request.ACTION_GET_MISSED_DUELS_NEW, {
+    const { missed_duel_data: missedDuels, missed_duel_opponents: missedDuelOpponents } = await this.request(Request.ACTION_GET_MISSED_DUELS_NEW, {
       history: false,
     });
 
@@ -334,7 +332,7 @@ export default class Request {
   async claimMissedDuelsRewards(): Promise<void> {
     const { missed_duels: missedDuels } = await this.request(Request.ACTION_CLAIM_MISSED_DUELS_REWARDS);
 
-    this.game.missedDuels = missedDuels;
+    gameObj.missedDuels = missedDuels;
   }
 
   async collectWork(): Promise<CollectedWork> {
@@ -366,7 +364,7 @@ export default class Request {
   async retrieveLeaderboard(sortType): Promise<number> {
     const { centered_rank: rank } = await this.request(Request.ACTION_RETRIEVE_LEADERBOARD, {
       sort_type: sortType,
-      character_name: this.game.character.name,
+      character_name: gameObj.character.name,
     });
 
     return rank;
@@ -402,8 +400,8 @@ export default class Request {
   async claimMovieQuestRewards() {
     const { movie, movie_quests: movieQuests } = await this.request(Request.ACTION_CLAIM_MOVIE_QUEST_REWARDS);
 
-    this.game.movie.update(movie);
-    this.game.setMovieQuests(movieQuests);
+    gameObj.movie.update(movie);
+    gameObj.setMovieQuests(movieQuests);
   }
 
   async refreshMoviePool(): Promise<void> {
@@ -411,7 +409,7 @@ export default class Request {
       use_premium: false,
     });
 
-    this.game.setMovies(movies);
+    gameObj.setMovies(movies);
   }
 
   async startMovie(movie: Movie): Promise<void> {
@@ -419,8 +417,8 @@ export default class Request {
       movie_id: movie.id,
     });
 
-    this.game.movie = movie.update(movieAddendum);
-    this.game.setMovieQuests(movieQuests);
+    gameObj.movie = movie.update(movieAddendum);
+    gameObj.setMovieQuests(movieQuests);
   }
 
   async startMovieQuest(movieQuest: MovieQuest): Promise<void> {
@@ -434,13 +432,13 @@ export default class Request {
       discard_item: false,
     });
 
-    this.game.movie.update(movie);
+    gameObj.movie.update(movie);
   }
 
   async finishMovie() {
     const { movie } = await this.request(Request.ACTION_FINISH_MOVIE);
 
-    this.game.movie.update(movie);
+    gameObj.movie.update(movie);
   }
 
   async getMoviesToVote(): Promise<{ movies: VotableMovie[], reward: Reward }> {
@@ -466,7 +464,7 @@ export default class Request {
       use_premium: false,
     });
 
-    this.game.movie.update(movie);
+    gameObj.movie.update(movie);
   }
 
   async improveCharacterStat(statistic: stat, value: number = 1) {
@@ -547,8 +545,8 @@ export default class Request {
       init_request: init,
     };
 
-    if (this.game.guild && this.guildLogSyncState) {
-      parameters[`sync_guild${this.game.guild.id}`] = this.guildLogSyncState;
+    if (gameObj.guild && this.guildLogSyncState) {
+      parameters[`sync_guild${gameObj.guild.id}`] = this.guildLogSyncState;
     }
 
     const response = await this.request('getGuildLog', parameters);
@@ -558,7 +556,7 @@ export default class Request {
       return [];
     }
 
-    this.guildLogSyncState = syncStates[`getguildlog_guild${this.game.guild.id}`];
+    this.guildLogSyncState = syncStates[`getguildlog_guild${gameObj.guild.id}`];
 
     return Object.keys(guildLogs).map(guildLogId => new GuildMessage(guildLogs[guildLogId], guildLogId));
   }
@@ -577,8 +575,8 @@ export default class Request {
       target_slot: targetSlot,
     });
 
-    this.game.inventory.update(inventory);
-    merge(this.game.currentItemPatternValues, currentItemPatternValues);
+    gameObj.inventory.update(inventory);
+    merge(gameObj.currentItemPatternValues, currentItemPatternValues);
   }
 
   async refreshShopItems(usePremium = false): Promise<void> {
@@ -586,8 +584,8 @@ export default class Request {
       use_premium: usePremium,
     });
 
-    this.game.inventory.update(inventory);
-    this.game.items.push(...items.map(i => new Item(i)));
+    gameObj.inventory.update(inventory);
+    gameObj.items.push(...items.map(i => new Item(i)));
   }
 
   async useInventoryItem(item: Item | number) {

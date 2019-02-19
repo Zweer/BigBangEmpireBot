@@ -1,5 +1,7 @@
 import * as numeral from 'numeral';
 
+import game from '../models/game';
+
 import AbstractModule from '.';
 
 import Opponent from '../models/duel/opponent';
@@ -9,23 +11,23 @@ export default class DuelModule extends AbstractModule {
   private canDuel: boolean;
 
   get missilesItemId() {
-    return this.game.inventory.missilesItemId;
+    return game.inventory.missilesItemId;
   }
 
   get inventory() {
-    return this.game.inventory;
+    return game.inventory;
   }
 
   get duelStamina() {
-    return this.game.character.duelStamina;
+    return game.character.duelStamina;
   }
 
   get duelStaminaCost() {
-    return this.game.character.duelStaminaCost;
+    return game.character.duelStaminaCost;
   }
 
   get missedDuels() {
-    return this.game.missedDuels;
+    return game.missedDuels;
   }
 
   async handle(): Promise<void> {
@@ -76,7 +78,7 @@ export default class DuelModule extends AbstractModule {
       .filter(o => !!o)
       .sort((a, b) => b.honor - a.honor);
 
-    const opponent = sortedOpponents.find(o => o.totalStats < this.game.character.statTotal) || sortedOpponents.pop();
+    const opponent = sortedOpponents.find(o => o.totalStats < game.character.statTotal) || sortedOpponents.pop();
 
     if (opponent) {
       await this.makeDuel(opponent);

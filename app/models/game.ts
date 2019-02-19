@@ -13,8 +13,8 @@ import User, { userRaw } from './user';
 import { questStatus } from './abstracts/quest';
 import DataObject from './utils/dataObject';
 import Guild, { guildRaw } from './guild';
-import DatingStep, {datingStepRaw} from "./dating/step";
-import StoryDungeon, {storyDungeonRaw} from "./storyDungeon";
+import DatingStep, { datingStepRaw } from './dating/step';
+import StoryDungeon, { storyDungeonRaw } from './storyDungeon';
 
 export type gameRaw = {
   saved_seconds: number,
@@ -208,7 +208,7 @@ export type gameRaw = {
   collected_work: object, // CollectedWork
 };
 
-export default class Game extends DataObject<gameRaw> {
+class Game extends DataObject<gameRaw> {
   public savedSeconds: number;
   public quest: Quest;
   public conventionShow: object; // Convention
@@ -505,3 +505,5 @@ export default class Game extends DataObject<gameRaw> {
     this.storyDungeons = storyDungeons.map(s => new StoryDungeon(s));
   }
 }
+
+export default new Game();
