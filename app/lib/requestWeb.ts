@@ -4,14 +4,16 @@ import * as request from 'request-promise';
 
 import { optionsWeb } from '../models/types/options';
 
-export default class RequestWeb {
+class RequestWeb {
   readonly baseUrl: string;
 
-  static BASE_URL = config.get('bbe.baseUrl').replace('{SERVER}', config.get('bbe.auth.server'));
+  constructor() {
+    this.baseUrl = config.get('bbe.baseUrl').replace('{SERVER}', config.get('bbe.auth.server'));
+  }
 
-  static async initConfigFromWeb(): Promise<optionsWeb> {
+  async initConfigFromWeb(): Promise<optionsWeb> {
     const $ = await request.get({
-      url: RequestWeb.BASE_URL,
+      url: this.baseUrl,
       transform: body => cheerio.load(body),
     });
 
@@ -69,3 +71,5 @@ export default class RequestWeb {
     return configFromWeb;
   }
 }
+
+export default new RequestWeb();

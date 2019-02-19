@@ -19,39 +19,13 @@ import { messageFlag } from '../models/mailbox/message';
 import Item from '../models/item';
 import Inventory from '../models/inventory';
 
-export class TelegramBotLogger extends Transport {
-  private bot: TelegramBot;
-
-  static LOG_LEVELS = {
-    error: '☠️️',
-    warn: '⚠️️',
-    info: '️️ℹ️',
-    verbose: '💬',
-    debug: '🐞',
-    silly: '👻',
-  };
-
-  constructor(options) {
-    super(options);
-
-    this.bot = options.bot;
-  }
-
-  async log(info, callback) {
-    setImmediate(() => this.emit('logged', info));
-
-    await this.bot.broadcastMessage(`${TelegramBotLogger.LOG_LEVELS[info.level]} ${info.message}`);
-
-    callback();
-  }
-}
-
-export default class TelegramBot {
+class TelegramBot {
   readonly bot: Telegraf<ContextMessageUpdate>;
+  private bbe: BigBangEmpireBot;
 
   private users: number[] = [];
 
-  constructor(private bbe: BigBangEmpireBot, private options: optionsTelegramBot = config.get('telegram')) {
+  constructor(private options: optionsTelegramBot = config.get('telegram')) {
     // @ts-ignore
     if (this.options.has('self')) {
       this.users.push(this.options.self);
@@ -61,6 +35,10 @@ export default class TelegramBot {
 
     this.startTelegram();
     this.initRoutes();
+  }
+
+  setBBE(bbe: BigBangEmpireBot) {
+    this.bbe = bbe;
   }
 
   async startTelegram() {
@@ -323,3 +301,26 @@ Commands are:
     });
   }
 }
+
+const bot = new TelegramBot();
+
+export class TelegramBotLogger extends Transport {
+  static LOG_LEVELS = {
+    error: '☠️️',
+    warn: '⚠️️',
+    info: '️️ℹ️',
+    verbose: '💬',
+    debug: '🐞',
+    silly: '👻',
+  };
+
+  async log(info, callback) {
+    setImmediate(() => this.emit('logged', info));
+
+    await bot.broadcastMessage(`${TelegramBotLogger.LOG_LEVELS[info.level]} ${info.message}`);
+
+    callback();
+  }
+}
+
+export default bot;

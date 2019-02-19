@@ -10,9 +10,6 @@ export default winston.createLogger({
   ),
   transports: [
     new winston.transports.Console(),
-    new TelegramBotLogger({
-      bot: this.bot,
-      level: 'info',
-    }),
+    new TelegramBotLogger({ level: 'info' }),
   ],
 });

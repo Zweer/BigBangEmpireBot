@@ -1,5 +1,6 @@
 import log from '../lib/log';
 import request from '../lib/request';
+import bot from '../lib/telegram';
 
 import game from '../models/game';
 
@@ -125,7 +126,7 @@ export default class InventoryModule extends AbstractModule {
 
           this.notifiedItems.push(item.id);
 
-          return this.bot.askForItemPurchase(item, messages, game.inventory);
+          return bot.askForItemPurchase(item, messages, game.inventory);
         }
 
         log.info(['You are buying an item:', ...messages].join('\n'));

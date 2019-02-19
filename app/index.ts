@@ -19,8 +19,8 @@ import constants from './models/constants';
 
 import log from './lib/log';
 import request from './lib/request';
-import RequestWeb from './lib/requestWeb';
-import TelegramBot from './lib/telegram';
+import requestWeb from './lib/requestWeb';
+import bot from './lib/telegram';
 
 import DatingModule from './modules/dating';
 import DuelModule from './modules/duel';
@@ -63,8 +63,6 @@ export default class BigBangEmpireBot {
   readonly profile: ProfileModule;
   readonly quest: QuestModule;
 
-  readonly bot: TelegramBot;
-
   public restartGame: boolean = false;
   public closeGame: boolean = false;
   public closeWhenNoQuestEnergy: boolean = true;
@@ -74,16 +72,16 @@ export default class BigBangEmpireBot {
   constructor(options?: optionsConfig) {
     this.options = options || config.get('bbe');
 
-    this.bot = new TelegramBot(this);
+    bot.setBBE(this);
 
-    this.dating = new DatingModule(this.bot);
-    this.duel = new DuelModule(this.bot);
-    this.guild = new GuildModule(this.bot);
-    this.inventory = new InventoryModule(this.bot);
-    this.mailbox = new MailboxModule(this.bot);
-    this.movie = new MovieModule(this.bot);
-    this.profile = new ProfileModule(this.bot);
-    this.quest = new QuestModule(this.bot);
+    this.dating = new DatingModule();
+    this.duel = new DuelModule();
+    this.guild = new GuildModule();
+    this.inventory = new InventoryModule();
+    this.mailbox = new MailboxModule();
+    this.movie = new MovieModule();
+    this.profile = new ProfileModule();
+    this.quest = new QuestModule();
   }
 
   async run() {
@@ -98,7 +96,7 @@ export default class BigBangEmpireBot {
   }
 
   async initConfigFromWeb() {
-    this.optionsWeb = await RequestWeb.initConfigFromWeb();
+    this.optionsWeb = await requestWeb.initConfigFromWeb();
   }
 
   async initEnvironment() {
@@ -137,7 +135,7 @@ export default class BigBangEmpireBot {
     }
 
     if (this.closeGame || (!this.quest.hasEnergy && this.closeWhenNoQuestEnergy)) {
-      this.bot.bot.stop();
+      bot.bot.stop();
 
       return;
     }
