@@ -18,6 +18,8 @@ import { optionsTelegramBot } from '../models/types/options';
 import { messageFlag } from '../models/mailbox/message';
 import Item from '../models/inventory/item';
 import inventory from '../models/inventory';
+import character from '../models/character';
+import { calculateStatCost } from '../models/utils';
 
 class TelegramBot {
   readonly bot: Telegraf<ContextMessageUpdate>;
@@ -133,10 +135,10 @@ class TelegramBot {
     const handleStats = async ({ reply }: ContextMessageUpdate) => {
       const messsageArr = [];
       messsageArr.push(`${game.character.name} (${game.character.statPointsAvailable} points):`);
-      messsageArr.push(`- Stamina: ${game.character.statBaseStamina} (${game.character.statTotalStamina})`);
-      messsageArr.push(`- Strength: ${game.character.statBaseStrength} (${game.character.statTotalStrength})`);
-      messsageArr.push(`- CriticalRating: ${game.character.statBaseCriticalRating} (${game.character.statTotalCriticalRating})`);
-      messsageArr.push(`- DodgeRating: ${game.character.statBaseDodgeRating} (${game.character.statTotalDodgeRating})`);
+      messsageArr.push(`- Stamina: ${character.statBaseStamina} (${character.statTotalStamina}) (${character.statBoughtStamina}) (${calculateStatCost(character.statBoughtStamina)} 💸)`);
+      messsageArr.push(`- Strength: ${character.statBaseStrength} (${character.statTotalStrength}) (${character.statBoughtStrength}) (${calculateStatCost(character.statBoughtStrength)} 💸)`);
+      messsageArr.push(`- CriticalRating: ${character.statBaseCriticalRating} (${character.statTotalCriticalRating}) (${character.statBoughtCriticalRating}) (${calculateStatCost(character.statBoughtCriticalRating)} 💸)`);
+      messsageArr.push(`- DodgeRating: ${character.statBaseDodgeRating} (${character.statTotalDodgeRating}) (${character.statBoughtDodgeRating}) (${calculateStatCost(character.statBoughtDodgeRating)} 💸)`);
       messsageArr.push(`- Weapon: ${game.character.statWeaponDamage}`);
 
       const extra = Markup
