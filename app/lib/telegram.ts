@@ -89,7 +89,7 @@ class TelegramBot {
   initRouteProfile() {
     this.bot.command('profile', async ({ reply }: ContextMessageUpdate) => {
       const messageArr = [game.character.name];
-      messageArr.push(`- lvl ${game.character.level} (${numeral(this.bbe.characterLevelPercentage).format('0%')}) (${numeral(this.bbe.rank.character.level).format('0o')})`);
+      messageArr.push(`- lvl ${game.character.level} (${numeral(game.character.levelPercentage).format('0%')}) (${numeral(this.bbe.rank.character.level).format('0o')})`);
       messageArr.push(`- ${numeral(game.character.gameCurrency).format('0a')} coins`);
       messageArr.push(`- ${numeral(game.user.premiumCurrency).format('0,0')} gems`);
       messageArr.push(`- ${numeral(game.character.honor).format('0a')} honor (${numeral(this.bbe.rank.character.honor).format('0o')})`);

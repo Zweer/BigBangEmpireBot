@@ -177,20 +177,6 @@ export default class BigBangEmpireBot {
     this.rank.temple = await request.retrieveSoloGuildCompetitionTournamentLeaderboard();
   }
 
-  get characterLevelPercentage() {
-    const lvl = game.character.level;
-    const nextLvl = lvl + 1;
-
-    const xp = game.character.xp;
-    const lvlXp = constants.levels[lvl].xp;
-    const nextLvlXp = constants.levels[nextLvl].xp;
-
-    const diff = xp - lvlXp;
-    const diffNext = nextLvlXp - lvlXp;
-
-    return diff / diffNext;
-  }
-
   get datingStepPercentage() {
     const unlockPointsNeeded = this.dating.currentStep.repeat ? this.dating.currentConstantStep.unlockPointsNeededRepeat : this.dating.currentConstantStep.unlockPointsNeeded;
 

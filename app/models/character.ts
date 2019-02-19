@@ -1,5 +1,6 @@
 import * as moment from 'moment';
 
+import constants from './constants';
 import { resource } from './types/common';
 
 import AbstractCharacter, { abstractCharacterRaw } from './abstracts/character';
@@ -357,5 +358,21 @@ export default class Character extends AbstractCharacter<characterRaw> {
         throw error;
       }
     }
+  }
+
+  get nextLevel() {
+    return this.level + 1;
+  }
+
+  get levelXp() {
+    return constants.levels[this.level].xp;
+  }
+
+  get nextLevelXp() {
+    return constants.levels[this.nextLevel].xp;
+  }
+
+  get levelPercentage() {
+    return (this.xp - this.levelXp) / (this.nextLevelXp - this.levelXp);
   }
 }
