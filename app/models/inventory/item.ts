@@ -5,6 +5,10 @@ import { itemType } from '../types/item';
 
 import DataObject from '../utils/dataObject';
 
+import request from '../../lib/request';
+
+import inventory from '.';
+
 export type itemRaw = {
   id: number;
   character_id: number;
@@ -90,5 +94,21 @@ export default class Item extends DataObject<itemRaw> {
 
   get qualityName() {
     return camelCase(itemQuality[this.quality]);
+  }
+
+  async useInventoryItem(): Promise<void> {
+    return request.useInventoryItem(this);
+  }
+
+  async moveInventoryItem() {
+    return request.moveInventoryItem(this);
+  }
+
+  async buyShopItem(targetSlot: number = inventory.firstAvailableSlot) {
+    return request.buyShopItem(this, targetSlot);
+  }
+
+  async sellInventoryItem() {
+    return request.sellInventoryItem(this);
   }
 }

@@ -1,8 +1,9 @@
 import log from '../lib/log';
-import request from '../lib/request';
 import bot from '../lib/telegram';
 
+import character from '../models/character';
 import game from '../models/game';
+import inventory, { Inventory } from '../models/inventory';
 
 import AbstractModule from '.';
 
@@ -20,18 +21,6 @@ export default class InventoryModule extends AbstractModule {
     await this.handleStatPointAvailable();
   }
 
-  get inventory() {
-    return game.inventory;
-  }
-
-  get hasRefreshedShopToday() {
-    return game.character.hasRefreshedShopToday;
-  }
-
-  get statPointsAvailable() {
-    return game.character.statPointsAvailable;
-  }
-
   private async handleInventoryAdvanced() {
     let modified;
 
@@ -39,7 +28,7 @@ export default class InventoryModule extends AbstractModule {
       modified = false;
 
       // @ts-ignore
-      await Promise.serial(this.inventory.bagItemsId.map((bagItemId) => {
+      await Promise.serial(inventory.bagItemsId.map((bagItemId) => {
         if (modified) {
           return;
         }
@@ -49,18 +38,18 @@ export default class InventoryModule extends AbstractModule {
           return;
         }
 
-        const equippedItemId = this.inventory.getItemBySlot(item.type);
+        const equippedItemId = inventory.getItemBySlot(item.type);
 
         if (!equippedItemId) {
           if (item.isUsable) {
-            return request.useInventoryItem(item);
+            return item.useInventoryItem();
           }
 
           log.verbose(`Moving item: ${item.slot} (empty slot)`);
 
           modified = true;
 
-          return request.moveInventoryItem(item.id, item.type);
+          return item.moveInventoryItem();
         }
 
         const equippedItem = game.getItem(equippedItemId);
@@ -72,7 +61,7 @@ export default class InventoryModule extends AbstractModule {
 
           log.verbose(`Selling item: ${item.slot}\n- my: ${equippedItem.statTotal}\n- bag: ${item.statTotal}`);
 
-          return request.sellInventoryItem(item.id);
+          return item.sellInventoryItem();
         }
 
         if (!item.battleSkill && !equippedItem.battleSkill) {
@@ -80,7 +69,7 @@ export default class InventoryModule extends AbstractModule {
 
           modified = true;
 
-          return request.moveInventoryItem(item.id, item.type);
+          return item.moveInventoryItem();
         }
 
         log.verbose(`New item: ${item.slot}\n- my: ${equippedItem.statTotal}\n- bag: ${item.statTotal}`);
@@ -89,13 +78,13 @@ export default class InventoryModule extends AbstractModule {
   }
 
   private async handleInventoryShop() {
-    await Promise.all(this.inventory.shopItemsId.map(async (shopItemId) => {
+    await Promise.all(inventory.shopItemsId.map(async (shopItemId) => {
       if (!shopItemId) {
         return;
       }
 
       const item = game.getItem(shopItemId);
-      const equippedItemId = this.inventory.getItemBySlot(item.slot);
+      const equippedItemId = inventory.getItemBySlot(item.slot);
       const equippedItem = equippedItemId && game.getItem(equippedItemId);
 
       const isUnequipped = !equippedItem;
@@ -131,7 +120,7 @@ export default class InventoryModule extends AbstractModule {
 
         log.info(['You are buying an item:', ...messages].join('\n'));
 
-        return request.buyShopItem(item, game.inventory.firstAvailableSlot);
+        return item.buyShopItem();
       }
     }));
 
@@ -139,22 +128,22 @@ export default class InventoryModule extends AbstractModule {
   }
 
   private async handleRefreshShop() {
-    if (!this.hasRefreshedShopToday && this.refreshShop) {
+    if (!character.hasRefreshedShopToday && this.refreshShop) {
       log.info('Refreshing shop');
 
-      await request.refreshShopItems();
+      await Inventory.refreshShopItems();
     }
   }
 
   private handleStatPointAvailable() {
-    if (!this.statPointsAvailable) {
+    if (!character.statPointsAvailable) {
       return;
     }
 
-    if (this.oldStatPointAvailable !== this.statPointsAvailable) {
-      log.verbose(`You have stat points available: ${this.statPointsAvailable}`);
+    if (this.oldStatPointAvailable !== character.statPointsAvailable) {
+      log.verbose(`You have stat points available: ${character.statPointsAvailable}`);
     }
 
-    this.oldStatPointAvailable = this.statPointsAvailable;
+    this.oldStatPointAvailable = character.statPointsAvailable;
   }
 }

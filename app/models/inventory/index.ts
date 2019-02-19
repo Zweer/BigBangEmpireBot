@@ -3,6 +3,7 @@ import { camelCase } from 'lodash';
 import { itemType } from '../types/item';
 
 import DataObject from '../utils/dataObject';
+import request from "../../lib/request";
 
 export type inventoryRaw = {
   id: number,
@@ -141,6 +142,10 @@ export class Inventory extends DataObject<inventoryRaw> {
     const firstEmptyIndex = this.bagItemsId.findIndex(bagItemId => !bagItemId);
 
     return 20 + firstEmptyIndex;
+  }
+
+  static async refreshShopItems(usePremium: boolean = false): Promise<void> {
+    return request.refreshShopItems(usePremium);
   }
 }
 

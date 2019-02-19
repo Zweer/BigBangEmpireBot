@@ -218,18 +218,18 @@ class Request {
     });
   }
 
-  async moveInventoryItem(itemId: number, itemType: itemType): Promise<void> {
+  async moveInventoryItem(item: Item): Promise<void> {
     const { inventory } = await this.request('moveInventoryItem', {
-      item_id: itemId,
-      target_slot: itemType,
+      item_id: item.id,
+      target_slot: item.type,
     });
 
     gameObj.inventory.update(inventory);
   }
 
-  async sellInventoryItem(itemId: number): Promise<void> {
+  async sellInventoryItem(item: Item): Promise<void> {
     const { inventory } = await this.request('sellInventoryItem', {
-      item_id: itemId,
+      item_id: item.id,
     });
 
     gameObj.inventory.update(inventory);
