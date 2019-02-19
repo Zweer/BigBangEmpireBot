@@ -775,7 +775,7 @@ export type constantsRaw = {
   warforged_infos: object;
 };
 
-class Constants extends DataObject<constantsRaw> {
+export class Constants extends DataObject<constantsRaw> {
   toleranceSmall: number;
   toleranceMedium: number;
   toleranceLarge: number;

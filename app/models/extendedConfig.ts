@@ -53,7 +53,7 @@ export type configRaw = {
   payment_alternative_locales: string[],
 };
 
-class ExtendedConfig extends DataObject<configRaw> {
+export class ExtendedConfig extends DataObject<configRaw> {
 
 }
 
