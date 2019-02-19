@@ -92,6 +92,10 @@ export default class BigBangEmpireBot {
     await this.playRound();
   }
 
+  runClose() {
+    bot.stop();
+  }
+
   restart() {
     this.restartGame = true;
   }
@@ -104,13 +108,19 @@ export default class BigBangEmpireBot {
     if (this.restartGame) {
       this.restartGame = false;
 
+      log.warn('Restarting');
+
       return this.run();
     }
 
-    if (this.closeGame || (!this.quest.hasEnergy && this.closeWhenNoQuestEnergy)) {
-      bot.stop();
+    if (this.closeGame) {
+      return this.runClose();
+    }
 
-      return;
+    if (!this.quest.hasEnergy && this.closeWhenNoQuestEnergy) {
+      log.warn('No more energy: closing');
+
+      return this.runClose();
     }
 
     try {
