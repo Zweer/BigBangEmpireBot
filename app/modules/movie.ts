@@ -44,7 +44,7 @@ export default class MovieModule extends AbstractModule {
   }
 
   private async handleMovieStar(): Promise<void> {
-    if (!game.movie) {
+    if (!game.movie || game.movie.isFinished) {
       return;
     }
 
