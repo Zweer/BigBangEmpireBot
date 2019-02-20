@@ -36,7 +36,7 @@ export default class MovieModule extends AbstractModule {
   }
 
   private async handleCurrentQuest(): Promise<void> {
-    if (!game.movie) {
+    if (!game.movie || game.movie.isFinished) {
       return;
     }
 
