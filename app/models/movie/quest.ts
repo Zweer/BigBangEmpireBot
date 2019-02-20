@@ -11,9 +11,16 @@ export type movieQuestRaw = abstractQuestRaw & {
 export default class MovieQuest extends AbstractQuest<movieQuestRaw> {
   movieId: number;
 
+  static ERROR_CODE_INVALID_CLAIM = 'errClaimMovieQuestRewardsInvalidQuest';
+
   static async claimMovieQuestRewards(): Promise<void> {
-    return request.claimMovieQuestRewards()
-      .catch();
+    try {
+      await request.claimMovieQuestRewards();
+    } catch (error) {
+      if (error.code !== MovieQuest.ERROR_CODE_INVALID_CLAIM) {
+        throw error;
+      }
+    }
   }
 
   async startMovieQuest(): Promise<void> {
