@@ -10,15 +10,16 @@ import BigBangEmpireBot from '..';
 import log from '../lib/log';
 import request from '../lib/request';
 
+import character from '../models/character';
 import constants from '../models/constants';
 import game from '../models/game';
+import guild from '../models/guild';
+import inventory from '../models/inventory';
 
 import { stat } from '../models/types/common';
 import { optionsTelegramBot } from '../models/types/options';
 import { messageFlag } from '../models/mailbox/message';
 import Item from '../models/inventory/item';
-import inventory from '../models/inventory';
-import character from '../models/character';
 import { calculateStatCost } from '../models/utils';
 
 class TelegramBot {
@@ -71,6 +72,7 @@ class TelegramBot {
 
     this.initRouteStart();
     this.initRouteProfile();
+    this.initRouteInventory();
     this.initRouteStats();
     this.initRouteMailbox();
     this.initRouteItems();
@@ -88,7 +90,7 @@ class TelegramBot {
     });
   }
 
-  initRouteProfile() {
+  private initRouteProfile() {
     this.bot.command('profile', async ({ reply }: ContextMessageUpdate) => {
       const messageArr = [game.character.name];
       messageArr.push(`- lvl ${game.character.level} (${numeral(game.character.levelPercentage).format('0%')}) (${numeral(this.bbe.rank.character.level).format('0o')})`);
@@ -116,11 +118,12 @@ class TelegramBot {
         messageArr.push(`- movie energy: ${game.character.movieEnergy}`);
       }
 
-      if (game.guild) {
+      if (guild && guild.name) {
         messageArr.push('--------------------');
-        messageArr.push(`- ${numeral(game.guild.honor).format('0a')} glory (${numeral(this.bbe.rank.guild.glory).format('0o')})`);
-        messageArr.push(`- ${numeral(game.guild.statTotal / constants.guildPercentageTotalBase).format('0%')} expansion (${numeral(this.bbe.rank.guild.expansion).format('0o')})`);
-        messageArr.push(`- ${numeral(game.guild.fans).format('0a')} fans (${numeral(this.bbe.rank.guild.fans).format('0o')})`);
+        messageArr.push(`guild ${guild.name}:`);
+        messageArr.push(`- ${numeral(guild.honor).format('0a')} glory (${numeral(this.bbe.rank.guild.glory).format('0o')})`);
+        messageArr.push(`- ${numeral(guild.statTotal / constants.guildPercentageTotalBase).format('0%')} expansion (${numeral(this.bbe.rank.guild.expansion).format('0o')})`);
+        messageArr.push(`- ${numeral(guild.fans).format('0a')} fans (${numeral(this.bbe.rank.guild.fans).format('0o')})`);
 
         if (this.bbe.rank.temple) {
           messageArr.push(`- temple: ${numeral(this.bbe.rank.temple).format('0o')}`);
@@ -131,7 +134,24 @@ class TelegramBot {
     });
   }
 
-  initRouteStats() {
+  private initRouteInventory() {
+    this.bot.command('inventory', async ({ reply }: ContextMessageUpdate) => {
+      const messageArr = ['Inventory:'];
+      messageArr.push(...inventory.outfitItems.filter(i => !!i).map(i => `- ${i}`));
+
+      messageArr.push('--------------------');
+      messageArr.push('Bag:');
+      messageArr.push(...inventory.bagItems.filter(i => !!i).map(i => `- ${i}`));
+
+      messageArr.push('--------------------');
+      messageArr.push('Shop:');
+      messageArr.push(...inventory.shopItems.filter(i => !!i).map(i => `- ${i}`));
+
+      await reply(messageArr.join('\n'));
+    });
+  }
+
+  private initRouteStats() {
     const handleStats = async ({ reply }: ContextMessageUpdate) => {
       const messsageArr = [];
       messsageArr.push(`${game.character.name} (${game.character.statPointsAvailable} points):`);
@@ -175,7 +195,7 @@ class TelegramBot {
     });
   }
 
-  initRouteMailbox() {
+  private initRouteMailbox() {
     this.bot.command('messages', async ({ reply }: ContextMessageUpdate) => {
       const messages = await request.getMessageList();
 
@@ -241,7 +261,7 @@ class TelegramBot {
     });
   }
 
-  initRouteItems() {
+  private initRouteItems() {
     // @ts-ignore
     this.bot.action(/items:buy:(?<itemId>\d+):(?<targetSlot>\d+)/, async (context: ContextMessageUpdate) => {
       // @ts-ignore
@@ -251,27 +271,6 @@ class TelegramBot {
 
       await context.reply('Item bought!');
     });
-  }
-
-  async broadcast(mapFunction) {
-    return Promise.all(this.users.map(user => mapFunction(user)));
-  }
-
-  async broadcastMessage(message: string, extra = {}) {
-    return this.broadcast(user => this.bot.telegram.sendMessage(user, message, extra));
-  }
-
-  async askForItemPurchase(item: Item, messages: string[]) {
-    const messageArr = [];
-    messageArr.push('There\'s an interesting item in the shop:');
-    messageArr.push(...messages);
-
-    const extra = Markup
-      .inlineKeyboard([Markup.callbackButton('Buy', `items:buy:${item.id}:${inventory.firstAvailableSlot}`)])
-      // @ts-ignore
-      .extra();
-
-    return this.broadcastMessage(messageArr.join('\n'), extra);
   }
 
   private initRouteClose() {
@@ -305,6 +304,27 @@ Commands are:
 /close - Shout down the game (enough?)
 `);
     });
+  }
+
+  async broadcast(mapFunction) {
+    return Promise.all(this.users.map(user => mapFunction(user)));
+  }
+
+  async broadcastMessage(message: string, extra = {}) {
+    return this.broadcast(user => this.bot.telegram.sendMessage(user, message, extra));
+  }
+
+  async askForItemPurchase(item: Item, messages: string[]) {
+    const messageArr = [];
+    messageArr.push('There\'s an interesting item in the shop:');
+    messageArr.push(...messages);
+
+    const extra = Markup
+      .inlineKeyboard([Markup.callbackButton('Buy', `items:buy:${item.id}:${inventory.firstAvailableSlot}`)])
+      // @ts-ignore
+      .extra();
+
+    return this.broadcastMessage(messageArr.join('\n'), extra);
   }
 }
 

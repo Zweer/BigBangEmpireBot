@@ -1,13 +1,14 @@
 import { camelCase } from 'lodash';
 
 import { itemQuality } from '../types/common';
-import { itemType } from '../types/item';
+import { itemType, usableTypes } from '../types/item';
 
 import DataObject from '../utils/dataObject';
 
 import request from '../../lib/request';
 
 import inventory from '.';
+import game from "../game";
 
 export type itemRaw = {
   id: number;
@@ -54,18 +55,10 @@ export default class Item extends DataObject<itemRaw> {
   displayOptions: number;
   battleSkill: string;
 
-  static USABLE_TYPES = [
-    itemType.SURPRISE_BOX,
-    itemType.SHOP_TITLE,
-    itemType.RESKILL,
-    itemType.WEDDING_RING,
-    itemType.DIVORCE_ITEM,
-  ];
-
   static OUTFIT_DISPLAY_OPTIONS = [7, 8];
 
   get isUsable() {
-    return Item.USABLE_TYPES.includes(this.type);
+    return usableTypes.includes(this.type);
   }
 
   get isPremium() {
@@ -110,5 +103,29 @@ export default class Item extends DataObject<itemRaw> {
 
   async sellInventoryItem() {
     return request.sellInventoryItem(this);
+  }
+
+  static getItem(itemId: number): Item {
+    return game.items.find(item => item.id === itemId);
+  }
+
+  toString() {
+    const stringArr = [];
+
+    stringArr.push(`${this.slot}:`);
+
+    if (this.premiumItem) {
+      stringArr.push('[P]');
+    }
+
+    stringArr.push(`[${this.itemLevel}]`);
+    stringArr.push(`[${this.qualityName}]`);
+    stringArr.push(this.statTotal);
+
+    if (this.charges) {
+      stringArr.push(this.charges);
+    }
+
+    return stringArr.join(' ');
   }
 }
