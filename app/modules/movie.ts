@@ -92,7 +92,7 @@ export default class MovieModule extends AbstractModule {
   }
 
   private async handleMovie(): Promise<void> {
-    if (!game.movie || !(game.movieQuests && game.movieQuests.length)) {
+    if (!game.movie || game.movie.isFinished || !(game.movieQuests && game.movieQuests.length)) {
       return;
     }
 
