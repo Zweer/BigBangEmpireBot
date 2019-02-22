@@ -1,12 +1,12 @@
 import { findLastKey } from 'lodash';
 import * as moment from 'moment';
 
-import request from '../lib/request';
-import log from '../lib/log';
+import request from '../../lib/request';
+import log from '../../lib/log';
 
-import DataObject from './utils/dataObject';
+import DataObject from '../utils/dataObject';
 
-import constants from './constants';
+import constants from '../constants';
 
 export type boosterRaw = {
   type: boosterType;

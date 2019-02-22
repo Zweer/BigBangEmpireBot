@@ -7,7 +7,7 @@ import game from '../models/game';
 
 import AbstractModule from '.';
 
-import Booster from '../models/booster';
+import Booster from '../models/story/booster';
 import Voucher from '../models/voucher';
 import CollectedWork from '../models/work/collected';
 

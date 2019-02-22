@@ -16,6 +16,8 @@ import user, { User, userRaw } from './user';
 import { questStatus } from './abstracts/quest';
 
 import DataObject from './utils/dataObject';
+import HerobookObjective, { herobookObjectiveRaw } from './story/herobookObjective';
+import request from "../lib/request";
 
 export type gameRaw = {
   saved_seconds: number,
@@ -69,7 +71,7 @@ export type gameRaw = {
   fan_foto: object, // FanPhoto
   current_item_pattern_values: object,
   dungeon: object, // Dungeon
-  herobook_objectives: object[], // HerobookObjective[]
+  herobook_objectives: herobookObjectiveRaw[],
   pending_guild_battle_attack: object, // GuildBattle
   pending_guild_battle_defense: object, // GuildBattle
   movie: movieRaw,
@@ -261,7 +263,7 @@ class Game extends DataObject<gameRaw> {
   public fanFoto: object; // FanPhoto
   public currentItemPatternValues: object;
   public dungeon: object; // Dungeon
-  public herobookObjectives: object[]; // HerobookObjective[]
+  public herobookObjectives: HerobookObjective[];
   public pendingGuildBattleAttack: object; // GuildBattle
   public pendingGuildBattleDefense: object; // GuildBattle
   public movie: Movie;
@@ -504,6 +506,14 @@ class Game extends DataObject<gameRaw> {
 
   get minQuestEnergy(): number {
     return this.quests.reduce((tmpMinQuestEnergy: number, quest: Quest) => tmpMinQuestEnergy > quest.energyCost ? quest.energyCost : tmpMinQuestEnergy, Infinity);
+  }
+
+  setHerobookObjectives(herobookObjectives: herobookObjectiveRaw[]) {
+    this.herobookObjectives = herobookObjectives.map(h => new HerobookObjective(h));
+  }
+
+  async sync(force = false) {
+    await request.syncGame(force);
   }
 }
 

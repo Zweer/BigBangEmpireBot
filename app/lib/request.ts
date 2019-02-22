@@ -31,6 +31,7 @@ import Message from '../models/mailbox/message';
 import GuildMessage from '../models/guild/message';
 import Voucher from '../models/voucher';
 import StoryDungeon from '../models/story/storyDungeon';
+import HerobookObjective from "../models/story/herobookObjective";
 
 class Request {
   private semaphore = true;
@@ -617,13 +618,13 @@ class Request {
     return response;
   }
 
-  async collectHerobookReward(id: number) {
-    const response = await this.request('collectHerobookReward', {
-      id,
+  async collectHerobookReward(herobookObjective: HerobookObjective) {
+    await this.request('collectHerobookReward', {
+      id: herobookObjective.id,
       discard_item: false,
     });
 
-    console.log(response);
+    // Sync manually the game obj
   }
 }
 

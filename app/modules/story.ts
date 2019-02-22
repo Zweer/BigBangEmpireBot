@@ -1,13 +1,14 @@
 import log from '../lib/log';
 
 import character, { Character } from '../models/character';
+import constants from '../models/constants';
 import game from '../models/game';
 
 import AbstractModule from '.';
 
 import Quest from '../models/story/quest';
 
-export default class QuestModule extends AbstractModule {
+export default class StoryModule extends AbstractModule {
   static MAX_DAILY_REFILL = 200;
   static REFILL_AMOUNT = 50;
 
@@ -17,6 +18,8 @@ export default class QuestModule extends AbstractModule {
     await this.handleCurrentQuest();
 
     await this.handleStoryDungeon();
+
+    await this.handleHerobook();
 
     await this.handleStartQuest();
   }
@@ -81,5 +84,13 @@ export default class QuestModule extends AbstractModule {
       await game.storyDungeon.startStoryDungeonBattle();
       await game.storyDungeon.claimStoryDungeonReward();
     }
+  }
+
+  private async handleHerobook() {
+    await Promise.all(game.herobookObjectives
+      .filter(herobookObjective => herobookObjective.isFinished)
+      .map(herobookObjective => herobookObjective.collectReward()));
+
+    await game.sync(true);
   }
 }

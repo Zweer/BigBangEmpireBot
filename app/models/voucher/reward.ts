@@ -1,4 +1,4 @@
-import Booster, { boosterRaw } from '../booster';
+import Booster, { boosterRaw } from '../story/booster';
 
 import DataObject from '../utils/dataObject';
 

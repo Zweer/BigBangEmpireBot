@@ -1,6 +1,6 @@
 import { mapValues } from 'lodash';
 
-import Booster, { boosterRaw } from './booster';
+import Booster, { boosterRaw } from './story/booster';
 import Goal, { goalRaw } from './goal';
 
 import DataObject from './utils/dataObject';

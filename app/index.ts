@@ -29,7 +29,7 @@ import InventoryModule from './modules/inventory';
 import MailboxModule from './modules/mailbox';
 import MovieModule from './modules/movie';
 import ProfileModule from './modules/profile';
-import QuestModule from './modules/quest';
+import StoryModule from './modules/story';
 
 export default class BigBangEmpireBot {
   private offers: { consumable; normal; special; text };
@@ -60,7 +60,7 @@ export default class BigBangEmpireBot {
   readonly mailbox: MailboxModule;
   readonly movie: MovieModule;
   readonly profile: ProfileModule;
-  readonly quest: QuestModule;
+  readonly quest: StoryModule;
 
   public restartGame: boolean = false;
   public closeGame: boolean = false;
@@ -78,7 +78,7 @@ export default class BigBangEmpireBot {
     this.mailbox = new MailboxModule();
     this.movie = new MovieModule();
     this.profile = new ProfileModule();
-    this.quest = new QuestModule();
+    this.quest = new StoryModule();
   }
 
   async run() {
@@ -124,7 +124,7 @@ export default class BigBangEmpireBot {
     }
 
     try {
-      await this.syncGame();
+      await game.sync();
 
       this.handleNewLevel();
 
@@ -144,10 +144,6 @@ export default class BigBangEmpireBot {
     }
 
     setTimeout(() => this.playRound(), this.options.delaySyncTime);
-  }
-
-  async syncGame() {
-    await request.syncGame();
   }
 
   handleNewLevel() {
