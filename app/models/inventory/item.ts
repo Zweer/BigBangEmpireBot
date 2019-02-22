@@ -8,7 +8,7 @@ import DataObject from '../utils/dataObject';
 import request from '../../lib/request';
 
 import inventory from '.';
-import game from "../game";
+import game from '../game';
 
 export type itemRaw = {
   id: number;

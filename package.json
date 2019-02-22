@@ -8,6 +8,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "prebuild": "rm -rf dist",
     "build": "tsc",
+    "tslint": "tslint -c tslint.json 'app/**/*.ts'",
     "heroku-postbuild": "tsc"
   },
   "engines": {

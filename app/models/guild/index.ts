@@ -1,6 +1,6 @@
 import DataObject from '../utils/dataObject';
-import game from "../game";
-import request from "../../lib/request";
+import game from '../game';
+import request from '../../lib/request';
 
 export type guildRaw = {
   id: number;

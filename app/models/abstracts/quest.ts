@@ -5,8 +5,8 @@ import Reward from '../story/reward';
 import { difficulty, stat } from '../types/common';
 
 import DataObject from '../utils/dataObject';
-import game from "../game";
-import request from "../../lib/request";
+import game from '../game';
+import request from '../../lib/request';
 
 export type abstractQuestRaw = {
   id: number;

@@ -4,9 +4,7 @@ import constants from './constants';
 import { resource } from './types/common';
 
 import AbstractCharacter, { abstractCharacterRaw } from './abstracts/character';
-import request from "../lib/request";
-import game from "./game";
-import Voucher, {voucherRaw} from "./voucher";
+import request from '../lib/request';
 
 export type characterRaw = abstractCharacterRaw & {
   user_id: number,

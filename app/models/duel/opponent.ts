@@ -1,10 +1,8 @@
-import * as numeral from 'numeral';
-
 import DataObject from '../utils/dataObject';
 
 import log from '../../lib/log';
 import request from '../../lib/request';
-import game from "../game";
+import game from '../game';
 
 export type opponentRaw = {
   id: number;

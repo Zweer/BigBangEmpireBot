@@ -1,5 +1,5 @@
 import AbstractMovie, { abstractMovieRaw } from '../abstracts/movie';
-import request from "../../lib/request";
+import request from '../../lib/request';
 
 export type movieRaw = abstractMovieRaw & {
   character_id: number;
