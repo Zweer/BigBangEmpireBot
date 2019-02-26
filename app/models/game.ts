@@ -509,7 +509,7 @@ class Game extends DataObject<gameRaw> {
   }
 
   setHerobookObjectives(herobookObjectives: herobookObjectiveRaw[]) {
-    this.herobookObjectives = herobookObjectives.map(h => new HerobookObjective(h));
+    this.herobookObjectives = herobookObjectives ? herobookObjectives.map(h => new HerobookObjective(h)) : [];
   }
 
   async sync(force = false) {
