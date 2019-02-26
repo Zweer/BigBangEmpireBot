@@ -485,7 +485,7 @@ class Game extends DataObject<gameRaw> {
   }
 
   setMovieQuests(movieQuests: movieQuestRaw[]) {
-    this.movieQuests = movieQuests.map(movieQuest => new MovieQuest(movieQuest));
+    this.movieQuests = movieQuests ? movieQuests.map(movieQuest => new MovieQuest(movieQuest)) : [];
   }
 
   setGuild(guild: guildRaw) {

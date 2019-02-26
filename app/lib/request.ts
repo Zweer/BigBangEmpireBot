@@ -626,6 +626,14 @@ class Request {
 
     // Sync manually the game obj
   }
+
+  async buyOpticalChangeOffer(type: number = 1) {
+    const response = await this.request('buyOpticalChangeOffer', {
+      type,
+    });
+
+    console.log(response);
+  }
 }
 
 export default new Request();

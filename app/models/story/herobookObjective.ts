@@ -87,6 +87,6 @@ export default class HerobookObjective extends DataObject<herobookObjectiveRaw> 
   }
 
   async collectReward() {
-    return request.collectHerobookReward(this);
+    // return request.collectHerobookReward(this);
   }
 }
