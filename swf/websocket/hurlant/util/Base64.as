@@ -85,7 +85,7 @@ package websocket.hurlant.util
                if(_loc8_ != -1)
                {
                   _loc9_.writeByte(_loc7_ << 2 | (_loc8_ & 48) >> 4);
-                  while(true)
+                  while(true, true)
                   {
                      _loc6_++;
                      _loc2_ = _loc5_[_loc6_];
@@ -99,7 +99,7 @@ package websocket.hurlant.util
                         if(_loc2_ != -1)
                         {
                            _loc9_.writeByte((_loc8_ & 15) << 4 | (_loc2_ & 60) >> 2);
-                           while(true)
+                           while(true, true)
                            {
                               _loc6_++;
                               _loc3_ = _loc5_[_loc6_];

@@ -31,6 +31,8 @@ package com.playata.application.ui.dialogs
    
    public class DialogBankInventory extends UiDialog
    {
+      
+      private static var _isOpen:Boolean = false;
        
       
       private var _bagIndex:int = 0;
@@ -169,6 +171,7 @@ package com.playata.application.ui.dialogs
       
       public function DialogBankInventory()
       {
+         _isOpen = true;
          var _loc2_:SymbolDialogBankInventoryGeneric = new SymbolDialogBankInventoryGeneric();
          super(_loc2_);
          _queued = false;
@@ -338,6 +341,17 @@ package com.playata.application.ui.dialogs
          MessageRouter.addListener("BankInventoryMessage.notifyDataUpdated",handleMessages);
          MessageRouter.addListener("BankInventoryMessage.notifyLockItem",handleMessages);
          MessageRouter.addListener("BankInventoryMessage.notifyUnlockItem",handleMessages);
+      }
+      
+      public static function get isOpen() : Boolean
+      {
+         return _isOpen;
+      }
+      
+      override public function close(param1:Function = null) : void
+      {
+         super.close(param1);
+         _isOpen = false;
       }
       
       override public function onClose(param1:Function = null) : void

@@ -21,7 +21,7 @@ package com.playata.application
       public function AppEnvironmentConfig(param1:Class, param2:Boolean)
       {
          super();
-         this.clientVersion = 82;
+         this.clientVersion = 83;
          this.core = new FlashCore(new DefaultLinkHandler());
          this.defaultConfig = new TypedObject(DefaultConfigCommon.defaultConfig);
          this.tweenClass = GreenSockTweenHandler;

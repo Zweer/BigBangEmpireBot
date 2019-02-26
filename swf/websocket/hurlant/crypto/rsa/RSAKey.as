@@ -72,7 +72,7 @@ package websocket.hurlant.crypto.rsa
          var _loc3_:BigInteger = new BigInteger(param2,16,true);
          do
          {
-            while(true)
+            while(true, true)
             {
                _loc10_.p = bigRandom(param1 - _loc7_,_loc9_);
                if(!(_loc10_.p.subtract(BigInteger.ONE).gcd(_loc3_).compareTo(BigInteger.ONE) == 0 && _loc10_.p.isProbablePrime(10)))
@@ -81,7 +81,7 @@ package websocket.hurlant.crypto.rsa
                }
                break;
             }
-            while(true)
+            while(true, true)
             {
                _loc10_.q = bigRandom(_loc7_,_loc9_);
                if(!(_loc10_.q.subtract(BigInteger.ONE).gcd(_loc3_).compareTo(BigInteger.ONE) == 0 && _loc10_.q.isProbablePrime(10)))
@@ -274,7 +274,7 @@ package websocket.hurlant.crypto.rsa
                return null;
             }
          }
-         while(true)
+         while(true, true)
          {
             _loc5_++;
             if(_loc5_ >= _loc4_.length)

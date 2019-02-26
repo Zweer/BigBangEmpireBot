@@ -214,7 +214,7 @@ package com.playata.application.ui.dialogs
       private function onClickAddCharacter(param1:InteractionEvent) : void
       {
          close();
-         if(true && Environment.info.isNativeMobile)
+         if(true && (Environment.info.isNativeMobile || Environment.platform.isSteam))
          {
             Environment.panelManager.showDialog(new DialogCharacterSelectionAdd(_characterSelection.usedServerIds));
          }

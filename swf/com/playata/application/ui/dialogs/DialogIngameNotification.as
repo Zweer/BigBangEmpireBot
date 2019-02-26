@@ -6,6 +6,7 @@ package com.playata.application.ui.dialogs
    import com.playata.application.ui.elements.generic.button.UiTextButton;
    import com.playata.application.ui.elements.generic.dialog.UiDialog;
    import com.playata.application.ui.elements.generic.scrollbar.UiScrollBar;
+   import com.playata.framework.application.Environment;
    import com.playata.framework.input.InteractionEvent;
    import visuals.ui.dialogs.SymbolDialogIngameNotificationGeneric;
    
@@ -38,6 +39,7 @@ package com.playata.application.ui.dialogs
          }
          _loc2_.image.setUriSprite(_ingameNotification.imageURL,880,550,true,1,null,true);
          _btnContinue = new UiTextButton(_loc2_.btnContinue,param1.button,"",onContinueClicked);
+         _btnContinue.fitText();
          _scrollBar = new UiScrollBar(_loc2_.scrollKnob,_loc2_.scrollLine,_loc2_.txtDescription);
          _loc2_.txtDescription.verticalScrollBar = _scrollBar;
          _loc2_.txtDescription.interactionEnabled = true;
@@ -68,6 +70,10 @@ package com.playata.application.ui.dialogs
          else if(_ingameNotification.openOfferwallDialog)
          {
             platform.showOfferwall(User.current.id);
+         }
+         else if(_ingameNotification.openUrl)
+         {
+            Environment.platform.openLink(_ingameNotification.openUrl);
          }
          else
          {

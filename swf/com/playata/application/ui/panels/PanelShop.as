@@ -15,6 +15,7 @@ package com.playata.application.ui.panels
    import com.playata.application.ui.dialogs.DialogBankInventory;
    import com.playata.application.ui.dialogs.DialogBuyItemOffers;
    import com.playata.application.ui.dialogs.DialogOutfits;
+   import com.playata.application.ui.dialogs.DialogSewingMachine;
    import com.playata.application.ui.dialogs.DialogTutorialPopup;
    import com.playata.application.ui.elements.avatar.UiAvatar;
    import com.playata.application.ui.elements.avatar.UiAvatarPreview;
@@ -736,15 +737,18 @@ package com.playata.application.ui.panels
          _itemSlotPiercing.item = _loc1_.getItem("piercing_item_id");
          _itemSlotGadget.item = _loc1_.getItem("gadget_item_id");
          _itemSlotMissiles.item = _loc1_.getItem("missiles_item_id");
-         _shopSlot1.item = _loc1_.getItem("shop_item1_id");
-         _shopSlot2.item = _loc1_.getItem("shop_item2_id");
-         _shopSlot3.item = _loc1_.getItem("shop_item3_id");
-         _shopSlot4.item = _loc1_.getItem("shop_item4_id");
-         _shopSlot5.item = _loc1_.getItem("shop_item5_id");
-         _shopSlot6.item = _loc1_.getItem("shop_item6_id");
-         _shopSlot7.item = _loc1_.getItem("shop_item7_id");
-         _shopSlot8.item = _loc1_.getItem("shop_item8_id");
-         _shopSlot9.item = _loc1_.getItem("shop_item9_id");
+         if(!DialogSewingMachine.isOpen && !DialogBankInventory.isOpen)
+         {
+            _shopSlot1.item = _loc1_.getItem("shop_item1_id");
+            _shopSlot2.item = _loc1_.getItem("shop_item2_id");
+            _shopSlot3.item = _loc1_.getItem("shop_item3_id");
+            _shopSlot4.item = _loc1_.getItem("shop_item4_id");
+            _shopSlot5.item = _loc1_.getItem("shop_item5_id");
+            _shopSlot6.item = _loc1_.getItem("shop_item6_id");
+            _shopSlot7.item = _loc1_.getItem("shop_item7_id");
+            _shopSlot8.item = _loc1_.getItem("shop_item8_id");
+            _shopSlot9.item = _loc1_.getItem("shop_item9_id");
+         }
          _loc2_.iconHeadItemHidden.visible = !_loc1_.isHeadItemShown && _loc1_.getItemByType(1) != null;
          _loc2_.iconChestItemHidden.visible = !_loc1_.isChestItemShown && _loc1_.getItemByType(2) != null;
          _loc2_.iconBeltItemHidden.visible = !_loc1_.isBeltItemShown && _loc1_.getItemByType(3) != null;

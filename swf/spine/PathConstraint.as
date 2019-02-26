@@ -336,7 +336,7 @@ package spine
                   _loc24_ + 3;
                   continue;
                }
-               while(true)
+               while(true, true)
                {
                   _loc21_ = _loc29_[_loc6_];
                   if(_loc26_ <= _loc21_)
@@ -493,7 +493,7 @@ package spine
                _loc24_ + 3;
                continue;
             }
-            while(true)
+            while(true, true)
             {
                _loc21_ = _loc28_[_loc6_];
                if(_loc26_ <= _loc21_)
@@ -555,7 +555,7 @@ package spine
                _loc15_ = 0;
             }
             _loc26_ = Number(_loc26_ * _loc42_);
-            while(true)
+            while(true, true)
             {
                _loc21_ = _loc13_[_loc15_];
                if(_loc26_ <= _loc21_)

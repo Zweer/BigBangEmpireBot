@@ -130,7 +130,7 @@ package com.playata.application.data.battle
          {
             return null;
          }
-         if(!isNaN(_value1))
+         if(_value1 is Number)
          {
             return getDisplayValue("value1",_value1);
          }
@@ -143,7 +143,7 @@ package com.playata.application.data.battle
          {
             return null;
          }
-         if(!isNaN(_value2))
+         if(_value2 is Number)
          {
             return getDisplayValue("value2",_value2);
          }
@@ -156,7 +156,7 @@ package com.playata.application.data.battle
          {
             return null;
          }
-         if(!isNaN(_value3))
+         if(_value3 is Number)
          {
             return getDisplayValue("value3",_value3);
          }
@@ -199,15 +199,15 @@ package com.playata.application.data.battle
          {
             return false;
          }
-         if(!isNaN(_value1) && !isNaN(param1._value1) && _value1 != param1._value1)
+         if(_value1 is Number && param1._value1 is Number && _value1 != param1._value1)
          {
             return false;
          }
-         if(!isNaN(_value2) && !isNaN(param1._value2) && _value2 != param1._value2)
+         if(_value2 is Number && param1._value2 is Number && _value2 != param1._value2)
          {
             return false;
          }
-         if(!isNaN(_value3) && !isNaN(param1._value3) && _value3 != param1._value3)
+         if(_value3 is Number && param1._value3 is Number && _value3 != param1._value3)
          {
             return false;
          }

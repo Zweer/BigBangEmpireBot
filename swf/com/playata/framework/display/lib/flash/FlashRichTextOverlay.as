@@ -110,7 +110,7 @@ package com.playata.framework.display.lib.flash
          {
             return;
          }
-         while(true)
+         while(true, true)
          {
             _loc4_--;
             if(_loc4_ <= 0)

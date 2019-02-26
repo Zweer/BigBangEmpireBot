@@ -46,6 +46,11 @@ export enum herobookObjectiveType {
   MOVIE_FINISHED,
   MOVIE_QUEST_COMPLETED,
   MOVIE_ENERGY_USED,
+  MOVIE_SET_COVER,
+  VOTE_FOR_MOVIE,
+  BATTERY_USED,
+  BATTERY_REQUEST_ACCEPTED,
+  OPTICAL_CHANGE_CHEST_OPENED,
 }
 
 export enum herobookObjectiveStatus {

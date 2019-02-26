@@ -25,9 +25,13 @@ package visuals.ui.dialogs
       
       public var checkDuel:SymbolUiCheckboxGeneric = null;
       
+      public var checkBank:SymbolUiCheckboxGeneric = null;
+      
       public var txtQuests:ILabelArea = null;
       
       public var txtDuel:ILabelArea = null;
+      
+      public var txtBank:ILabelArea = null;
       
       public var txtDialogTitle:ILabel = null;
       
@@ -50,8 +54,10 @@ package visuals.ui.dialogs
          dialogBackground = new SymbolSlice9BackgroundDialogGeneric(_nativeObject.dialogBackground);
          checkQuests = new SymbolUiCheckboxGeneric(_nativeObject.checkQuests);
          checkDuel = new SymbolUiCheckboxGeneric(_nativeObject.checkDuel);
+         checkBank = new SymbolUiCheckboxGeneric(_nativeObject.checkBank);
          txtQuests = FlashLabelArea.fromNative(_nativeObject.txtQuests);
          txtDuel = FlashLabelArea.fromNative(_nativeObject.txtDuel);
+         txtBank = FlashLabelArea.fromNative(_nativeObject.txtBank);
          txtDialogTitle = FlashLabel.fromNative(_nativeObject.txtDialogTitle);
          btnClose = new SymbolButtonCloseGeneric(_nativeObject.btnClose);
          btnSave = new SymbolUiButtonWideGeneric(_nativeObject.btnSave);
@@ -78,8 +84,13 @@ package visuals.ui.dialogs
          {
             checkDuel.setNativeInstance(_nativeObject.checkDuel);
          }
+         if(_nativeObject.checkBank)
+         {
+            checkBank.setNativeInstance(_nativeObject.checkBank);
+         }
          FlashLabelArea.setNativeInstance(txtQuests,_nativeObject.txtQuests);
          FlashLabelArea.setNativeInstance(txtDuel,_nativeObject.txtDuel);
+         FlashLabelArea.setNativeInstance(txtBank,_nativeObject.txtBank);
          FlashLabel.setNativeInstance(txtDialogTitle,_nativeObject.txtDialogTitle);
          if(_nativeObject.btnClose)
          {

@@ -100,6 +100,7 @@ package com.playata.framework.billing.lib.standalone
          {
             _loc7_.setString("custom1",PlatformConfig.draugiemUserKey);
          }
+         _loc7_ = setPlatformInitPaymentRequestData(_loc7_);
          var _loc5_:BillingProductType = param1.info.type;
          var _loc9_:* = _loc5_;
          switch(_loc9_)
@@ -219,6 +220,11 @@ package com.playata.framework.billing.lib.standalone
          }
          _loc4_.sort(sortPaymentMethodsByIndex);
          return _loc4_;
+      }
+      
+      protected function setPlatformInitPaymentRequestData(param1:RequestData) : RequestData
+      {
+         return param1;
       }
       
       protected function onCreatePurchaseSuccess(param1:Object) : void

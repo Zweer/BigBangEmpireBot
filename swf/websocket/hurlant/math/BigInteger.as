@@ -254,7 +254,7 @@ package websocket.hurlant.math
          {
             return _loc2_;
          }
-         while(true)
+         while(true, true)
          {
             _loc3_--;
             if(_loc3_ < 0)
@@ -382,7 +382,7 @@ package websocket.hurlant.math
          var _loc5_:int = 0;
          t = 0;
          s = 0;
-         while(true)
+         while(true, true)
          {
             _loc7_--;
             if(_loc7_ < _loc4_)
@@ -588,7 +588,7 @@ package websocket.hurlant.math
          var _loc11_:int = 0;
          var _loc8_:* = param2 & 32767;
          var _loc7_:* = param2 >> 15;
-         while(true)
+         while(true, true)
          {
             param6--;
             if(param6 < 0)
@@ -613,7 +613,7 @@ package websocket.hurlant.math
          var _loc4_:BigInteger = param1.abs();
          var _loc5_:int = _loc3_.t;
          param2.t = _loc5_ + _loc4_.t;
-         while(true)
+         while(true, true)
          {
             _loc5_--;
             if(_loc5_ < 0)
@@ -643,7 +643,7 @@ package websocket.hurlant.math
          var _loc5_:* = 2 * _loc3_.t;
          param1.t = _loc5_;
          var _loc4_:* = _loc5_;
-         while(true)
+         while(true, true)
          {
             _loc4_--;
             if(_loc4_ < 0)
@@ -756,7 +756,7 @@ package websocket.hurlant.math
             }
             _loc23_;
          }
-         while(true)
+         while(true, true)
          {
             _loc9_--;
             if(_loc9_ < 0)
@@ -772,7 +772,7 @@ package websocket.hurlant.math
             {
                _loc15_.dlShiftTo(_loc9_,_loc13_);
                param3.subTo(_loc13_,param3);
-               while(true)
+               while(true, true)
                {
                   _loc12_--;
                   if(param3.a[_loc8_] >= _loc12_)
@@ -840,7 +840,7 @@ package websocket.hurlant.math
          var _loc6_:BigInteger = param2.convert(this);
          var _loc7_:int = nbits(param1) - 1;
          _loc6_.copyTo(_loc4_);
-         while(true)
+         while(true, true)
          {
             _loc7_--;
             if(_loc7_ < 0)
@@ -1474,7 +1474,7 @@ package websocket.hurlant.math
          param3.t = _loc5_;
          var _loc4_:* = _loc5_;
          param3.s = 0;
-         while(true)
+         while(true, true)
          {
             _loc4_--;
             if(_loc4_ < 0)
@@ -1872,7 +1872,7 @@ package websocket.hurlant.math
             if(_loc6_.compareTo(BigInteger.ONE) != 0 && _loc6_.compareTo(_loc4_) != 0)
             {
                _loc7_ = 1;
-               while(true)
+               while(true, true)
                {
                   _loc7_++;
                   if(!(_loc7_ < _loc8_ && _loc6_.compareTo(_loc4_) != 0))

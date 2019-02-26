@@ -23,7 +23,7 @@ package com.playata.application.data.character
       {
          _characterSelectionEntries = new Vector.<CharacterSelectionEntry>(0);
          super();
-         _useCache = Environment.info.isNativeMobile;
+         _useCache = Environment.platform.isSteam || Environment.info.isNativeMobile;
       }
       
       private static function sortByServerId(param1:CharacterSelectionEntry, param2:CharacterSelectionEntry) : int

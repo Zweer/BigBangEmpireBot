@@ -62,13 +62,23 @@ package com.playata.application.ui.elements.account_settings
          _tabFacebook = new UiTabIconOnlyButton(_content.tabFacebook,onClickTab,2);
          _tabGameService = new UiTabIconOnlyButton(_content.tabGameService,onClickTab,!!Environment.info.isAndroid?4:5);
          _tabEmail = new UiTabIconOnlyButton(_content.tabEmail,onClickTab,1);
+         _tabMobile.visible = Environment.info.isNativeMobile;
+         _tabFacebook.visible = Environment.info.isNativeMobile;
          _tabGameService.visible = false;
+         _tabEmail.visible = Environment.info.isNativeMobile;
          _tabMobile.x = _tabMobile.x + 35;
          _tabFacebook.x = _tabFacebook.x + 35;
          _tabEmail.x = _tabEmail.x - 38;
          _content.emailLogin.txtEmailCaption.text = LocText.current.text("screen/login/mail");
          _content.emailLogin.txtPasswordCaption.text = LocText.current.text("screen/login/password");
-         switchTab(_tabMobile);
+         if(Environment.info.isNativeMobile)
+         {
+            switchTab(_tabMobile);
+         }
+         else
+         {
+            switchTab(_tabEmail);
+         }
       }
       
       public function dispose() : void

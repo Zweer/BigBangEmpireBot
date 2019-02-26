@@ -501,11 +501,11 @@ package com.playata.application.ui.panels
             {
                if(!DialogDungeonQuestBriefing.isOpen && !DialogQuestBriefing.isOpen && !DialogConventionInfo.isOpen && !DialogConventionComplete.isOpen && !DialogConventionInfo.hasBeenShown(_loc1_))
                {
+                  Environment.panelManager.showDialog(new DialogConventionInfo(_loc1_));
                   if(!User.current.character.hasTutorialFlag("conventions") && !DialogTutorialConventions.isOpen)
                   {
                      Environment.panelManager.showDialog(new DialogTutorialConventions());
                   }
-                  Environment.panelManager.showDialog(new DialogConventionInfo(_loc1_));
                }
             }
          }

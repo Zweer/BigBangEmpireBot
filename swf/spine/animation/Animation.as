@@ -38,7 +38,7 @@ package spine.animation
             return param3;
          }
          var _loc5_:int = _loc4_ >>> 1;
-         while(true)
+         while(true, true)
          {
             if(param1[int((_loc5_ + 1) * param3)] <= param2)
             {
@@ -66,7 +66,7 @@ package spine.animation
             return 1;
          }
          var _loc4_:int = _loc3_ >>> 1;
-         while(true)
+         while(true, true)
          {
             if(param1[int(_loc4_ + 1)] <= param2)
             {

@@ -37,7 +37,7 @@ package websocket.adobe.serialization.json
          {
             return _loc1_;
          }
-         while(true)
+         while(true, true)
          {
             _loc1_.push(parseValue());
             nextToken();
@@ -66,7 +66,7 @@ package websocket.adobe.serialization.json
          {
             return _loc2_;
          }
-         while(true)
+         while(true, true)
          {
             if(token.type == 10)
             {

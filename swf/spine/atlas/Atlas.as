@@ -53,7 +53,7 @@ package spine.atlas
          var _loc3_:Array = [];
          _loc3_.length = 4;
          var _loc9_:AtlasPage = null;
-         while(true)
+         while(true, true)
          {
             _loc5_ = _loc4_.readLine();
             if(_loc5_ != null)

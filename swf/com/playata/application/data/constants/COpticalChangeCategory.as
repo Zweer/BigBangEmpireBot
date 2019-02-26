@@ -51,6 +51,11 @@ package com.playata.application.data.constants
          return getInt("category");
       }
       
+      public function get guaranteedDropChance() : int
+      {
+         return getInt("guaranteed_drop_chance");
+      }
+      
       public function get valueIds() : Vector.<int>
       {
          return getSubIntVectorIds("values");

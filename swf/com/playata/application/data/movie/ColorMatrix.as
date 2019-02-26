@@ -607,7 +607,7 @@ package com.playata.application.data.movie
             _loc18_ = 0;
             _loc13_ = 0;
             _loc10_ = 256;
-            while(true)
+            while(true, true)
             {
                _loc10_--;
                if(_loc10_ > -1)

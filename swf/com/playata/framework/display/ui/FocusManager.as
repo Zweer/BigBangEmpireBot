@@ -53,7 +53,9 @@ package com.playata.framework.display.ui
          {
             return;
          }
+         var _loc1_:IFocusContainer = _container;
          _container = _focusContainerLookup.getData(_container);
+         _focusContainerLookup.remove(_loc1_);
          _currentTabIndex = 0;
          setFocusOptions();
       }

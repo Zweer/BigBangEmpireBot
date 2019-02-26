@@ -33,7 +33,7 @@ package com.playata.application.ui.dialogs
          var _loc1_:SymbolDialogTutorialConventionsGeneric = new SymbolDialogTutorialConventionsGeneric();
          super(_loc1_);
          _isTutorial = !User.current.character.hasTutorialFlag("conventions");
-         _queued = _isTutorial;
+         _queued = false;
          _fansBar = new UiFansThermometer(_loc1_.progress,357969,0,false);
          _loc1_.txtDialogTitle.text = LocText.current.text("tutorial/conventions/title");
          _loc1_.txtMessage.text = LocText.current.text("tutorial/conventions/text");

@@ -84,8 +84,14 @@ package com.playata.application.data.event
          _loc1_ = StringUtil.replace(_loc1_,"[email]",User.current.email);
          _loc1_ = StringUtil.replace(_loc1_,"[serverid]",ServerInfo.serverId);
          _loc1_ = StringUtil.replace(_loc1_,"[userid]",User.current.id.toString());
+         _loc1_ = StringUtil.replace(_loc1_,"[sessionid]",User.current.sessionId.toString());
          _loc1_ = StringUtil.replace(_loc1_,"<date_start>",AppDateTime.timestampToLocalString(startDate,AppDateTime.dateFormat));
          _loc1_ = StringUtil.replace(_loc1_,"<date_end>",AppDateTime.timestampToLocalString(endDate,AppDateTime.dateFormat));
+         if(identifier == "prereg_notification" || identifier == "prereg_notification_international")
+         {
+            _loc1_ = StringUtil.replace(_loc1_,"<server_start>",getString("server_start"));
+            _loc1_ = StringUtil.replace(_loc1_,"<new_server_id>",getString("new_server_id"));
+         }
          return _loc1_;
       }
       
@@ -110,6 +116,19 @@ package com.playata.application.data.event
             return false;
          }
          return redirectToOfferwallDialog;
+      }
+      
+      public function get openUrl() : String
+      {
+         if(!hasData("redirect_url"))
+         {
+            return null;
+         }
+         var _loc1_:String = getString("redirect_url");
+         _loc1_ = StringUtil.replace(_loc1_,"[serverid]",ServerInfo.serverId);
+         _loc1_ = StringUtil.replace(_loc1_,"[userid]",User.current.id.toString());
+         _loc1_ = StringUtil.replace(_loc1_,"[sessionid]",User.current.sessionId.toString());
+         return _loc1_;
       }
       
       public function get isHTML() : Boolean

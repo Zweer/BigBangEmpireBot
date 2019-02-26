@@ -22,6 +22,8 @@ package com.playata.application.ui.dialogs
    
    public class DialogSewingMachine extends UiDialog
    {
+      
+      private static var _isOpen:Boolean = false;
        
       
       private var _btnClose:UiButton = null;
@@ -38,6 +40,7 @@ package com.playata.application.ui.dialogs
       
       public function DialogSewingMachine(param1:Item = null)
       {
+         _isOpen = true;
          var _loc2_:SymbolDialogSewingMachineGeneric = new SymbolDialogSewingMachineGeneric();
          super(_loc2_);
          _queued = false;
@@ -67,6 +70,11 @@ package com.playata.application.ui.dialogs
             clickTabSewingMachine(_btnTabItemPattern);
             _btnTabSewingMachine.buttonEnabled = false;
          }
+      }
+      
+      public static function get isOpen() : Boolean
+      {
+         return _isOpen;
       }
       
       override public function dispose() : void
@@ -207,6 +215,7 @@ package com.playata.application.ui.dialogs
          {
             (ViewManager.instance.activePanelInstance as PanelShop).updateCharacter();
          }
+         _isOpen = false;
       }
       
       public function refreshCounter() : void

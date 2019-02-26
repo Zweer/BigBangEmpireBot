@@ -305,7 +305,7 @@ package websocket.adobe.serialization.json
                   break;
                case "*":
                   nextChar();
-                  while(true)
+                  while(true, true)
                   {
                      if(ch == "*")
                      {

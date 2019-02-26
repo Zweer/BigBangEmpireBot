@@ -114,7 +114,7 @@ package starling.events
             _loc2_ = _target;
             _bubbleChain.length = 1;
             _bubbleChain[0] = _loc2_;
-            while(true)
+            while(true, true)
             {
                _loc2_ = _loc2_.parent;
                if(_loc2_.parent == null)

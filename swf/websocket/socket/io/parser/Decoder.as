@@ -32,7 +32,7 @@ package websocket.socket.io.parser
          if(5 == _loc2_.type || 6 == _loc2_.type)
          {
             _loc2_.attachments = "";
-            while(true)
+            while(true, true)
             {
                _loc5_++;
                if(param1.charAt(_loc5_) == "-")
@@ -46,7 +46,7 @@ package websocket.socket.io.parser
          if("/" == param1.charAt(_loc5_ + 1))
          {
             _loc2_.nsp = "";
-            while(true)
+            while(true, true)
             {
                _loc5_++;
                if(_loc5_)
@@ -74,7 +74,7 @@ package websocket.socket.io.parser
          if("" != _loc3_ && !isNaN(Number(_loc3_)))
          {
             _loc2_.id = "";
-            while(true)
+            while(true, true)
             {
                _loc5_++;
                if(_loc5_)

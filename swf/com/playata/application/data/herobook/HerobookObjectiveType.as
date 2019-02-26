@@ -58,6 +58,16 @@ package com.playata.application.data.herobook
       public static const MovieQuestCompleted:int = 26;
       
       public static const MovieEnergyUsed:int = 27;
+      
+      public static const MovieSetCover:int = 28;
+      
+      public static const VoteForMovie:int = 29;
+      
+      public static const BatteryUsed:int = 30;
+      
+      public static const BatteryRequestAccepted:int = 31;
+      
+      public static const OpticalChangeChestOpened:int = 32;
        
       
       public function HerobookObjectiveType()

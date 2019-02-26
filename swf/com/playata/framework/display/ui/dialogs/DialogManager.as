@@ -202,7 +202,7 @@ package com.playata.framework.display.ui.dialogs
          {
             _dialogLayer.addChildAt(_darkener,_dialogLayer.numChildren - 2);
          }
-         if(_pendingDialogs.length > 0)
+         else if(_pendingDialogs.length > 0)
          {
             showNextPendingDialog();
          }

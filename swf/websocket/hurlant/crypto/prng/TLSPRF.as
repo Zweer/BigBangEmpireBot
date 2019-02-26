@@ -63,7 +63,7 @@ package websocket.hurlant.crypto.prng
       
       public function nextBytes(param1:IDataOutput, param2:int) : void
       {
-         while(true)
+         while(true, true)
          {
             param2--;
             if(!param2)

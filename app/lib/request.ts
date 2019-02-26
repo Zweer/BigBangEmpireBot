@@ -7,7 +7,6 @@ import * as request from 'request-promise';
 import BigBangEmpireError from '../models/utils/error';
 
 import { resource, stat } from '../models/types/common';
-import { itemType } from '../models/types/item';
 import { optionsWeb } from '../models/types/options';
 
 import constantsObj from '../models/constants';
@@ -31,7 +30,7 @@ import Message from '../models/mailbox/message';
 import GuildMessage from '../models/guild/message';
 import Voucher from '../models/voucher';
 import StoryDungeon from '../models/story/storyDungeon';
-import HerobookObjective from "../models/story/herobookObjective";
+import HerobookObjective from '../models/story/herobookObjective';
 
 class Request {
   private semaphore = true;
@@ -40,7 +39,7 @@ class Request {
   private userSessionId: string = '0';
   private guildLogSyncState: number;
 
-  static CLIENT_VERSION: number = 82;
+  static CLIENT_VERSION: number = 83;
   static AUTH_SALT: string = 'bpHgj5214';
   static PLATFORM = 'standalone';
 
