@@ -157,7 +157,7 @@ export default class BigBangEmpireBot {
   async handleRankRetrieval() {
     await Promise.all([1, 2, 3].map(async (sortType) => {
       const characterRank = await request.retrieveLeaderboard(sortType);
-      const guildRank = await request.retrieveGuildLeaderboard(sortType);
+      const guildRank = game.guild && game.guild.name ? await request.retrieveGuildLeaderboard(sortType) : 0;
 
       switch (sortType) {
         case 1:
@@ -180,7 +180,7 @@ export default class BigBangEmpireBot {
     }));
 
     this.rank.movieTournament = await request.retrieveMovieTournamentLeaderboard();
-    this.rank.temple = await request.retrieveSoloGuildCompetitionTournamentLeaderboard();
+    this.rank.temple = game.guild && game.guild.name ? await request.retrieveSoloGuildCompetitionTournamentLeaderboard() : 0;
   }
 
   get datingStepPercentage() {
