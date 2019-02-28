@@ -509,6 +509,18 @@ class Game extends DataObject<gameRaw> {
   }
 
   setHerobookObjectives(herobookObjectives: herobookObjectiveRaw[]) {
+    if (!herobookObjectives) {
+      return;
+    }
+
+    // @ts-ignore
+    if (herobookObjectives.newObjectivesCreated) {
+      // @ts-ignore
+      delete herobookObjectives.newObjectivesCreated;
+
+      herobookObjectives.length = Object.keys(herobookObjectives).length;
+    }
+
     this.herobookObjectives = herobookObjectives ? herobookObjectives.map(h => new HerobookObjective(h)) : [];
   }
 
