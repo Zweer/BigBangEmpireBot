@@ -19,7 +19,7 @@
   "dependencies": {
     "cheerio": "^0.22.0",
     "config": "^1.21.0",
-    "lodash": "^4.17.13",
+    "lodash": "^4.17.15",
     "moment": "^2.14.1",
     "node-telegram-bot-api": "^0.23.3",
     "node-uuid": "^1.4.7",
