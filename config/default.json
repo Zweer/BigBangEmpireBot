@@ -2,10 +2,8 @@
   "bbe": {
     "delaySyncGame": 10000,
 
-    "baseUrl": "https://{SERVER}.bigbangempire.com",
-
     "auth": {
-      "server": "your server",
+      "region": "your server",
       "email": "your email address",
       "password": "your password"
     }
