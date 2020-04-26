@@ -1,40 +1,16 @@
 {
   "name": "big-bang-empire-bot",
-  "version": "1.1.0",
+  "version": "2.0.0",
   "description": "Just a bot for the 'Big Bang Empire' online game",
   "main": "index.js",
   "scripts": {
-    "start": "node dist/index",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "prebuild": "rm -rf dist",
-    "build": "tsc",
-    "tslint": "tslint -c tslint.json 'app/**/*.ts'",
-    "heroku-postbuild": "tsc"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "engines": {
-    "node": "10.13.0"
+    "node": "12.13.1"
   },
-  "author": "Niccolò Olivieri <niccolo@olivieriachille.com>",
+  "author": "Niccolò Olivieri <n.olivieriachille@gmail.com>",
   "license": "MIT",
-  "dependencies": {
-    "cheerio": "^0.22.0",
-    "config": "^1.21.0",
-    "lodash": "^4.17.15",
-    "moment": "^2.14.1",
-    "node-telegram-bot-api": "^0.23.3",
-    "node-uuid": "^1.4.7",
-    "numeral": "^1.5.3",
-    "request": "^2.74.0",
-    "request-promise": "^4.1.1",
-    "telegraf": "^3.27.0",
-    "winston": "^3.1.0",
-    "winston-transport": "^4.3.0"
-  },
-  "devDependencies": {
-    "@types/node": "^10.12.18",
-    "source-map-support": "^0.5.10",
-    "tslint": "^5.12.1",
-    "tslint-config-airbnb": "^5.11.1",
-    "typescript": "^3.2.4"
-  }
+  "dependencies": {},
+  "devDependencies": {}
 }
