@@ -1,36 +1,23 @@
-import { BbeRequest } from './bbe.request';
+import { Game } from './models/game';
 
-import { ConfigGameResponseDto } from './dto/config/config.game.response.dto';
-import { LoginResponseDto } from './dto/pre/login.response.dto';
-import { GetStandalonePaymentOffersResponseDto } from './dto/pre/getStandalonePaymentOffers.response.dto';
-import { LoginFriendBarResponseDto } from './dto/pre/loginFriendBar.response.dto';
+import { StoryModule } from './modules/story.module';
 
 export class BigBangEmpire {
-  private readonly request: BbeRequest;
+  private game: Game;
 
-  private constants: ConfigGameResponseDto['constants'];
-  private extendedConfig: ConfigGameResponseDto['extendedConfig'];
-  private game: LoginResponseDto;
-  private offers: GetStandalonePaymentOffersResponseDto;
-  private friends: LoginFriendBarResponseDto;
-
-  constructor() {
-    this.request = new BbeRequest();
-  }
+  private storyModule: StoryModule;
 
   async start(): Promise<void> {
-    const { constants, extendedConfig } = await this.request.initGame();
-    this.constants = constants;
-    this.extendedConfig = extendedConfig;
+    this.game = await Game.create();
 
-    this.game = await this.request.loginUser();
-    this.offers = await this.request.getStandalonePaymentOffers();
-    this.friends = await this.request.loginFriendBar();
+    this.storyModule = new StoryModule(this.game);
 
     await this.play();
   }
 
   async play(): Promise<void> {
+    await this.game.sync();
 
+    await this.storyModule.handle();
   }
 }

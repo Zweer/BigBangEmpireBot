@@ -17,19 +17,17 @@ import { LoginFriendBarResponseDto } from './dto/pre/loginFriendBar.response.dto
 import { LoginFriendBarRequestDto } from './dto/pre/loginFriendBar.request.dto';
 import { SyncGameResponseDto } from './dto/pre/syncGame.response.dto';
 import { SyncGameRequestDto } from './dto/pre/syncGame.request.dto';
+import { StartQuestResponseDto } from './dto/story/startQuest.response.dto';
+import { StartQuestRequestDto } from './dto/story/startQuest.request.dto';
 
 export class BbeRequest {
-  private readonly config: BbeConfig;
+  private static readonly config: BbeConfig = new BbeConfig();
 
-  private userId: string;
-  private userSessionId: string;
-  private locale: string;
+  private static userId: string = '0';
+  private static userSessionId: string = '0';
+  private static locale: string;
 
-  constructor() {
-    this.config = new BbeConfig();
-  }
-
-  private async send<U, T extends {} = {}>(action: string, params: T = {} as any): Promise<U> {
+  private static async send<U, T extends {} = {}>(action: string, params: T = {} as any): Promise<U> {
     const url = this.config.requestUrl;
     const form = {
       action,
@@ -37,7 +35,7 @@ export class BbeRequest {
       user_id: this.userId,
       user_session_id: this.userSessionId,
       client_version: `html5_${BbeConfig.CURRENT_VERSION}`,
-      auth: BbeRequest.getAuth(action, this.userId),
+      auth: this.getAuth(action, this.userId),
       keep_active: true,
       device_type: 'web',
 
@@ -47,13 +45,13 @@ export class BbeRequest {
     const { data } = await axios.post<ResponseDto<U>>(url, querystring.stringify(form));
 
     if (data.error) {
-      throw new Error(data.error);
+      throw new Error(`${data.error} while requesting "${action}"`);
     }
 
     return data.data;
   }
 
-  async retrieveConfig(): Promise<ConfigWeb> {
+  static async retrieveConfig(): Promise<ConfigWeb> {
     const response = await axios.get(this.config.baseUrl);
 
     const matches = [...response.data.matchAll(/^\s*(?<name>\w+):\s"(?<value>(.*\?(?<hash>.+))|(.*))",?$/gm)];
@@ -65,11 +63,11 @@ export class BbeRequest {
       .filter((match) => !!match));
   }
 
-  async initEnvironment(): Promise<ConfigEnvironmentResponseDto> {
+  static async initEnvironment(): Promise<ConfigEnvironmentResponseDto> {
     return this.send<ConfigEnvironmentResponseDto>('initEnvironment');
   }
 
-  async initGame(config?: ConfigWeb): Promise<ConfigGameResponseDto> {
+  static async initGame(config?: ConfigWeb): Promise<ConfigGameResponseDto> {
     if (!config) {
       // eslint-disable-next-line no-param-reassign
       config = await this.retrieveConfig();
@@ -86,7 +84,7 @@ export class BbeRequest {
     });
   }
 
-  async loginUser(email?: string, password?: string): Promise<LoginResponseDto> {
+  static async loginUser(email?: string, password?: string): Promise<LoginResponseDto> {
     const data = await this.send<LoginResponseDto, LoginRequestDto>('loginUser', {
       email: email || this.config.email,
       password: password || this.config.password,
@@ -105,13 +103,13 @@ export class BbeRequest {
     return data;
   }
 
-  async getStandalonePaymentOffers(): Promise<GetStandalonePaymentOffersResponseDto> {
+  static async getStandalonePaymentOffers(): Promise<GetStandalonePaymentOffersResponseDto> {
     return this.send<GetStandalonePaymentOffersResponseDto, GetStandalonePaymentOffersRequestDto>('getStandalonePaymentOffers', {
       locale: this.locale,
     });
   }
 
-  async loginFriendBar(): Promise<LoginFriendBarResponseDto> {
+  static async loginFriendBar(): Promise<LoginFriendBarResponseDto> {
     return this.send<LoginFriendBarResponseDto, LoginFriendBarRequestDto>('loginFriendBar', {
       existing_user_id: this.userId,
       existing_session_id: this.userSessionId,
@@ -119,10 +117,14 @@ export class BbeRequest {
     });
   }
 
-  async syncGame(force: boolean = false): Promise<SyncGameResponseDto> {
+  static async syncGame(force: boolean = false): Promise<SyncGameResponseDto> {
     return this.send<SyncGameResponseDto, SyncGameRequestDto>('syncGame', {
       force_sync: force,
     });
+  }
+
+  static async startQuest(id: string): Promise<StartQuestResponseDto> {
+    return this.send<StartQuestResponseDto, StartQuestRequestDto>('startQuest', { quest_id: id });
   }
 
   private static getAuth(action: string, userId: string): string {

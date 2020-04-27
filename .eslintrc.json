@@ -3,6 +3,7 @@
   "plugins": ["@typescript-eslint"],
   "parser": "@typescript-eslint/parser",
   "rules": {
+    "camelcase": 0,
     "import/extensions": 0,
     "import/no-unresolved": 0,
     "import/prefer-default-export": 0,
