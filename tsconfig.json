@@ -3,6 +3,7 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "resolveJsonModule": true,
+    "esModuleInterop": true,
     "lib": ["es2019"],
     "removeComments": true,
     "moduleResolution": "node",

@@ -4,6 +4,7 @@ dist
 
 ### Config
 config/local*
+.env
 
 ### Node template
 # Logs
