@@ -1,4 +1,4 @@
-export interface ConfigGameRequestDto {
+export interface InitGameRequestDto {
   no_text: boolean;
   locale_version: string;
   locale: string;

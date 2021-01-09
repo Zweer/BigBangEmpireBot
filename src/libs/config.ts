@@ -1,4 +1,5 @@
 import { EnvSchema, EnvType, load } from 'ts-dotenv';
+import {createHash} from "crypto";
 
 const schema: EnvSchema = {
   AUTH_REGION: /^(de|uk|es|fr|gr|pl|tr|it|ru|br|us|int)\d$/,
@@ -8,7 +9,7 @@ const schema: EnvSchema = {
   TELEGRAM_ID: String,
 };
 
-type BasePathNames = 'request';
+type BasePathNames = 'request' | 'mainHtml';
 type BasePaths = { [key in BasePathNames]: string };
 
 type AssetPathNames = 'mainJs';
@@ -20,7 +21,8 @@ class Config {
   static BASE_URL: string = 'https://{REGION}.bigbangempire.com';
 
   static BASE_PATHS: BasePaths = {
-    request: '',
+    mainHtml: '',
+    request: 'request.php',
   };
 
   static ASSET_URL: string = 'https://bbe-static.akamaized.net';
@@ -28,6 +30,24 @@ class Config {
   static ASSET_PATHS: AssetPaths = {
     mainJs: 'assets/html5/BBE.min.js',
   };
+
+  versionRegExp: RegExp = /this.clientVersion ?= ?(\d+)/;
+
+  uniqueIdRegExp: RegExp = /uniqueId: ?"(\w+)",?/;
+
+  localeVersionRegExp: RegExp = /localeVersion: ?"(\w+)",?/;
+
+  localeRegExp: RegExp = /default_locale: ?"(\w+)",?/;
+
+  swfMainHashRegExp: RegExp = /urlSwfMain: ?".+\?(\w+)",?/;
+
+  swfCharacterHashRegExp: RegExp = /urlSwfCharacter: ?".+\?(\w+)",?/;
+
+  swfUiHashRegExp: RegExp = /urlSwfUi: ?".+\?(\w+)",?/;
+
+  swfMovieCoverHashRegExp: RegExp = /urlSwfMovieCover: ?".+\?(\w+)",?/;
+
+  private salt: string = 'bpHgj5214';
 
   constructor() {
     this.env = load(schema);
@@ -59,6 +79,10 @@ class Config {
   // eslint-disable-next-line class-methods-use-this
   getAssetUrl(path: AssetPathNames) {
     return `${Config.ASSET_URL}/${Config.ASSET_PATHS[path]}`;
+  }
+
+  getRequestSignature(action: string, userId: string) {
+    return createHash('md5').update(`${action}${this.salt}${userId}`).digest('hex');
   }
 }
 

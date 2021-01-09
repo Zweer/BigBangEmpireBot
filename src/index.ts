@@ -1,3 +1,5 @@
+import 'reflect-metadata';
+
 import { BigBangEmpire } from './bbe';
 
 new BigBangEmpire().start()

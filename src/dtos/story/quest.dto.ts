@@ -1,0 +1,20 @@
+export interface QuestDto {
+  id: number; // 3954435,
+  character_id: number; // 14424,
+  identifier: string; // 'quest_stage1_time1_f',
+  type: number; // 1,
+  stat: number; // 0,
+  stage: number; // 1,
+  level: number; // 1,
+  status: number; // 4,
+  duration_type: number; // 1,
+  duration_raw: number; // 60,
+  duration: number; // 60,
+  ts_complete: number; // 1609772197,
+  energy_cost: number; // 1,
+  fight_difficulty: number; // 0,
+  fight_npc_identifier: string; // '',
+  fight_battle_id: number; // 0,
+  won: number; // true,
+  rewards: string; // '{"coins":5,"xp":226,"honor":0,"premium":0,"statPoints":0,"item":0}'
+}
