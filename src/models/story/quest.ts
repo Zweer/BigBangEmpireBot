@@ -49,7 +49,7 @@ export class Quest {
 
   fight_battle_id: number; // 0,
 
-  won: number; // true,
+  won: boolean; // true,
 
   @Transform(stringToModel(Reward))
   rewards: Reward; // '{"coins":5,"xp":226,"honor":0,"premium":0,"statPoints":0,"item":0}'

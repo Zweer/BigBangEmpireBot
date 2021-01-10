@@ -44,6 +44,12 @@ import { DailyBonusReward } from '../models/bonus/dailyBonusReward';
 import { Voucher } from '../models/bonus/voucher';
 import { GetUserVoucherResponseDto } from '../dtos/bonus/getUserVoucher.response.dto';
 import { GetUserVoucherRequestDto } from '../dtos/bonus/getUserVoucher.request.dto';
+import { RedeemVoucherRequestDto } from '../dtos/bonus/redeemVoucher.request.dto';
+import { StartQuestRequestDto } from '../dtos/story/startQuest.request.dto';
+import { Quest } from '../models/story/quest';
+import { StartQuestResponseDto } from '../dtos/story/startQuest.response.dto';
+import { CheckForQuestCompleteResponseDto } from '../dtos/story/checkForQuestComplete.response.dto';
+import { CheckForQuestCompleteRequestDto } from '../dtos/story/checkForQuestComplete.request.dto';
 
 class Request {
   private version: number;
@@ -191,6 +197,16 @@ class Request {
     });
   }
 
+  async startQuest(id: number): Promise<void> {
+    await this.send<StartQuestResponseDto, StartQuestRequestDto>('startQuest', { quest_id: id });
+  }
+
+  async checkForQuestComplete(): Promise<Quest> {
+    const data = await this.send<CheckForQuestCompleteResponseDto, CheckForQuestCompleteRequestDto>('checkForQuestComplete', { check_event: true });
+
+    return plainToClass(Quest, data.quest);
+  }
+
   async improveCharacterStat(statType: number, skillValue: number = 1): Promise<void> {
     await this.send<LoginUserResponseDto, ImproveCharacterStatRequestDto>('improveCharacterStat', {
       stat_type: statType,
@@ -299,7 +315,7 @@ class Request {
   }
 
   async redeemVoucher(code: string): Promise<void> {
-    await this.send<LoginUserResponseDto>('redeemVoucher', { code });
+    await this.send<LoginUserResponseDto, RedeemVoucherRequestDto>('redeemVoucher', { code });
   }
 }
 
