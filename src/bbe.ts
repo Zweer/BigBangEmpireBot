@@ -10,6 +10,7 @@ import { Game } from './models/game';
 import { AbstractModule } from './modules/abstract.module';
 import { StoryModule } from './modules/story.module';
 import { CharacterModule } from './modules/character.module';
+import { DuelModule } from './modules/duel.module';
 
 export class BigBangEmpire {
   private constants: Constants;
@@ -48,6 +49,7 @@ export class BigBangEmpire {
     [
       StoryModule,
       CharacterModule,
+      DuelModule,
     ].map((Module) => this.modules.push(new Module(this.game, this.constants)));
   }
 

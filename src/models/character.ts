@@ -2,7 +2,7 @@ import { DateTime } from 'luxon';
 import { Transform } from 'class-transformer';
 
 import { Stats } from '../dtos/types';
-import {secondsToDateTime} from "../utils/typeConversions";
+import { secondsToDateTime } from '../utils/typeConversions';
 
 export class Character {
   id: number; // 14424,
@@ -135,6 +135,10 @@ export class Character {
 
   duel_stamina_cost: number; // 20,
 
+  hasDuelStamina(): boolean {
+    return this.duel_stamina >= this.duel_stamina_cost;
+  }
+
   ts_last_duel_enemies_refresh: number; // 0,
 
   current_work_offer_id: string; // '',
@@ -236,6 +240,8 @@ export class Character {
   storygoal: string; // '',
 
   guild_id: number; // 0,
+
+  hasGuild() { return this.guild_id !== 0; }
 
   guild_rank: number; // 0,
 

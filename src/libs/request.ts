@@ -23,7 +23,15 @@ import { ImproveCharacterStatRequestDto } from '../dtos/character/improveCharact
 
 import { Game } from '../models/game';
 import { Constants } from '../models/constants';
-import {CollectGoalRewardRequestDto} from "../dtos/character/collectGoalReward.request.dto";
+import { CollectGoalRewardRequestDto } from '../dtos/character/collectGoalReward.request.dto';
+import { GetDuelOpponentsResponseDto } from '../dtos/duel/getDuelOpponents.response.dto';
+import { Opponent } from '../models/duel/opponent';
+import { GetMissedDuelsNewResponseDto } from '../dtos/duel/getMissedDuelsNew.response.dto';
+import { GetMissedDuelsNewRequestDto } from '../dtos/duel/getMissedDuelsNew.request.dto';
+import { MissedDuel } from '../models/duel/missedDuel';
+import { StartDuelResponseDto } from '../dtos/duel/startDuel.response.dto';
+import { StartDuelRequestDto } from '../dtos/duel/startDuel.request.dto';
+import { Duel } from '../models/duel/duel';
 
 class Request {
   private version: number;
@@ -193,16 +201,49 @@ class Request {
     });
   }
 
-  async getDuelOpponents(): Promise<void> {
-    await this.send<LoginUserResponseDto>('getDuelOpponents');
+  async getDuelOpponents(): Promise<Opponent[]> {
+    const { opponents } = await this.send<GetDuelOpponentsResponseDto>('getDuelOpponents', {}, false);
+
+    return plainToClass(Opponent, opponents);
   }
 
-  async getMissedDuelsNew(): Promise<void> {
-    await this.send('getMissedDuelsNew', { history: false });
+  async getMissedDuelsNew(): Promise<MissedDuel[]> {
+    const data = await this.send<GetMissedDuelsNewResponseDto, GetMissedDuelsNewRequestDto>('getMissedDuelsNew', { history: false }, false);
+
+    const opponents = plainToClass(Opponent, data.missed_duel_opponents);
+    const missedDuels = plainToClass(MissedDuel, data.missed_duel_data);
+
+    missedDuels.forEach((missedDuel) => missedDuel.findOpponent(opponents));
+
+    return missedDuels;
   }
 
   async claimMissedDuelsRewards(): Promise<void> {
     await this.send('claimMissedDuelsRewards');
+  }
+
+  async startDuel(opponentId: number): Promise<Duel> {
+    const data = await this.send<StartDuelResponseDto, StartDuelRequestDto>('startDuel', {
+      character_id: opponentId,
+      use_premium: false,
+    });
+
+    const opponent = plainToClass(Opponent, data.opponent);
+    const duel = plainToClass(Duel, data.duel);
+
+    duel.opponent = opponent;
+
+    return duel;
+  }
+
+  async checkForDuelComplete(): Promise<void> {
+    await this.send('checkForDuelComplete');
+  }
+
+  async claimDuelRewards(): Promise<void> {
+    await this.send<LoginUserResponseDto>('claimDuelRewards', {
+      discard_item: false,
+    });
   }
 }
 
