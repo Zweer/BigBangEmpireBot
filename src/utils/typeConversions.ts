@@ -14,7 +14,13 @@ export function datetimeToDateTime(value: string | DateTime): DateTime {
 }
 
 export function stringToModel(model) {
-  return (value) => (typeof value === 'string' ? plainToClass(model, JSON.parse(value)) : value);
+  return function transformStringToModel(value: string | typeof model | object): typeof model {
+    if (value instanceof model) {
+      return value;
+    }
+
+    return plainToClass(model, typeof value === 'string' ? JSON.parse(value) : value);
+  };
 }
 
 export function objectOfObjectsToArrayOfModels(model, keyName = 'identifier') {
