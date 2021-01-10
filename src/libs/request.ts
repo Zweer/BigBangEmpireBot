@@ -110,7 +110,7 @@ class Request {
       const newData = data.data;
       const oldData = classToPlain(this.game);
       const mergedData = merge(oldData, newData);
-      this.game = plainToClass(Game, mergedData);
+      Object.assign(this.game, plainToClass(Game, mergedData));
     }
 
     return data.data;
