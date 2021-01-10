@@ -11,7 +11,6 @@ import { Stat } from '../types/stat';
 export class CharacterModule extends AbstractModule {
   async iteration() {
     await this.checkDailyLoginBonus();
-    await this.checkDailyBonus();
     await this.checkGoals();
     await this.checkAvailableStatPoints();
     await this.checkInventory();
@@ -24,27 +23,27 @@ export class CharacterModule extends AbstractModule {
     }
   }
 
-  private async checkDailyBonus() {
-    const dailyBonusRewards = await request.getDailyBonusRewardData();
-
-    console.log(dailyBonusRewards);
-  }
-
   private async checkGoals() {
-    await this.game.current_goal_values
+    const currentGoals = this.game.current_goal_values
       .map((currentGoal) => ({
         currentGoal,
         goal: this.constants.goals.find((goal) => goal.identifier === currentGoal.identifier),
         collectedGoal: this.game.collected_goals.find((collectedGoal) => collectedGoal.identifier === currentGoal.identifier) || { value: 0 },
-      }))
-      .filter(({ currentGoal, collectedGoal }) => currentGoal.current_value > collectedGoal.value)
+      }));
+
+    const currentGoalsFiltered = currentGoals
+      .filter(({ currentGoal, collectedGoal }) => currentGoal.current_value > collectedGoal.value);
+
+    const currentGoalsFilteredValues = currentGoalsFiltered
       .map(({ currentGoal, goal, collectedGoal }) => goal.values
-        .filter((goalValue) => goalValue.value > collectedGoal.value && goalValue.value < currentGoal.current_value)
+        .filter((goalValue) => goalValue.value > collectedGoal.value && goalValue.value <= currentGoal.current_value)
         .map((goalValue) => ({
           identifier: goal.identifier,
           value: goalValue.value,
         })))
-      .flat()
+      .flat();
+
+    await currentGoalsFilteredValues
       .reduce((promise, { identifier, value }) => promise
         .then(() => request.getGoalItemRewards(identifier))
         .then(() => request.collectGoalReward(identifier, value))
@@ -91,6 +90,8 @@ export class CharacterModule extends AbstractModule {
       if (item.stat_total <= equippedItem.stat_total) {
         log.info(`Selling item ${item.identifier} (${ItemType[item.type]} slot)\n- mine: ${equippedItem.stat_total}\n- bag: ${item.stat_total}`);
         await request.sellInventoryItem(item.id);
+
+        return;
       }
 
       if (!item.battle_skill && !equippedItem.battle_skill) {

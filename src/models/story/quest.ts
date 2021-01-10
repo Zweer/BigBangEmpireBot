@@ -1,8 +1,10 @@
+import { DateTime } from 'luxon';
 import { Transform } from 'class-transformer';
 
 import { Reward } from './reward';
 
-import { stringToModel } from '../../utils/typeConversions';
+import { secondsToDateTime, stringToModel } from '../../utils/typeConversions';
+import { QuestStatus } from '../../types/questStatus';
 
 export class Quest {
   id: number; // 3954435,
@@ -27,11 +29,13 @@ export class Quest {
 
   level: number; // 1,
 
-  status: number; // 4,
+  status: QuestStatus; // 4,
 
-  isStarted(): boolean { return this.status === 2; }
+  isCreated(): boolean { return this.status === QuestStatus.CREATED; }
 
-  isFinished(): boolean { return this.status === 4; }
+  isStarted(): boolean { return this.status === QuestStatus.STARTED; }
+
+  isFinished(): boolean { return this.status === QuestStatus.FINISHED; }
 
   duration_type: number; // 1,
 
@@ -39,7 +43,8 @@ export class Quest {
 
   duration: number; // 60,
 
-  ts_complete: number; // 1609772197,
+  @Transform(secondsToDateTime)
+  ts_complete: DateTime; // 1609772197,
 
   energy_cost: number; // 1,
 

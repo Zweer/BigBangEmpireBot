@@ -33,13 +33,20 @@ export class Game {
   @Type(() => Quest)
   quests: Quest[];
 
-  get questWithMinimumEnergy() {
-    const questWithMinEnergy = this.quests.sort(Quest.sort).reduce(
-      (minQuest, quest) => (minQuest.energy_cost < quest.energy_cost ? minQuest : quest),
-      { energy_cost: this.character.quest_energy },
-    );
+  get questWithMinimumEnergy(): Quest {
+    const questWithMinEnergy = this.quests
+      .filter((quest) => quest.isCreated())
+      .sort(Quest.sort)
+      .reduce(
+        (minQuest, quest) => (minQuest.energy_cost < quest.energy_cost ? minQuest : quest),
+        { energy_cost: this.character.quest_energy },
+      );
 
     return questWithMinEnergy instanceof Quest ? questWithMinEnergy : null;
+  }
+
+  get activeQuest(): Quest {
+    return this.quests.find((quest) => quest.status !== 1);
   }
 
   @Type(() => Item)

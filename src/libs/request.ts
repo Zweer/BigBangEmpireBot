@@ -197,8 +197,10 @@ class Request {
     });
   }
 
-  async startQuest(id: number): Promise<void> {
-    await this.send<StartQuestResponseDto, StartQuestRequestDto>('startQuest', { quest_id: id });
+  async startQuest(id: number): Promise<Quest> {
+    const data = await this.send<StartQuestResponseDto, StartQuestRequestDto>('startQuest', { quest_id: id });
+
+    return plainToClass(Quest, data.quest);
   }
 
   async checkForQuestComplete(): Promise<Quest> {
