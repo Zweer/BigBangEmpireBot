@@ -1,8 +1,8 @@
 import { DateTime } from 'luxon';
 import { Transform } from 'class-transformer';
 
-import { Stats } from '../dtos/types';
-import { secondsToDateTime } from '../utils/typeConversions';
+import { secondsToDateTime, stringToModel } from '../../utils/typeConversions';
+import { Stat } from '../../types/stat';
 
 export class Character {
   id: number; // 14424,
@@ -59,20 +59,20 @@ export class Character {
 
   stat_total_dodge_rating: number; // 10,
 
-  getLeastTotalStat(): Stats {
+  getLeastTotalStat(): Stat {
     if (Math.min(this.stat_total_stamina, this.stat_total_strength, this.stat_total_critical_rating, this.stat_total_dodge_rating) === this.stat_total_stamina) {
-      return Stats.STAMINA;
+      return Stat.STAMINA;
     }
 
     if (Math.min(this.stat_total_strength, this.stat_total_critical_rating, this.stat_total_dodge_rating) === this.stat_total_strength) {
-      return Stats.STRENGTH;
+      return Stat.STRENGTH;
     }
 
     if (Math.min(this.stat_total_critical_rating, this.stat_total_dodge_rating) === this.stat_total_critical_rating) {
-      return Stats.CRITICAL_RATING;
+      return Stat.CRITICAL_RATING;
     }
 
-    return Stats.DODGE_RATING;
+    return Stat.DODGE_RATING;
   }
 
   stat_weapon_damage: number; // 0,
@@ -344,7 +344,8 @@ export class Character {
 
   ts_last_slotmachine_refill: number; // 1609772112,
 
-  new_user_voucher_ids: string; // '[]',
+  @Transform(stringToModel(Number))
+  new_user_voucher_ids: number[]; // '[]',
 
   herobook_objectives_renewed_today: number; // 0,
 

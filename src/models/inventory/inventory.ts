@@ -1,3 +1,5 @@
+import { ItemType } from '../../types/itemType';
+
 export class Inventory {
   id: number; // 14339,
 
@@ -78,4 +80,78 @@ export class Inventory {
   shop_item9_id: number; // 1545666,
 
   item_set_data: number; // '',
+
+  getCharacterSlot(type: ItemType) {
+    switch (type) {
+      case ItemType.HEAD:
+        return this.head_item_id;
+
+      case ItemType.CHEST:
+        return this.chest_item_id;
+
+      case ItemType.BELT:
+        return this.chest_item_id;
+
+      case ItemType.LEGS:
+        return this.chest_item_id;
+
+      case ItemType.BOOTS:
+        return this.chest_item_id;
+
+      case ItemType.NECKLACE:
+        return this.chest_item_id;
+
+      case ItemType.RING:
+        return this.chest_item_id;
+
+      case ItemType.GADGET:
+        return this.chest_item_id;
+
+      case ItemType.MISSILES:
+        return this.chest_item_id;
+
+      case ItemType.PIERCING:
+        return this.chest_item_id;
+
+      default:
+        return null;
+    }
+  }
+
+  get bagSlots() {
+    return [
+      this.bag_item1_id,
+      this.bag_item2_id,
+      this.bag_item3_id,
+      this.bag_item4_id,
+      this.bag_item5_id,
+      this.bag_item6_id,
+      this.bag_item7_id,
+      this.bag_item8_id,
+      this.bag_item9_id,
+      this.bag_item10_id,
+      this.bag_item11_id,
+      this.bag_item12_id,
+      this.bag_item13_id,
+      this.bag_item14_id,
+      this.bag_item15_id,
+      this.bag_item16_id,
+      this.bag_item17_id,
+      this.bag_item18_id,
+    ];
+  }
+
+  get shopSlots() {
+    return [
+      this.shop_item1_id,
+      this.shop_item2_id,
+      this.shop_item3_id,
+      this.shop_item4_id,
+      this.shop_item5_id,
+      this.shop_item6_id,
+      this.shop_item7_id,
+      this.shop_item8_id,
+      this.shop_item9_id,
+    ];
+  }
 }

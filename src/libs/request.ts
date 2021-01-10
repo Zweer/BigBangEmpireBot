@@ -32,6 +32,18 @@ import { MissedDuel } from '../models/duel/missedDuel';
 import { StartDuelResponseDto } from '../dtos/duel/startDuel.response.dto';
 import { StartDuelRequestDto } from '../dtos/duel/startDuel.request.dto';
 import { Duel } from '../models/duel/duel';
+import { UseInventoryItemRequestDto } from '../dtos/inventory/useInventoryItem.request.dto';
+import { ItemType } from '../types/itemType';
+import { MoveInventoryItemRequestDto } from '../dtos/inventory/moveInventoryItem.request.dto';
+import { SellInventoryItemRequestDto } from '../dtos/inventory/sellInventoryItem.request.dto';
+import { GetDailyBonusRewardDataResponseDto } from '../dtos/bonus/getDailyBonusRewardData.response.dto';
+import { DailyBonusRewardData } from '../models/bonus/dailyBonusRewardData';
+import { ClaimDuelRewardsResponseDto } from '../dtos/duel/claimDuelRewards.response.dto';
+import { ClaimDuelRewardsRequestDto } from '../dtos/duel/claimDuelRewards.request.dto';
+import { DailyBonusReward } from '../models/bonus/dailyBonusReward';
+import { Voucher } from '../models/bonus/voucher';
+import { GetUserVoucherResponseDto } from '../dtos/bonus/getUserVoucher.response.dto';
+import { GetUserVoucherRequestDto } from '../dtos/bonus/getUserVoucher.request.dto';
 
 class Request {
   private version: number;
@@ -240,10 +252,54 @@ class Request {
     await this.send('checkForDuelComplete');
   }
 
-  async claimDuelRewards(): Promise<void> {
-    await this.send<LoginUserResponseDto>('claimDuelRewards', {
+  async claimDuelRewards(): Promise<DailyBonusReward> {
+    const data = await this.send<ClaimDuelRewardsResponseDto, ClaimDuelRewardsRequestDto>('claimDuelRewards', {
       discard_item: false,
     });
+
+    if (data.daily_bonus_reward) {
+      return plainToClass(DailyBonusReward, data.daily_bonus_reward);
+    }
+
+    return null;
+  }
+
+  async claimDailyBonusRewardReward(id: number): Promise<void> {
+    await this.send('claimDailyBonusRewardReward', {
+      id,
+      discard_item: false,
+    });
+  }
+
+  async useInventoryItem(itemId: number): Promise<void> {
+    await this.send<LoginUserResponseDto, UseInventoryItemRequestDto>('useInventoryItem', { item_id: itemId });
+  }
+
+  async moveInventoryItem(itemId: number, itemType: ItemType): Promise<void> {
+    await this.send<LoginUserResponseDto, MoveInventoryItemRequestDto>('moveInventoryItem', {
+      item_id: itemId,
+      target_slot: itemType,
+    });
+  }
+
+  async sellInventoryItem(itemId: number): Promise<void> {
+    await this.send<LoginUserResponseDto, SellInventoryItemRequestDto>('sellInventoryItem', { item_id: itemId });
+  }
+
+  async getDailyBonusRewardData(): Promise<DailyBonusRewardData[]> {
+    const data = await this.send<GetDailyBonusRewardDataResponseDto>('getDailyBonusRewardData');
+
+    return plainToClass(DailyBonusRewardData, Object.entries(data.daily_bonus_reward_data).map(([type, values]) => ({ type, values })));
+  }
+
+  async getUserVoucher(id: number): Promise<Voucher> {
+    const data = await this.send<GetUserVoucherResponseDto, GetUserVoucherRequestDto>('getUserVoucher', { id });
+
+    return plainToClass(Voucher, data.voucher);
+  }
+
+  async redeemVoucher(code: string): Promise<void> {
+    await this.send<LoginUserResponseDto>('redeemVoucher', { code });
   }
 }
 

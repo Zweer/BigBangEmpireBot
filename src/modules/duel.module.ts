@@ -41,7 +41,11 @@ export class DuelModule extends AbstractModule {
       await request.checkForDuelComplete();
 
       // eslint-disable-next-line no-await-in-loop
-      await request.claimDuelRewards();
+      const reward = await request.claimDuelRewards();
+      if (reward) {
+        // eslint-disable-next-line no-await-in-loop
+        await request.claimDailyBonusRewardReward(reward.id);
+      }
     }
   }
 }

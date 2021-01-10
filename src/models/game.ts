@@ -2,8 +2,8 @@ import { Transform, Type } from 'class-transformer';
 
 import { Locales } from '../dtos/types';
 
-import { User } from './user';
-import { Character } from './character';
+import { User } from './profile/user';
+import { Character } from './profile/character';
 import { Inventory } from './inventory/inventory';
 import { Bank } from './inventory/bank';
 import { Quest } from './story/quest';
@@ -44,6 +44,10 @@ export class Game {
 
   @Type(() => Item)
   items: Item[];
+
+  getItem(itemId: number): Item {
+    return this.items.find((item) => item.id === itemId);
+  }
 
   completed_story_dungeons: [];
 
