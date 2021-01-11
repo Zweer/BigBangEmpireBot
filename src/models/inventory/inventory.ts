@@ -90,28 +90,28 @@ export class Inventory {
         return this.chest_item_id;
 
       case ItemType.BELT:
-        return this.chest_item_id;
+        return this.belt_item_id;
 
       case ItemType.LEGS:
-        return this.chest_item_id;
+        return this.legs_item_id;
 
       case ItemType.BOOTS:
-        return this.chest_item_id;
+        return this.boots_item_id;
 
       case ItemType.NECKLACE:
-        return this.chest_item_id;
+        return this.necklace_item_id;
 
       case ItemType.RING:
-        return this.chest_item_id;
+        return this.ring_item_id;
 
       case ItemType.GADGET:
-        return this.chest_item_id;
+        return this.gadget_item_id;
 
       case ItemType.MISSILES:
-        return this.chest_item_id;
+        return this.missiles_item_id;
 
       case ItemType.PIERCING:
-        return this.chest_item_id;
+        return this.piercing_item_id;
 
       default:
         return null;

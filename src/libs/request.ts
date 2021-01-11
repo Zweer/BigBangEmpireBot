@@ -50,6 +50,7 @@ import { Quest } from '../models/story/quest';
 import { StartQuestResponseDto } from '../dtos/story/startQuest.response.dto';
 import { CheckForQuestCompleteResponseDto } from '../dtos/story/checkForQuestComplete.response.dto';
 import { CheckForQuestCompleteRequestDto } from '../dtos/story/checkForQuestComplete.request.dto';
+import { BuyShopItemRequestDto } from '../dtos/inventory/buyShopItem.request.dto';
 
 class Request {
   private version: number;
@@ -302,6 +303,13 @@ class Request {
 
   async sellInventoryItem(itemId: number): Promise<void> {
     await this.send<LoginUserResponseDto, SellInventoryItemRequestDto>('sellInventoryItem', { item_id: itemId });
+  }
+
+  async buyShopItem(itemId: number, itemType: ItemType): Promise<void> {
+    await this.send<LoginUserResponseDto, BuyShopItemRequestDto>('buyShopItem', {
+      item_id: itemId,
+      target_slot: itemType,
+    });
   }
 
   async getDailyBonusRewardData(): Promise<DailyBonusRewardData[]> {

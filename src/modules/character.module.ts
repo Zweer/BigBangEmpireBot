@@ -3,8 +3,6 @@ import { AbstractModule } from './abstract.module';
 import log from '../libs/log';
 import request from '../libs/request';
 
-import { Item } from '../models/inventory/item';
-
 import { ItemType } from '../types/itemType';
 import { Stat } from '../types/stat';
 
@@ -14,6 +12,7 @@ export class CharacterModule extends AbstractModule {
     await this.checkGoals();
     await this.checkAvailableStatPoints();
     await this.checkInventory();
+    await this.checkShop();
     await this.checkVouchers();
   }
 
@@ -67,7 +66,7 @@ export class CharacterModule extends AbstractModule {
         return;
       }
 
-      const item: Item = this.game.getItem(itemId);
+      const item = this.game.getItem(itemId);
       if (item.type === ItemType.MISSILES) {
         // do nothing
         return;
@@ -86,7 +85,7 @@ export class CharacterModule extends AbstractModule {
         return;
       }
 
-      const equippedItem: Item = this.game.getItem(equippedItemId);
+      const equippedItem = this.game.getItem(equippedItemId);
       if (item.stat_total <= equippedItem.stat_total) {
         log.info(`Selling item ${item.identifier} (${ItemType[item.type]} slot)\n- mine: ${equippedItem.stat_total}\n- bag: ${item.stat_total}`);
         await request.sellInventoryItem(item.id);
@@ -97,6 +96,37 @@ export class CharacterModule extends AbstractModule {
       if (!item.battle_skill && !equippedItem.battle_skill) {
         log.info(`Equipping item ${item.identifier} (better ${ItemType[item.type]} slot)`);
         await request.moveInventoryItem(item.id, item.type);
+      }
+    }, Promise.resolve());
+  }
+
+  private async checkShop() {
+    await this.game.inventory.shopSlots.reduce(async (promise, itemId) => {
+      await promise;
+
+      if (itemId === 0) {
+        return;
+      }
+
+      const item = this.game.getItem(itemId);
+      let toBuy = false;
+
+      if (item.type === ItemType.MISSILES) {
+        toBuy = true;
+      }
+
+      const equippedItemId = this.game.inventory.getCharacterSlot(item.type);
+      if (equippedItemId === 0) {
+        toBuy = true;
+      }
+
+      const equippedItem = this.game.getItem(equippedItemId);
+      if (item.stat_total > (equippedItem?.stat_total || 0) || item.battle_skill) {
+        toBuy = true;
+      }
+
+      if (toBuy && !item.premium_item && item.buy_price < this.game.character.game_currency) {
+        await request.buyShopItem(itemId, item.type);
       }
     }, Promise.resolve());
   }
